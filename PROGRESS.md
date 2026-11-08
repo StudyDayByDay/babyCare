@@ -9,6 +9,7 @@
 - `app.wxss` 用 CSS 变量建立颜色/字号/间距/圆角/阴影/点击区令牌；`.elder` 只覆盖变量。
 - 首页改成紫色渐变 Hero：大号「第 N 天」、深色玻璃统计、数字滚动计数；距上次改成三等分图标卡；快捷卡增加箭头和按压回弹。
 - 加了整套克制动效：页面/卡片分层入场、数字滚动、用药金点呼吸、进度条高光、底栏图标弹跳、空状态浮动、底部面板滑入、骨架 shimmer。
+- 新增小程序头像：`design/app-icon.svg`（源文件）和 1024/512/256/144 PNG；上传到微信公众平台用 `design/app-icon-144.png`。
 - 统一按钮、卡片、输入框、选择框（带「›」）、chips、分段控件、数字卡、快捷卡、列表行、时间线、状态胶囊、进度条、骨架屏、固定保存条。
 - 新增 `components/empty`（统一空状态）和 `components/sheet`（用药「…」次操作）。
 - 底栏改为选中/未选两套图标；图标由 `scripts/make-icons.js` 按新分类色重新生成（128px）。
@@ -36,7 +37,7 @@
 
 1. 云函数已能调用。集合权限改成「所有用户不可读写」需要在云开发控制台逐个集合保存，代码里改不了。
 2. `medRemind` 若还没上传，用药服务通知不会发出；小程序内的用药清单不受影响。
-3. 订阅消息模板 ID 填到 `miniprogram/config.js` 和 `cloudfunctions/medRemind/remind.config.js`。模板字段默认是 `thing1`、`time2`、`thing3`。开发阶段把 `miniprogramState` 改成 `developer`。
+3. 订阅消息模板 ID 已写入 `miniprogram/config.js` 和 `cloudfunctions/medRemind/remind.config.js`。字段是 `thing1`（药品）、`time2`（用药时间）、`thing3`（备注）。`miniprogramState` 已改为 `formal`。改完后需重新上传 `medRemind` 才会生效。
 4. 真机看：大字模式、夜奶记一笔、一天 3 次一次 2 颗、邀请码加入、导出 xlsx。
 
 ## 本轮 UI 改版待验收

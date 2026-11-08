@@ -1,62 +1,144 @@
 <view class="page tab {{elder ? 'elder' : ''}}">
-  <view class="card" wx:if="{{baby}}">
-    <view class="muted">当前宝宝</view>
-    <view class="h1">{{baby.nickname}}</view>
-    <view class="muted">{{baby.birthday}} {{baby.gender}}</view>
-    <button class="btn btn-ghost btn-block" bindtap="editBaby">修改档案</button>
-  </view>
-  <view class="card" wx:else>
-    <view class="h2">还没有宝宝档案</view>
-    <button class="btn btn-primary btn-block" bindtap="editBaby">建立档案</button>
-  </view>
-
-  <view class="card" wx:if="{{babies.length > 1}}">
-    <view class="h2">切换宝宝</view>
-    <view class="chips">
-      <view class="chip {{baby._id === item._id ? 'on' : ''}}" wx:for="{{babies}}" wx:key="_id" data-id="{{item._id}}" bindtap="onSwitch">{{item.nickname}}</view>
+  <block wx:if="{{loading}}">
+    <view class="skeleton-card">
+      <view class="skeleton-line w-40"></view>
+      <view class="skeleton-line"></view>
     </view>
+    <view class="skeleton-card">
+      <view class="skeleton-line"></view>
+      <view class="skeleton-line w-70"></view>
+    </view>
+  </block>
+
+  <view wx:elif="{{pageError}}" class="card error-state">
+    <view class="heading">还没连上云</view>
+    <view class="caption mt-1">{{pageError}}</view>
+    <button class="btn btn-primary btn-block" hover-class="is-pressed" bindtap="retry">再试一次</button>
   </view>
 
-  <view class="card">
-    <view class="label">我是</view>
-    <picker mode="selector" range="{{roles}}" value="{{roleIndex}}" bindchange="onRole">
-      <view class="input">{{roles[roleIndex]}}</view>
-    </picker>
-    <view class="gap"></view>
-    <view class="label">怎么称呼（可不填）</view>
-    <input class="input" value="{{displayName}}" bindinput="onName" bindblur="onNameBlur" placeholder="例如：王阿姨" />
-    <view class="row" style="margin-top: 28rpx;">
-      <view>
-        <view class="h2">大字模式</view>
-        <view class="muted">按钮和字更大，给老人用</view>
+  <block wx:else>
+    <view class="card" wx:if="{{baby}}">
+      <view class="page-head">
+        <view class="page-head-main">
+          <view class="caption">当前宝宝</view>
+          <view class="display mt-1">{{baby.nickname}}</view>
+          <view class="caption mt-1">{{baby.birthday}} · {{baby.gender}}</view>
+        </view>
+        <view class="avatar lg">{{nicknameInitial}}</view>
       </view>
-      <switch checked="{{elder}}" color="#3E6B58" bindchange="onElder" />
+      <button class="btn btn-secondary btn-block" hover-class="is-pressed" bindtap="editBaby">编辑档案</button>
     </view>
-  </view>
+    <view class="card" wx:else>
+      <empty
+        icon="baby"
+        tone="sleep"
+        title="还没有宝宝档案"
+        hint="先记下出生日，之后所有记录都围绕这个宝宝。"
+        action-text="建立档案"
+        elder="{{elder}}"
+        bind:action="editBaby"
+      />
+    </view>
 
-  <view class="card">
-    <view class="menu" bindtap="go" data-url="/pages/family/index">
-      <view class="menu-main"><view class="bubble sm tone-sleep"><icon name="family" size="{{40}}" elder="{{elder}}" /></view>家庭成员</view>
-      <text class="muted">邀请码</text>
+    <view class="card" wx:if="{{babies.length > 1}}">
+      <view class="heading mb-2">切换宝宝</view>
+      <view class="chips">
+        <view
+          class="chip {{baby._id === item._id ? 'on' : ''}}"
+          wx:for="{{babies}}"
+          wx:key="_id"
+          data-id="{{item._id}}"
+          bindtap="onSwitch"
+          hover-class="is-pressed"
+        >{{item.nickname}}</view>
+      </view>
     </view>
-    <view class="menu" bindtap="go" data-url="/pages/med-list/index">
-      <view class="menu-main"><view class="bubble sm tone-med"><icon name="med" size="{{40}}" elder="{{elder}}" /></view>用药</view>
-      <text class="muted">按顿提醒</text>
-    </view>
-    <view class="menu" bindtap="go" data-url="/pages/growth/index">
-      <view class="menu-main"><view class="bubble sm tone-sleep"><icon name="growth" size="{{40}}" elder="{{elder}}" /></view>身高体重</view>
-      <text class="muted">儿保时记</text>
-    </view>
-    <view class="menu" bindtap="go" data-url="/pages/vaccine/index">
-      <view class="menu-main"><view class="bubble sm tone-feed"><icon name="vaccine" size="{{40}}" elder="{{elder}}" /></view>疫苗</view>
-      <text class="muted">核对接种本</text>
-    </view>
-    <view class="menu" bindtap="go" data-url="/pages/export/index">
-      <view class="menu-main"><view class="bubble sm tone-note"><icon name="export" size="{{40}}" elder="{{elder}}" /></view>导出打印</view>
-      <text class="muted">表格</text>
-    </view>
-    <button class="btn btn-line btn-block" bindtap="addBaby">再加一个宝宝</button>
-  </view>
 
-  <view class="muted">只帮你记账、提醒和导出。不算剂量，也不判断正不正常。{{templateHint}}</view>
+    <view class="card">
+      <view class="field">
+        <text class="label">我是</text>
+        <picker mode="selector" range="{{roles}}" value="{{roleIndex}}" bindchange="onRole">
+          <view class="input picker-face">{{roles[roleIndex]}}<text class="chev">›</text></view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="label">怎么称呼（可不填）</text>
+        <input
+          class="input"
+          value="{{displayName}}"
+          maxlength="20"
+          bindinput="onName"
+          bindblur="onNameBlur"
+          placeholder="例如：王阿姨"
+          placeholder-class="input-ph"
+        />
+      </view>
+      <view class="switch-row">
+        <view class="switch-copy">
+          <view class="heading">大字模式</view>
+          <view class="caption">按钮和字更大，给老人用</view>
+        </view>
+        <switch checked="{{elder}}" color="{{theme.brandStrong}}" bindchange="onElder" />
+      </view>
+      <view class="caption mt-2">改动会自动保存。</view>
+    </view>
+
+    <view class="card">
+      <view>
+        <view class="list-row delay-1" bindtap="go" data-url="/pages/family/index" hover-class="is-pressed">
+          <view class="list-main">
+            <view class="bubble sm tone-family"><icon name="family" size="{{44}}" elder="{{elder}}" /></view>
+            <view class="list-text">
+              <view class="list-title">家庭成员</view>
+              <view class="list-sub">邀请码</view>
+            </view>
+            <text class="list-chev">›</text>
+          </view>
+        </view>
+        <view class="list-row delay-2" bindtap="go" data-url="/pages/med-list/index" hover-class="is-pressed">
+          <view class="list-main">
+            <view class="bubble sm tone-med"><icon name="med" size="{{44}}" elder="{{elder}}" /></view>
+            <view class="list-text">
+              <view class="list-title">用药</view>
+              <view class="list-sub">按顿提醒</view>
+            </view>
+            <text class="list-chev">›</text>
+          </view>
+        </view>
+        <view class="list-row delay-3" bindtap="go" data-url="/pages/growth/index" hover-class="is-pressed">
+          <view class="list-main">
+            <view class="bubble sm tone-growth"><icon name="growth" size="{{44}}" elder="{{elder}}" /></view>
+            <view class="list-text">
+              <view class="list-title">身高体重</view>
+              <view class="list-sub">儿保时记</view>
+            </view>
+            <text class="list-chev">›</text>
+          </view>
+        </view>
+        <view class="list-row delay-4" bindtap="go" data-url="/pages/vaccine/index" hover-class="is-pressed">
+          <view class="list-main">
+            <view class="bubble sm tone-vaccine"><icon name="vaccine" size="{{44}}" elder="{{elder}}" /></view>
+            <view class="list-text">
+              <view class="list-title">疫苗</view>
+              <view class="list-sub">核对接种本</view>
+            </view>
+            <text class="list-chev">›</text>
+          </view>
+        </view>
+        <view class="list-row delay-5" bindtap="go" data-url="/pages/export/index" hover-class="is-pressed">
+          <view class="list-main">
+            <view class="bubble sm tone-export"><icon name="export" size="{{44}}" elder="{{elder}}" /></view>
+            <view class="list-text">
+              <view class="list-title">导出打印</view>
+              <view class="list-sub">给医生看的表格</view>
+            </view>
+            <text class="list-chev">›</text>
+          </view>
+        </view>
+      </view>
+      <button class="btn btn-secondary btn-block mt-3" hover-class="is-pressed" bindtap="addBaby">再加一个宝宝</button>
+    </view>
+
+    <view class="footnote">只帮你记账、提醒和导出。不算剂量，也不判断正不正常。{{templateHint}}</view>
+  </block>
 </view>

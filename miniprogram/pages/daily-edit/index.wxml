@@ -1,68 +1,168 @@
-<view class="page {{elder ? 'elder' : ''}}">
-  <picker mode="date" value="{{day}}" bindchange="onDay">
+<view class="page form {{elder ? 'elder' : ''}}">
+  <block wx:if="{{loading}}">
+    <view class="skeleton-card">
+      <view class="skeleton-line w-40"></view>
+      <view class="skeleton-line"></view>
+    </view>
+    <view class="skeleton-card">
+      <view class="skeleton-line w-70"></view>
+      <view class="skeleton-line"></view>
+    </view>
+  </block>
+
+  <view wx:elif="{{pageError}}" class="card error-state">
+    <view class="heading">还没连上云</view>
+    <view class="caption mt-1">{{pageError}}</view>
+    <button class="btn btn-primary btn-block" hover-class="is-pressed" bindtap="retry">再试一次</button>
+  </view>
+
+  <block wx:else>
+    <picker mode="date" value="{{day}}" bindchange="onDay">
+      <view class="card">
+        <view class="row">
+          <view>
+            <view class="caption">这一天</view>
+            <view class="heading mt-1">{{pretty}}</view>
+          </view>
+          <text class="chev">›</text>
+        </view>
+      </view>
+    </picker>
+
     <view class="card">
-      <view class="muted">这一天</view>
-      <view class="h1">{{day}}</view>
-    </view>
-  </picker>
-  <view class="card">
-    <view class="field">
-      <text class="label">精神状态</text>
-      <view class="chips">
-        <view class="chip {{mood === item ? 'on' : ''}}" wx:for="{{moods}}" wx:key="*this" data-value="{{item}}" bindtap="onMood">{{item}}</view>
+      <view class="heading mb-3">今天的状态</view>
+      <view class="field">
+        <text class="label">精神状态</text>
+        <view class="chips">
+          <view
+            class="chip {{mood === item ? 'on' : ''}}"
+            wx:for="{{moods}}"
+            wx:key="*this"
+            data-value="{{item}}"
+            bindtap="onMood"
+            hover-class="is-pressed"
+          >{{item}}</view>
+        </view>
       </view>
     </view>
-    <view class="field">
-      <text class="label">补剂</text>
-      <view class="muted">勾选表示今天吃过，不代表该不该吃。</view>
-      <view class="chips">
-        <view class="chip {{supplements.vd ? 'on' : ''}}" data-key="vd" bindtap="onSup">维生素D</view>
-        <view class="chip {{supplements.ad ? 'on' : ''}}" data-key="ad" bindtap="onSup">AD</view>
-        <view class="chip {{supplements.custom[item] ? 'on' : ''}}" wx:for="{{customNames}}" wx:key="*this" data-key="{{item}}" bindtap="onCustom">{{item}}</view>
+
+    <view class="card">
+      <view class="heading mb-3">今天吃了</view>
+      <view class="field">
+        <view class="chips">
+          <view class="chip {{supplements.vd ? 'on' : ''}}" data-key="vd" bindtap="onSup" hover-class="is-pressed">维生素D</view>
+          <view class="chip {{supplements.ad ? 'on' : ''}}" data-key="ad" bindtap="onSup" hover-class="is-pressed">AD</view>
+          <view
+            class="chip {{supplements.custom[item] ? 'on' : ''}}"
+            wx:for="{{customNames}}"
+            wx:key="*this"
+            data-key="{{item}}"
+            bindtap="onCustom"
+            hover-class="is-pressed"
+          >{{item}}</view>
+        </view>
+        <view class="muted mt-1">勾选表示今天吃过，不代表该不该吃。</view>
       </view>
     </view>
+
+    <view class="card">
+      <view class="heading mb-3">今天做了</view>
+      <view class="field">
+        <text class="label">护理</text>
+        <view class="chips">
+          <view
+            class="chip {{care[item.key] ? 'on' : ''}}"
+            wx:for="{{careItems}}"
+            wx:key="key"
+            data-key="{{item.key}}"
+            bindtap="onCare"
+            hover-class="is-pressed"
+          >{{item.label}}</view>
+        </view>
+      </view>
+      <view class="field" wx:if="{{showEdu}}">
+        <text class="label">早教打卡</text>
+        <view class="chips">
+          <view
+            class="chip {{earlyEdu[item.key] ? 'on' : ''}}"
+            wx:for="{{eduItems}}"
+            wx:key="key"
+            data-key="{{item.key}}"
+            bindtap="onEdu"
+            hover-class="is-pressed"
+          >{{item.label}}</view>
+        </view>
+      </view>
+      <view class="field" wx:if="{{showTummy}}">
+        <text class="label">俯卧</text>
+        <stepper elder="{{elder}}" value="{{tummyMin}}" min="{{0}}" max="{{180}}" step="{{1}}" unit="分钟" bind:change="onTummy" />
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{showNewborn}}">
+      <view class="heading mb-3">看到的情况</view>
+      <view class="field">
+        <text class="label">黄疸</text>
+        <view class="chips">
+          <view
+            class="chip {{jaundice === item ? 'on' : ''}}"
+            wx:for="{{jaundiceOptions}}"
+            wx:key="*this"
+            data-value="{{item}}"
+            bindtap="onJaundice"
+            hover-class="is-pressed"
+          >{{item}}</view>
+        </view>
+      </view>
+      <view class="field">
+        <text class="label">脐带</text>
+        <view class="chips">
+          <view
+            class="chip {{umbilical === item ? 'on' : ''}}"
+            wx:for="{{umbilicalOptions}}"
+            wx:key="*this"
+            data-value="{{item}}"
+            bindtap="onUmbilical"
+            hover-class="is-pressed"
+          >{{item}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="heading mb-3">想说的</view>
+      <view class="field">
+        <text class="label">天气（可不填）</text>
+        <input
+          class="input"
+          value="{{weather}}"
+          bindinput="onWeather"
+          placeholder="晴"
+          placeholder-class="input-ph"
+        />
+      </view>
+      <view class="field">
+        <text class="label">今天的话</text>
+        <textarea
+          class="textarea"
+          value="{{note}}"
+          bindinput="onNote"
+          placeholder="想留的纪念，也可以空着"
+          placeholder-class="input-ph"
+        />
+      </view>
+    </view>
+
+    <view class="caption text-center">点保存才会记下。</view>
+  </block>
+
+  <view class="save-bar" wx:if="{{!loading && !pageError}}">
+    <button
+      class="btn btn-primary btn-block"
+      hover-class="is-pressed"
+      loading="{{saving}}"
+      disabled="{{saving}}"
+      bindtap="save"
+    >保存这一天</button>
   </view>
-  <view class="card">
-    <view class="field">
-      <text class="label">护理</text>
-      <view class="chips">
-        <view class="chip {{care[item.key] ? 'on' : ''}}" wx:for="{{careItems}}" wx:key="key" data-key="{{item.key}}" bindtap="onCare">{{item.label}}</view>
-      </view>
-    </view>
-    <view class="field" wx:if="{{showEdu}}">
-      <text class="label">早教打卡</text>
-      <view class="chips">
-        <view class="chip {{earlyEdu[item.key] ? 'on' : ''}}" wx:for="{{eduItems}}" wx:key="key" data-key="{{item.key}}" bindtap="onEdu">{{item.label}}</view>
-      </view>
-    </view>
-    <view class="field" wx:if="{{showTummy}}">
-      <text class="label">俯卧</text>
-      <stepper elder="{{elder}}" value="{{tummyMin}}" min="{{0}}" max="{{180}}" step="{{1}}" unit="分钟" bind:change="onTummy" />
-    </view>
-  </view>
-  <view class="card" wx:if="{{showNewborn}}">
-    <view class="field">
-      <text class="label">黄疸（看到的情况）</text>
-      <view class="chips">
-        <view class="chip {{jaundice === item ? 'on' : ''}}" wx:for="{{jaundiceOptions}}" wx:key="*this" data-value="{{item}}" bindtap="onJaundice">{{item}}</view>
-      </view>
-    </view>
-    <view class="field">
-      <text class="label">脐带</text>
-      <view class="chips">
-        <view class="chip {{umbilical === item ? 'on' : ''}}" wx:for="{{umbilicalOptions}}" wx:key="*this" data-value="{{item}}" bindtap="onUmbilical">{{item}}</view>
-      </view>
-    </view>
-  </view>
-  <view class="card">
-    <view class="field">
-      <text class="label">天气（可不填）</text>
-      <input class="input" value="{{weather}}" bindinput="onWeather" placeholder="晴" />
-    </view>
-    <view class="field">
-      <text class="label">今天的话</text>
-      <textarea class="textarea" value="{{note}}" bindinput="onNote" placeholder="想留的纪念，也可以空着" />
-    </view>
-  </view>
-  <button class="btn btn-primary btn-block" loading="{{saving}}" disabled="{{saving}}" bindtap="save">保存这一天</button>
 </view>

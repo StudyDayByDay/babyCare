@@ -1,32 +1,119 @@
 <view class="page tab {{elder ? 'elder' : ''}}">
-  <view class="card" wx:if="{{needBaby}}">
-    <view class="h1">先建立宝宝档案</view>
-    <button class="btn btn-primary btn-block" bindtap="goBaby">去填写</button>
+  <block wx:if="{{loading}}">
+    <view class="skeleton-card">
+      <view class="skeleton-line w-40"></view>
+      <view class="skeleton-line"></view>
+    </view>
+    <view class="skeleton-card">
+      <view class="skeleton-line w-70"></view>
+      <view class="skeleton-line"></view>
+      <view class="skeleton-line"></view>
+    </view>
+  </block>
+
+  <view wx:elif="{{pageError}}" class="card error-state">
+    <view class="heading">还没连上云</view>
+    <view class="caption mt-1">{{pageError}}</view>
+    <button class="btn btn-primary btn-block" hover-class="is-pressed" bindtap="retry">再试一次</button>
   </view>
+
+  <view wx:elif="{{needBaby}}" class="card">
+    <empty
+      icon="baby"
+      tone="sleep"
+      title="先建立宝宝档案"
+      hint="有了出生日，才能按阶段汇总。"
+      action-text="去填写"
+      elder="{{elder}}"
+      bind:action="goBaby"
+    />
+  </view>
+
   <block wx:else>
-    <view class="chips">
-      <view class="chip {{span === 7 ? 'on' : ''}}" data-span="7" bindtap="onSpan">近 7 天</view>
-      <view class="chip {{span === 30 ? 'on' : ''}}" data-span="30" bindtap="onSpan">近 30 天</view>
+    <view class="segmented mb-3">
+      <view
+        class="segmented-item {{span === 7 ? 'on' : ''}}"
+        data-span="7"
+        bindtap="onSpan"
+        hover-class="is-pressed"
+      >近 7 天</view>
+      <view
+        class="segmented-item {{span === 30 ? 'on' : ''}}"
+        data-span="30"
+        bindtap="onSpan"
+        hover-class="is-pressed"
+      >近 30 天</view>
     </view>
-    <view class="muted">这是合计，不判断正不正常。</view>
-    <view class="tiles" wx:if="{{totals}}">
-      <view class="tile"><view class="tile-num">{{totals.feedCount}}次</view><view class="tile-label">喂养</view></view>
-      <view class="tile"><view class="tile-num">{{totals.formulaMl}}</view><view class="tile-label">配方毫升</view></view>
-      <view class="tile"><view class="tile-num">{{totals.breastMin}}</view><view class="tile-label">亲喂分钟</view></view>
-      <view class="tile"><view class="tile-num">{{totals.poopCount}}次</view><view class="tile-label">大便</view></view>
-      <view class="tile"><view class="tile-num">{{sleepText}}</view><view class="tile-label">睡眠</view></view>
-      <view class="tile"><view class="tile-num">{{totals.medTaken}}/{{totals.medTotal}}</view><view class="tile-label">用药已吃</view></view>
-    </view>
-    <view class="card">
-      <view class="h2">每天</view>
-      <view wx:for="{{days}}" wx:key="day" data-day="{{item.day}}" bindtap="openDay" style="padding: 16rpx 0; border-top: 1rpx solid #EFE7DE;">
-        <view class="row">
-          <text>{{item.day}}</text>
-          <text class="muted">喂 {{item.feedCount}} · 便 {{item.poopCount}}</text>
+    <view class="caption mb-3">这是合计，不判断正不正常。</view>
+
+    <view class="card" wx:if="{{hasData}}">
+      <view class="stat-grid cols-3">
+        <view class="stat-tile" style="animation-delay: 80ms">
+          <view class="stat-value">{{totals.feedCount}}次</view>
+          <view class="stat-label">喂养</view>
         </view>
-        <view class="bar"><view class="bar-in" style="width: {{item.feedWidth}}%;"></view></view>
+        <view class="stat-tile" style="animation-delay: 115ms">
+          <view class="stat-value">{{totals.formulaMl}}</view>
+          <view class="stat-label">配方毫升</view>
+        </view>
+        <view class="stat-tile" style="animation-delay: 150ms">
+          <view class="stat-value">{{totals.breastMin}}</view>
+          <view class="stat-label">亲喂分钟</view>
+        </view>
+        <view class="stat-tile" style="animation-delay: 185ms">
+          <view class="stat-value">{{totals.poopCount}}次</view>
+          <view class="stat-label">大便</view>
+        </view>
+        <view class="stat-tile" style="animation-delay: 220ms">
+          <view class="stat-value">{{sleepText}}</view>
+          <view class="stat-label">睡眠</view>
+        </view>
+        <view class="stat-tile" style="animation-delay: 255ms">
+          <view class="stat-value">{{totals.medTaken}}/{{totals.medTotal}}</view>
+          <view class="stat-label">用药已吃</view>
+        </view>
       </view>
     </view>
-    <button class="btn btn-ghost btn-block" bindtap="goExport">导出给医生看</button>
+
+    <view class="card" wx:else>
+      <empty
+        icon="stats"
+        tone="solid"
+        title="这段时间还没有记录"
+        hint="先记几天，再回来看看合计。"
+        action-text="去记一笔"
+        elder="{{elder}}"
+        bind:action="goRecord"
+      />
+    </view>
+
+    <view class="card" wx:if="{{days.length}}">
+      <view class="section-head">
+        <view class="section-title">每天</view>
+        <view class="sub">喂奶次数</view>
+      </view>
+      <view
+        class="list-row"
+        wx:for="{{days}}"
+        wx:key="day"
+        data-day="{{item.day}}"
+        bindtap="openDay"
+        hover-class="is-pressed"
+        style="animation-delay: {{index * 22 + 160}}ms"
+      >
+        <view class="list-text">
+          <view class="row">
+            <text class="list-title">{{item.pretty}}</text>
+            <text class="sub">喂 {{item.feedCount}} · 便 {{item.poopCount}}</text>
+          </view>
+          <view class="progress mt-1">
+            <view class="progress-fill brand" style="width: {{item.feedWidth}}%;"></view>
+          </view>
+        </view>
+        <text class="list-chev">›</text>
+      </view>
+    </view>
+
+    <button class="btn btn-secondary btn-block" hover-class="is-pressed" bindtap="goExport">导出给医生看</button>
   </block>
 </view>

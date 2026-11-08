@@ -1,72 +1,166 @@
-<view class="page {{elder ? 'elder' : ''}}">
-  <view class="card">
-    <view class="field">
-      <text class="label">怎么称呼</text>
-      <input class="input" value="{{nickname}}" bindinput="onInput" data-field="nickname" placeholder="乳名" />
+<view class="page form {{elder ? 'elder' : ''}}">
+  <block wx:if="{{loading}}">
+    <view class="skeleton-card">
+      <view class="skeleton-line w-40"></view>
+      <view class="skeleton-line"></view>
+      <view class="skeleton-line w-70"></view>
     </view>
-    <view class="field">
-      <text class="label">性别</text>
-      <view class="chips">
-        <view class="chip {{gender === item ? 'on' : ''}}" wx:for="{{genders}}" wx:key="*this" data-field="gender" data-value="{{item}}" bindtap="onChip">{{item}}</view>
+  </block>
+
+  <view wx:elif="{{pageError}}" class="card error-state">
+    <view class="heading">还没连上云</view>
+    <view class="caption mt-1">{{pageError}}</view>
+    <button class="btn btn-primary btn-block" hover-class="is-pressed" bindtap="retry">再试一次</button>
+  </view>
+
+  <block wx:else>
+    <view class="page-head">
+      <view class="page-head-main">
+        <view class="display">宝宝档案</view>
+        <view class="caption mt-1">出生日用来算第几天，也用来决定这个阶段要记哪些。</view>
+      </view>
+      <view class="avatar lg"><icon name="baby" size="{{56}}" elder="{{elder}}" /></view>
+    </view>
+
+    <view wx:if="{{formError}}" class="form-alert">{{formError}}</view>
+
+    <view class="card">
+      <view class="heading mb-3">基本信息</view>
+      <view class="field">
+        <text class="label required">怎么称呼</text>
+        <input
+          class="input {{errors.nickname ? 'is-error' : ''}}"
+          value="{{nickname}}"
+          maxlength="20"
+          bindinput="onInput"
+          data-field="nickname"
+          placeholder="乳名"
+          placeholder-class="input-ph"
+        />
+        <text class="field-error" wx:if="{{errors.nickname}}">{{errors.nickname}}</text>
+      </view>
+      <view class="field">
+        <text class="label">性别</text>
+        <view class="chips">
+          <view
+            class="chip {{gender === item ? 'on' : ''}}"
+            wx:for="{{genders}}"
+            wx:key="*this"
+            data-field="gender"
+            data-value="{{item}}"
+            bindtap="onChip"
+            hover-class="is-pressed"
+          >{{item}}</view>
+        </view>
+      </view>
+      <view class="field">
+        <text class="label required">出生日</text>
+        <picker mode="date" value="{{birthday}}" end="{{today}}" bindchange="onBirth">
+          <view class="input picker-face {{errors.birthday ? 'is-error' : ''}}">
+            {{birthday || '选择日期'}}<text class="chev">›</text>
+          </view>
+        </picker>
+        <text class="field-error" wx:if="{{errors.birthday}}">{{errors.birthday}}</text>
+      </view>
+      <view class="field">
+        <text class="label">出生时间（可不填）</text>
+        <picker mode="time" value="{{birthTime}}" bindchange="onTime">
+          <view class="input picker-face">{{birthTime || '选择时间'}}<text class="chev">›</text></view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="label">分娩方式</text>
+        <view class="chips">
+          <view
+            class="chip {{delivery === item ? 'on' : ''}}"
+            wx:for="{{deliveries}}"
+            wx:key="*this"
+            data-field="delivery"
+            data-value="{{item}}"
+            bindtap="onChip"
+            hover-class="is-pressed"
+          >{{item}}</view>
+        </view>
       </view>
     </view>
-    <view class="field">
-      <text class="label">出生日</text>
-      <picker mode="date" value="{{birthday}}" end="{{today}}" bindchange="onBirth">
-        <view class="input">{{birthday || '选择日期'}}</view>
-      </picker>
-    </view>
-    <view class="field">
-      <text class="label">出生时间（可不填）</text>
-      <picker mode="time" value="{{birthTime}}" bindchange="onTime">
-        <view class="input">{{birthTime || '选择时间'}}</view>
-      </picker>
-    </view>
-    <view class="field">
-      <text class="label">分娩方式</text>
-      <view class="chips">
-        <view class="chip {{delivery === item ? 'on' : ''}}" wx:for="{{deliveries}}" wx:key="*this" data-field="delivery" data-value="{{item}}" bindtap="onChip">{{item}}</view>
+
+    <view class="card">
+      <view class="heading mb-3">出生情况</view>
+      <view class="field">
+        <text class="label">孕周（0 表示不记）</text>
+        <stepper elder="{{elder}}" value="{{gestationalWeeks}}" min="{{0}}" max="{{43}}" step="{{1}}" unit="周" bind:change="onStep" data-field="gestationalWeeks" />
+      </view>
+      <view class="field">
+        <text class="label">出生体重</text>
+        <stepper elder="{{elder}}" value="{{birthWeightG}}" min="{{0}}" max="{{8000}}" step="{{10}}" unit="克" bind:change="onStep" data-field="birthWeightG" />
+        <view class="muted mt-1" wx:if="{{weightHint}}">{{weightHint}}</view>
+      </view>
+      <view class="field">
+        <text class="label">出生身长</text>
+        <stepper elder="{{elder}}" value="{{birthLengthCm}}" min="{{0}}" max="{{70}}" step="{{0.5}}" unit="厘米" bind:change="onStep" data-field="birthLengthCm" />
+      </view>
+      <view class="field">
+        <text class="label">出生头围</text>
+        <stepper elder="{{elder}}" value="{{birthHeadCm}}" min="{{0}}" max="{{50}}" step="{{0.5}}" unit="厘米" bind:change="onStep" data-field="birthHeadCm" />
       </view>
     </view>
-  </view>
-  <view class="card">
-  <view class="field">
-    <text class="label">孕周（0 表示不记）</text>
-    <stepper elder="{{elder}}" value="{{gestationalWeeks}}" min="{{0}}" max="{{43}}" step="{{1}}" unit="周" bind:change="onStep" data-field="gestationalWeeks" />
-  </view>
-  <view class="field">
-    <text class="label">出生体重</text>
-    <stepper elder="{{elder}}" value="{{birthWeightG}}" min="{{0}}" max="{{8000}}" step="{{10}}" unit="克" bind:change="onStep" data-field="birthWeightG" />
-    <view class="muted" wx:if="{{weightHint}}">{{weightHint}}</view>
-  </view>
-  <view class="field">
-    <text class="label">出生身长</text>
-    <stepper elder="{{elder}}" value="{{birthLengthCm}}" min="{{0}}" max="{{70}}" step="{{0.5}}" unit="厘米" bind:change="onStep" data-field="birthLengthCm" />
-  </view>
-  <view class="field">
-    <text class="label">出生头围</text>
-    <stepper elder="{{elder}}" value="{{birthHeadCm}}" min="{{0}}" max="{{50}}" step="{{0.5}}" unit="厘米" bind:change="onStep" data-field="birthHeadCm" />
-  </view>
-  </view>
-  <view class="card">
-  <view class="field">
-    <text class="label">过敏或不适（原话）</text>
-    <input class="input" value="{{allergies}}" bindinput="onInput" data-field="allergies" placeholder="没有就空着" />
-  </view>
-  <view class="field">
-    <text class="label">其他说明</text>
-    <textarea class="textarea" value="{{notes}}" bindinput="onInput" data-field="notes" placeholder="早产、低体重等，照实写" />
-  </view>
-  <view class="field">
-    <text class="label">自己要勾选的补剂</text>
-    <view class="muted">维生素 D 和 AD 每天都在。这里只加你家里实际在吃的，不代表该吃。</view>
-    <view class="chips">
-      <view class="chip" wx:for="{{customSupplements}}" wx:key="*this">{{item}} <text data-index="{{index}}" catchtap="removeSup">移除</text></view>
+
+    <view class="card">
+      <view class="heading mb-3">健康和补充</view>
+      <view class="field">
+        <text class="label">过敏或不适（原话）</text>
+        <input
+          class="input"
+          value="{{allergies}}"
+          bindinput="onInput"
+          data-field="allergies"
+          placeholder="没有就空着"
+          placeholder-class="input-ph"
+        />
+      </view>
+      <view class="field">
+        <text class="label">其他说明</text>
+        <textarea
+          class="textarea"
+          value="{{notes}}"
+          bindinput="onInput"
+          data-field="notes"
+          placeholder="早产、低体重等，照实写"
+          placeholder-class="input-ph"
+        />
+      </view>
+      <view class="field">
+        <text class="label">自己要勾选的补剂</text>
+        <view class="caption mb-2">维生素 D 和 AD 每天都在。这里只加家里实际在吃的，不代表该吃。</view>
+        <view wx:if="{{customSupplements.length}}">
+          <view class="list-row" wx:for="{{customSupplements}}" wx:key="*this">
+            <view class="list-text"><view class="list-title">{{item}}</view></view>
+            <button class="btn-text danger" data-index="{{index}}" catchtap="removeSup">移除</button>
+          </view>
+        </view>
+        <input
+          class="input"
+          value="{{supInput}}"
+          bindinput="onSup"
+          placeholder="例如益生菌"
+          placeholder-class="input-ph"
+        />
+        <button class="btn btn-secondary btn-block mt-2" hover-class="is-pressed" bindtap="addSup">加上</button>
+      </view>
     </view>
-    <input class="input" value="{{supInput}}" bindinput="onSup" placeholder="例如益生菌" />
-    <button class="btn btn-ghost btn-block" bindtap="addSup">加上</button>
+
+    <view wx:if="{{id}}" class="danger-zone">
+      <button class="btn-text danger" bindtap="remove">删除这个宝宝的全部记录</button>
+    </view>
+  </block>
+
+  <view class="save-bar" wx:if="{{!loading && !pageError}}">
+    <button
+      class="btn btn-primary btn-block"
+      hover-class="is-pressed"
+      loading="{{saving}}"
+      disabled="{{saving}}"
+      bindtap="save"
+    >保存档案</button>
   </view>
-  </view>
-  <button class="btn btn-primary btn-block" loading="{{saving}}" disabled="{{saving}}" bindtap="save">保存档案</button>
-  <button wx:if="{{id}}" class="btn btn-line btn-block" bindtap="remove">删除这个宝宝的全部记录</button>
 </view>

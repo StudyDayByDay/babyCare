@@ -56,8 +56,28 @@ function iconFor(type) {
     temp: 'temp',
     solid: 'meal',
     milestone: 'mile',
-    note: 'note'
+    note: 'note',
+    med: 'med',
+    daily: 'care',
+    growth: 'growth',
+    vaccine: 'vaccine'
   }[type] || 'note'
 }
 
-module.exports = { stageLabel, recordActions, hiddenCareActions, milestones, showEarlyEdu, showNewbornCare, iconFor }
+function toneFor(type) {
+  return {
+    feed: 'feed',
+    diaper: 'diaper',
+    sleep: 'sleep',
+    temp: 'temp',
+    solid: 'solid',
+    milestone: 'mile',
+    note: 'note',
+    med: 'med',
+    daily: 'care',
+    growth: 'growth',
+    vaccine: 'vaccine'
+  }[type] || 'note'
+}
+
+module.exports = { stageLabel, recordActions, hiddenCareActions, milestones, showEarlyEdu, showNewbornCare, iconFor, toneFor }

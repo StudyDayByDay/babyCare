@@ -1,0 +1,13 @@
+<view class="empty {{compact ? 'compact' : ''}} {{elder ? 'elder' : ''}}">
+  <view class="empty-icon tone-{{tone}}">
+    <icon name="{{icon}}" size="{{compact ? 44 : 56}}" elder="{{elder}}" />
+  </view>
+  <view class="empty-title" wx:if="{{title}}">{{title}}</view>
+  <view class="empty-hint" wx:if="{{hint}}">{{hint}}</view>
+  <button
+    wx:if="{{actionText}}"
+    class="btn btn-secondary btn-sm empty-btn"
+    hover-class="is-pressed"
+    bindtap="onAction"
+  >{{actionText}}</button>
+</view>

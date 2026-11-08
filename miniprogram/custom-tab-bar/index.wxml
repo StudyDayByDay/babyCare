@@ -5,11 +5,11 @@
     wx:key="text"
     data-index="{{index}}"
     bindtap="onSwitch"
+    hover-class="item-pressed"
   >
-    <view class="ico-wrap">
-      <icon name="{{item.icon}}" size="{{44}}" elder="{{elder}}" />
+    <view class="tab-icon">
+      <icon name="{{selected === index ? item.iconOn : item.icon}}" size="{{44}}" elder="{{elder}}" />
     </view>
-    <text>{{item.text}}</text>
-    <view class="mark"></view>
+    <text class="item-text">{{item.text}}</text>
   </view>
 </view>

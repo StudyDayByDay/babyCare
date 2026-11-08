@@ -6,25 +6,32 @@ const { Resvg } = require('/tmp/resvg-tool/node_modules/@resvg/resvg-js')
 const OUT = path.join(__dirname, '../miniprogram/images/icons')
 
 const ICONS = [
-  ['today', 'calendar_today', '#3E6B58'],
-  ['record', 'edit_note', '#3E6B58'],
-  ['stats', 'bar_chart', '#3E6B58'],
-  ['mine', 'person', '#3E6B58'],
-  ['feed', 'water_bottle', '#3D6E8C'],
-  ['diaper', 'baby_changing_station', '#A56B2B'],
-  ['sleep', 'bedtime', '#3E6B58'],
-  ['care', 'clean_hands', '#C47A64'],
-  ['temp', 'thermometer', '#8C4D62'],
-  ['meal', 'rice_bowl', '#6A7040'],
-  ['mile', 'star', '#3D5A73'],
+  // tab bar: inactive / active
+  ['today', 'calendar_today', '#6F6781'],
+  ['today-on', 'calendar_today', '#6C5CE7'],
+  ['record', 'edit_note', '#6F6781'],
+  ['record-on', 'edit_note', '#6C5CE7'],
+  ['stats', 'bar_chart', '#6F6781'],
+  ['stats-on', 'bar_chart', '#6C5CE7'],
+  ['mine', 'person', '#6F6781'],
+  ['mine-on', 'person', '#6C5CE7'],
+  // record categories
+  ['feed', 'water_bottle', '#3E6E85'],
+  ['diaper', 'baby_changing_station', '#94652F'],
+  ['sleep', 'bedtime', '#55668C'],
+  ['care', 'clean_hands', '#B05E46'],
+  ['temp', 'thermometer', '#9A4E63'],
+  ['meal', 'rice_bowl', '#6B743F'],
+  ['mile', 'star', '#A47C22'],
   ['note', 'sticky_note_2', '#7A6248'],
-  ['med', 'medication', '#B4533A'],
-  ['growth', 'height', '#3E6B58'],
-  ['vaccine', 'vaccines', '#3D6E8C'],
-  ['family', 'family_restroom', '#3E6B58'],
-  ['export', 'download', '#3E6B58'],
-  ['baby', 'child_care', '#3E6B58'],
-  ['stool', 'gastroenterology', '#A56B2B']
+  ['med', 'medication', '#5646C9'],
+  // secondary pages
+  ['growth', 'height', '#3C7F6C'],
+  ['vaccine', 'vaccines', '#416D86'],
+  ['family', 'family_restroom', '#7A5C83'],
+  ['export', 'download', '#6B625B'],
+  ['baby', 'child_care', '#4B3BB5'],
+  ['stool', 'gastroenterology', '#94652F']
 ]
 
 function fetchText(url) {
@@ -49,7 +56,7 @@ async function main() {
     const raw = await fetchText(url)
     const svg = raw.replace('<svg ', '<svg fill="' + color + '" ')
     const png = new Resvg(svg, {
-      fitTo: { mode: 'width', value: 96 },
+      fitTo: { mode: 'width', value: 128 },
       background: 'rgba(0,0,0,0)'
     }).render().asPng()
     fs.writeFileSync(path.join(OUT, name + '.png'), png)

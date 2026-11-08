@@ -1,0 +1,21 @@
+<view class="sheet-mask" wx:if="{{show}}" bindtap="close" catchtouchmove="noop">
+  <view class="sheet-panel {{elder ? 'elder' : ''}}" catchtap="noop">
+    <view class="sheet-handle"></view>
+    <view class="sheet-title" wx:if="{{title}}">{{title}}</view>
+    <view
+      class="sheet-item {{item.tone === 'danger' ? 'danger' : ''}}"
+      wx:for="{{items}}"
+      wx:key="key"
+      data-index="{{index}}"
+      bindtap="tapItem"
+      hover-class="is-pressed"
+    >
+      <view class="sheet-main">
+        <view class="sheet-label">{{item.label}}</view>
+        <view class="sheet-hint" wx:if="{{item.hint}}">{{item.hint}}</view>
+      </view>
+      <text class="sheet-chev">›</text>
+    </view>
+    <button class="btn btn-ghost btn-block sheet-cancel" hover-class="is-pressed" bindtap="close">取消</button>
+  </view>
+</view>

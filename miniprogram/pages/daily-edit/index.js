@@ -1,7 +1,8 @@
 const pageBehavior = require('../../behaviors/page.js')
 const api = require('../../services/api.js')
-const { dayKey, stageOf, dayNumber } = require('../../utils/date.js')
+const { dayKey, stageOf, dayNumber, prettyDay } = require('../../utils/date.js')
 const { showEarlyEdu, showNewbornCare } = require('../../utils/stage.js')
+const theme = require('../../utils/theme.js')
 
 function emptySheet() {
   return {
@@ -20,6 +21,10 @@ function emptySheet() {
 Page({
   behaviors: [pageBehavior],
   data: Object.assign({
+    loading: true,
+    pageError: '',
+    dirty: false,
+    pretty: '',
     day: '',
     saving: false,
     showEdu: true,
@@ -45,17 +50,38 @@ Page({
     umbilicalOptions: ['干燥', '渗出', '脱落']
   }, emptySheet()),
   onLoad(query) {
-    this.setData({ day: query.day || dayKey() })
+    const day = query.day || dayKey()
+    this.setData({ day, pretty: prettyDay(day) })
   },
   onShow() {
-    this.prepare().then((session) => {
+    this.reload()
+  },
+  onUnload() {
+    if (this.alertOn && wx.disableAlertBeforeUnload) {
+      try { wx.disableAlertBeforeUnload() } catch (e) {}
+      this.alertOn = false
+    }
+  },
+  retry() {
+    this.setData({ pageError: '', loading: true })
+    this.reload()
+  },
+  reload() {
+    if (!this.loaded) this.setData({ loading: true })
+    return this.prepare().then((session) => {
       if (!session.baby) {
         wx.navigateBack()
-        return
+        return null
       }
       this.baby = session.baby
-      this.load()
-    }).catch((err) => this.fail(err))
+      return this.load()
+    }).then(() => {
+      this.loaded = true
+      this.setData({ loading: false, pageError: '' })
+    }).catch((err) => {
+      this.loaded = true
+      this.setData({ loading: false, pageError: err.message || '云服务没有连上' })
+    })
   },
   load() {
     const day = this.data.day
@@ -85,51 +111,94 @@ Page({
       })
     })
   },
+  markDirty() {
+    if (this.data.dirty) return
+    this.setData({ dirty: true })
+    if (wx.enableAlertBeforeUnload && !this.alertOn) {
+      this.alertOn = true
+      try {
+        wx.enableAlertBeforeUnload({ message: '还没保存，确定离开？' })
+      } catch (e) {}
+    }
+  },
+  clearDirty() {
+    if (this.alertOn && wx.disableAlertBeforeUnload) {
+      try { wx.disableAlertBeforeUnload() } catch (e) {}
+    }
+    this.alertOn = false
+    this.setData({ dirty: false })
+  },
   onDay(e) {
-    this.setData({ day: e.detail.value })
-    this.load().catch((err) => this.fail(err))
+    const day = e.detail.value
+    const apply = () => {
+      this.setData({ day, pretty: prettyDay(day) })
+      this.clearDirty()
+      this.load().catch((err) => this.fail(err))
+    }
+    if (!this.data.dirty) {
+      apply()
+      return
+    }
+    wx.showModal({
+      title: '切换日期？',
+      content: '这一天的改动还没保存，切换后会丢掉。',
+      confirmColor: theme.danger,
+      success: (res) => {
+        if (res.confirm) apply()
+      }
+    })
   },
   onMood(e) {
     this.setData({ mood: e.currentTarget.dataset.value })
+    this.markDirty()
   },
   onSup(e) {
     const supplements = Object.assign({}, this.data.supplements)
     const key = e.currentTarget.dataset.key
     supplements[key] = !supplements[key]
     this.setData({ supplements })
+    this.markDirty()
   },
   onCustom(e) {
     const supplements = Object.assign({}, this.data.supplements, { custom: Object.assign({}, this.data.supplements.custom) })
     const key = e.currentTarget.dataset.key
     supplements.custom[key] = !supplements.custom[key]
     this.setData({ supplements })
+    this.markDirty()
   },
   onCare(e) {
     const care = Object.assign({}, this.data.care)
     const key = e.currentTarget.dataset.key
     care[key] = !care[key]
     this.setData({ care })
+    this.markDirty()
   },
   onEdu(e) {
     const earlyEdu = Object.assign({}, this.data.earlyEdu)
     const key = e.currentTarget.dataset.key
     earlyEdu[key] = !earlyEdu[key]
     this.setData({ earlyEdu })
+    this.markDirty()
   },
   onTummy(e) {
     this.setData({ tummyMin: e.detail.value })
+    this.markDirty()
   },
   onJaundice(e) {
     this.setData({ jaundice: e.currentTarget.dataset.value })
+    this.markDirty()
   },
   onUmbilical(e) {
     this.setData({ umbilical: e.currentTarget.dataset.value })
+    this.markDirty()
   },
   onWeather(e) {
     this.setData({ weather: e.detail.value })
+    this.markDirty()
   },
   onNote(e) {
     this.setData({ note: e.detail.value })
+    this.markDirty()
   },
   save() {
     if (this.data.saving) return
@@ -148,7 +217,12 @@ Page({
         umbilical: this.data.umbilical,
         tummyMin: this.data.tummyMin
       }
-    }).then(() => wx.navigateBack()).catch((err) => {
+    }).then(() => {
+      this.clearDirty()
+      this.setData({ saving: false })
+      this.ok('已保存')
+      this.backAfter(450)
+    }).catch((err) => {
       this.setData({ saving: false })
       this.fail(err)
     })

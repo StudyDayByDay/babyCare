@@ -1,21 +1,46 @@
 const pageBehavior = require('../../behaviors/page.js')
 const api = require('../../services/api.js')
-const { dayKey } = require('../../utils/date.js')
+const { dayKey, prettyDay } = require('../../utils/date.js')
+const theme = require('../../utils/theme.js')
 
 Page({
   behaviors: [pageBehavior],
-  data: { pending: [], doneList: [], customName: '', customDay: '' },
+  data: {
+    loading: true,
+    pageError: '',
+    syncing: false,
+    customError: '',
+    showDone: true,
+    pending: [],
+    doneList: [],
+    customName: '',
+    customDay: ''
+  },
   onShow() {
     this.setData({ customDay: this.data.customDay || dayKey() })
-    this.prepare().then((session) => {
+    this.reload()
+  },
+  retry() {
+    this.setData({ pageError: '', loading: true })
+    this.reload()
+  },
+  reload() {
+    if (!this.loaded) this.setData({ loading: true })
+    return this.prepare().then((session) => {
       if (!session.baby) {
         wx.navigateBack()
-        return
+        return null
       }
       this.babyId = session.baby._id
       this.today = dayKey()
       return this.load()
-    }).catch((err) => this.fail(err))
+    }).then(() => {
+      this.loaded = true
+      this.setData({ loading: false, pageError: '' })
+    }).catch((err) => {
+      this.loaded = true
+      this.setData({ loading: false, pageError: err.message || '云服务没有连上' })
+    })
   },
   load() {
     return api.listVaccines({ babyId: this.babyId }).then((data) => this.split(data.list || []))
@@ -25,32 +50,102 @@ Page({
     const pending = []
     const doneList = []
     list.forEach((item) => {
+      const duePretty = item.dueDay ? prettyDay(item.dueDay) : ''
+      const donePretty = item.doneDay ? prettyDay(item.doneDay) : ''
       if (item.status === 'pending') {
-        pending.push(Object.assign({ dueText: item.dueDay <= today ? '到时间了，核对接种本' : '未到' }, item))
-      } else doneList.push(item)
+        pending.push(Object.assign({
+          duePretty,
+          overdue: item.dueDay <= today,
+          dueText: item.dueDay <= today ? '到时间了，核对接种本' : '还没到时间'
+        }, item))
+      } else {
+        doneList.push(Object.assign({ duePretty, donePretty }, item))
+      }
     })
+    pending.sort((a, b) => String(a.dueDay).localeCompare(String(b.dueDay)))
     this.setData({ pending, doneList })
   },
   sync() {
-    api.syncVaccines({ babyId: this.babyId }).then((data) => this.split(data.list || [])).catch((err) => this.fail(err))
+    if (this.data.syncing) return
+    this.setData({ syncing: true })
+    api.syncVaccines({ babyId: this.babyId }).then((data) => {
+      this.split(data.list || [])
+      this.setData({ syncing: false })
+      this.ok('已生成待办')
+    }).catch((err) => {
+      this.setData({ syncing: false })
+      this.fail(err)
+    })
   },
   done(e) {
-    api.saveVaccine({ babyId: this.babyId, _id: e.currentTarget.dataset.id, status: 'done', doneDay: dayKey() }).then(() => this.load()).catch((err) => this.fail(err))
+    if (this.busy) return
+    this.busy = true
+    api.saveVaccine({ babyId: this.babyId, _id: e.currentTarget.dataset.id, status: 'done', doneDay: dayKey() })
+      .then(() => this.load())
+      .then(() => {
+        this.busy = false
+        this.ok('已记下')
+      })
+      .catch((err) => {
+        this.busy = false
+        this.fail(err)
+      })
   },
   skip(e) {
-    api.saveVaccine({ babyId: this.babyId, _id: e.currentTarget.dataset.id, status: 'skipped' }).then(() => this.load()).catch((err) => this.fail(err))
+    if (this.busy) return
+    const id = e.currentTarget.dataset.id
+    const name = e.currentTarget.dataset.name || '这一项'
+    wx.showModal({
+      title: '这次先不做？',
+      content: name + ' 会移到已记录，以后仍可以核对接种本。',
+      confirmColor: theme.danger,
+      success: (res) => {
+        if (!res.confirm) return
+        this.busy = true
+        api.saveVaccine({ babyId: this.babyId, _id: id, status: 'skipped' })
+          .then(() => this.load())
+          .then(() => {
+            this.busy = false
+            this.ok('已记下')
+          })
+          .catch((err) => {
+            this.busy = false
+            this.fail(err)
+          })
+      }
+    })
   },
-  onName(e) { this.setData({ customName: e.detail.value }) },
-  onCustomDay(e) { this.setData({ customDay: e.detail.value }) },
+  onName(e) {
+    this.setData({ customName: e.detail.value, customError: '' })
+  },
+  onCustomDay(e) {
+    this.setData({ customDay: e.detail.value })
+  },
   addCustom() {
+    if (this.busy) return
+    const name = String(this.data.customName || '').trim()
+    if (!name) {
+      this.setData({ customError: '写一下疫苗名称' })
+      return
+    }
+    this.busy = true
     api.saveVaccine({
       babyId: this.babyId,
-      name: this.data.customName,
+      name,
       dueDay: this.data.customDay,
       status: 'pending'
     }).then(() => {
-      this.setData({ customName: '' })
+      this.setData({ customName: '', customError: '' })
       return this.load()
-    }).catch((err) => this.fail(err))
+    }).then(() => {
+      this.busy = false
+      this.ok('已加上')
+    }).catch((err) => {
+      this.busy = false
+      this.fail(err)
+    })
+  },
+  toggleDone() {
+    this.setData({ showDone: !this.data.showDone })
   }
 })

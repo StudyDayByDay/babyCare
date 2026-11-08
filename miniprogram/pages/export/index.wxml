@@ -1,15 +1,104 @@
-<view class="page {{elder ? 'elder' : ''}}">
-  <view class="chips">
-    <view class="chip {{span === 7 ? 'on' : ''}}" data-span="7" bindtap="onSpan">近 7 天</view>
-    <view class="chip {{span === 30 ? 'on' : ''}}" data-span="30" bindtap="onSpan">近 30 天</view>
+<view class="page form {{elder ? 'elder' : ''}}">
+  <block wx:if="{{loading}}">
+    <view class="skeleton-card">
+      <view class="skeleton-line w-40"></view>
+      <view class="skeleton-line"></view>
+    </view>
+    <view class="skeleton-card">
+      <view class="skeleton-line w-70"></view>
+      <view class="skeleton-line"></view>
+    </view>
+  </block>
+
+  <view wx:elif="{{pageError}}" class="card error-state">
+    <view class="heading">还没连上云</view>
+    <view class="caption mt-1">{{pageError}}</view>
+    <button class="btn btn-primary btn-block" hover-class="is-pressed" bindtap="retry">再试一次</button>
   </view>
-  <view class="muted">生成表格后，用微信打开或发到电脑再打印。小程序里没有直接连接打印机的按钮。</view>
-  <view class="card" wx:for="{{days}}" wx:key="day">
-    <view class="h2">{{item.day}}</view>
-    <view class="muted">喂养 {{item.feedCount}} 次 · 亲喂 {{item.breastMin}} 分钟 · 配方 {{item.formulaMl}} 毫升</view>
-    <view class="muted">尿布 {{item.diaperCount}} · 大便 {{item.poopCount}} {{item.poopText}} · 睡眠 {{item.sleepText}}</view>
-    <view class="muted">用药 {{item.medTaken}}/{{item.medTotal}}</view>
+
+  <block wx:else>
+    <view class="page-head">
+      <view class="page-head-main">
+        <view class="display">导出</view>
+        <view class="caption mt-1">生成表格后，用微信打开或发到电脑再打印。小程序里没有直接连接打印机的按钮。</view>
+      </view>
+      <view class="avatar lg tone-export"><icon name="export" size="{{56}}" elder="{{elder}}" /></view>
+    </view>
+
+    <view class="segmented mb-3">
+      <view
+        class="segmented-item {{span === 7 ? 'on' : ''}}"
+        data-span="7"
+        bindtap="onSpan"
+        hover-class="is-pressed"
+      >近 7 天</view>
+      <view
+        class="segmented-item {{span === 30 ? 'on' : ''}}"
+        data-span="30"
+        bindtap="onSpan"
+        hover-class="is-pressed"
+      >近 30 天</view>
+    </view>
+
+    <view class="card" wx:if="{{hasData}}">
+      <view class="section-head">
+        <view class="section-title">这段时间</view>
+      </view>
+      <view class="stat-grid">
+        <view class="stat-tile">
+          <view class="stat-value">{{totals.feedCount}}次</view>
+          <view class="stat-label">喂养</view>
+        </view>
+        <view class="stat-tile">
+          <view class="stat-value">{{totals.diaperCount}}次</view>
+          <view class="stat-label">尿布</view>
+        </view>
+        <view class="stat-tile">
+          <view class="stat-value">{{sleepText}}</view>
+          <view class="stat-label">睡眠</view>
+        </view>
+        <view class="stat-tile">
+          <view class="stat-value">{{totals.medTaken}}/{{totals.medTotal}}</view>
+          <view class="stat-label">用药已吃</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-head">
+        <view class="section-title">每天</view>
+        <view class="sub" wx:if="{{days.length}}">{{days.length}} 天</view>
+      </view>
+      <empty
+        wx:if="{{!hasData}}"
+        icon="export"
+        tone="export"
+        title="这段时间还没有记录"
+        hint="先记几天，再回来导出。"
+        action-text="去记录"
+        elder="{{elder}}"
+        bind:action="goRecord"
+      />
+      <view class="list-row" wx:for="{{days}}" wx:key="day" style="animation-delay: {{index * 20 + 160}}ms">
+        <view class="list-text">
+          <view class="list-title">{{item.pretty}}</view>
+          <view class="list-sub">喂养 {{item.feedCount}} 次 · 亲喂 {{item.breastMin}} 分钟 · 配方 {{item.formulaMl}} 毫升</view>
+          <view class="list-sub">尿布 {{item.diaperCount}} · 大便 {{item.poopCount}} · 睡眠 {{item.sleepText}} · 用药 {{item.medTaken}}/{{item.medTotal}}</view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view class="save-bar" wx:if="{{!loading && !pageError}}">
+    <view class="save-bar-row">
+      <button class="btn btn-secondary" hover-class="is-pressed" disabled="{{!hasData}}" bindtap="copy">复制文字</button>
+      <button
+        class="btn btn-primary"
+        hover-class="is-pressed"
+        loading="{{saving}}"
+        disabled="{{saving || !hasData}}"
+        bindtap="makeFile"
+      >生成表格</button>
+    </view>
   </view>
-  <button class="btn btn-ghost btn-block" bindtap="copy">复制这段文字</button>
-  <button class="btn btn-primary btn-block" loading="{{saving}}" disabled="{{saving}}" bindtap="makeFile">生成表格</button>
 </view>

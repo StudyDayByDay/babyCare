@@ -1,24 +1,107 @@
 <view class="page {{elder ? 'elder' : ''}}">
-  <view class="muted">按国家免疫规划 2025 版的常见时间列出，各地和自费疫苗不一样。用来提醒你核对接种本，不是接种通知。</view>
-  <button class="btn btn-primary btn-block" bindtap="sync">按出生日生成待办</button>
-  <view class="h2" style="margin: 24rpx 0 12rpx;">待核对</view>
-  <view class="card" wx:for="{{pending}}" wx:key="_id">
-    <view class="h2">{{item.name}}</view>
-    <view class="muted">{{item.dueText}} {{item.dueDay}}</view>
-    <button class="btn btn-primary btn-block" data-id="{{item._id}}" bindtap="done">接种本上已有</button>
-    <button class="btn btn-line btn-block" data-id="{{item._id}}" bindtap="skip">这次不做</button>
+  <block wx:if="{{loading}}">
+    <view class="skeleton-card">
+      <view class="skeleton-line w-40"></view>
+      <view class="skeleton-line"></view>
+    </view>
+    <view class="skeleton-card">
+      <view class="skeleton-line w-70"></view>
+      <view class="skeleton-line"></view>
+    </view>
+  </block>
+
+  <view wx:elif="{{pageError}}" class="card error-state">
+    <view class="heading">还没连上云</view>
+    <view class="caption mt-1">{{pageError}}</view>
+    <button class="btn btn-primary btn-block" hover-class="is-pressed" bindtap="retry">再试一次</button>
   </view>
-  <view class="muted" wx:if="{{!pending.length}}">没有待核对的项目。</view>
-  <view class="card">
-    <view class="h2">自己添加</view>
-    <input class="input" value="{{customName}}" bindinput="onName" placeholder="自费疫苗名称" />
-    <view class="gap"></view>
-    <picker mode="date" value="{{customDay}}" bindchange="onCustomDay"><view class="input">{{customDay}}</view></picker>
-    <button class="btn btn-ghost btn-block" bindtap="addCustom">加上</button>
-  </view>
-  <view class="h2" wx:if="{{doneList.length}}">已记录</view>
-  <view class="card" wx:for="{{doneList}}" wx:key="_id">
-    <view>{{item.name}}</view>
-    <view class="muted">{{item.status === 'done' ? '已接种' : '不做了'}} {{item.doneDay || item.dueDay}}</view>
-  </view>
+
+  <block wx:else>
+    <view class="page-head">
+      <view class="page-head-main">
+        <view class="display">疫苗</view>
+        <view class="caption mt-1">按国家免疫规划 2025 版的常见时间列出，各地和自费疫苗不一样。用来提醒你核对接种本，不是接种通知。</view>
+      </view>
+      <view class="avatar lg tone-vaccine"><icon name="vaccine" size="{{56}}" elder="{{elder}}" /></view>
+    </view>
+
+    <button
+      class="btn btn-primary btn-block mb-3"
+      hover-class="is-pressed"
+      loading="{{syncing}}"
+      disabled="{{syncing}}"
+      bindtap="sync"
+    >按出生日生成待办</button>
+
+    <view class="section-head">
+      <view class="section-title">待核对</view>
+      <view class="pill pending" wx:if="{{pending.length}}">{{pending.length}} 项</view>
+    </view>
+    <empty
+      wx:if="{{!pending.length}}"
+      compact
+      icon="vaccine"
+      tone="vaccine"
+      title="没有待核对的项目"
+      hint="打过或决定不做的，都在下面的已记录里。"
+      elder="{{elder}}"
+    />
+    <view class="card" wx:for="{{pending}}" wx:key="_id" style="animation-delay: {{index * 45 + 180}}ms">
+      <view class="row">
+        <view class="grow">
+          <view class="heading">{{item.name}}</view>
+          <view class="sub mt-1">{{item.duePretty}} · {{item.dueText}}</view>
+        </view>
+        <view class="pill {{item.overdue ? 'pending' : 'skip'}}">{{item.overdue ? '到时间了' : '还没到'}}</view>
+      </view>
+      <view class="pair mt-3">
+        <button class="btn btn-secondary" hover-class="is-pressed" data-id="{{item._id}}" bindtap="done">接种本上已有</button>
+        <button class="btn btn-ghost" hover-class="is-pressed" data-id="{{item._id}}" data-name="{{item.name}}" bindtap="skip">这次不做</button>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="heading mb-3">自己添加</view>
+      <view class="field">
+        <text class="label required">名称</text>
+        <input
+          class="input {{customError ? 'is-error' : ''}}"
+          value="{{customName}}"
+          maxlength="40"
+          bindinput="onName"
+          placeholder="例如：流感疫苗"
+          placeholder-class="input-ph"
+        />
+        <text class="field-error" wx:if="{{customError}}">{{customError}}</text>
+      </view>
+      <view class="field">
+        <text class="label">日期</text>
+        <picker mode="date" value="{{customDay}}" bindchange="onCustomDay">
+          <view class="input picker-face">{{customDay}}<text class="chev">›</text></view>
+        </picker>
+      </view>
+      <button class="btn btn-secondary btn-block" hover-class="is-pressed" bindtap="addCustom">加上</button>
+    </view>
+
+    <view
+      class="section-head mt-3"
+      wx:if="{{doneList.length}}"
+      bindtap="toggleDone"
+      hover-class="is-pressed"
+    >
+      <view class="section-title">已记录</view>
+      <view class="sub">{{doneList.length}} 条 · {{showDone ? '收起' : '展开'}}</view>
+    </view>
+    <block wx:if="{{showDone}}">
+      <view class="card" wx:for="{{doneList}}" wx:key="_id" style="animation-delay: {{index * 35 + 120}}ms">
+        <view class="row">
+          <view class="grow">
+            <view class="list-title">{{item.name}}</view>
+            <view class="list-sub">{{item.donePretty || item.duePretty}}</view>
+          </view>
+          <view class="pill {{item.status === 'done' ? 'done' : 'skip'}}">{{item.status === 'done' ? '已接种' : '不做了'}}</view>
+        </view>
+      </view>
+    </block>
+  </block>
 </view>

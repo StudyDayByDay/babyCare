@@ -5,16 +5,23 @@ Component({
     max: { type: Number, value: 999 },
     step: { type: Number, value: 1 },
     unit: { type: String, value: '' },
-    elder: { type: Boolean, value: false }
+    elder: { type: Boolean, value: false },
+    presets: { type: String, value: '' }
   },
   data: {
     text: '0',
-    decimal: false
+    decimal: false,
+    presetList: [],
+    canMinus: true,
+    canPlus: true
   },
   observers: {
     value(value) {
       if (this.editing) return
-      this.setData({ text: this.format(value) })
+      this.setData(this.syncState(value))
+    },
+    'min, max'() {
+      this.setData(this.syncState(this.data.value))
     },
     step(step) {
       this.setData({ decimal: Number(step) < 1 })
@@ -22,13 +29,29 @@ Component({
   },
   lifetimes: {
     attached() {
-      this.setData({
-        text: this.format(this.data.value),
-        decimal: Number(this.data.step) < 1
-      })
+      this.setData(Object.assign({
+        decimal: Number(this.data.step) < 1,
+        presetList: this.splitPresets(this.data.presets)
+      }, this.syncState(this.data.value)))
     }
   },
   methods: {
+    splitPresets(value) {
+      if (!value) return []
+      return String(value).split(',').filter(Boolean)
+    },
+    syncState(value) {
+      const n = Number(value) || 0
+      return {
+        text: this.format(n),
+        canMinus: n > Number(this.data.min),
+        canPlus: n < Number(this.data.max)
+      }
+    },
+    pickPreset(e) {
+      this.editing = false
+      this.commit(e.currentTarget.dataset.value)
+    },
     format(value) {
       const n = Math.round(Number(value) * 100) / 100
       if (!isFinite(n)) return '0'
@@ -62,7 +85,7 @@ Component({
       if (n < min) n = min
       if (n > max) n = max
       if (Number(this.data.step) >= 1) n = Math.round(n)
-      this.setData({ text: this.format(n) })
+      this.setData(this.syncState(n))
       this.triggerEvent('change', { value: n })
     }
   }

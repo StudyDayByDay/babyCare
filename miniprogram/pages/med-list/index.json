@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "用药"
+  "navigationBarTitleText": "用药",
+  "usingComponents": {
+    "sheet": "/components/sheet/index"
+  }
 }

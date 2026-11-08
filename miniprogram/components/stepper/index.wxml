@@ -1,16 +1,21 @@
-<view class="stepper {{elder ? 'elder' : ''}}">
-  <view class="step-btn" catchtap="change" data-dir="-1">－</view>
-  <view class="step-val">
-    <input
-      class="step-input"
-      type="{{decimal ? 'digit' : 'number'}}"
-      value="{{text}}"
-      bindinput="onInput"
-      bindblur="onBlur"
-      confirm-type="done"
-      always-embed
-    />
-    <text wx:if="{{unit}}" class="step-unit">{{unit}}</text>
+<view class="stepper-wrap {{elder ? 'elder' : ''}}">
+  <view class="stepper {{elder ? 'elder' : ''}}">
+    <view class="step-btn {{canMinus ? '' : 'off'}}" catchtap="change" data-dir="-1" hover-class="step-pressed">－</view>
+    <view class="step-val">
+      <input
+        class="step-input"
+        type="{{decimal ? 'digit' : 'number'}}"
+        value="{{text}}"
+        bindinput="onInput"
+        bindblur="onBlur"
+        confirm-type="done"
+        always-embed
+      />
+      <text wx:if="{{unit}}" class="step-unit">{{unit}}</text>
+    </view>
+    <view class="step-btn {{canPlus ? '' : 'off'}}" catchtap="change" data-dir="1" hover-class="step-pressed">＋</view>
   </view>
-  <view class="step-btn" catchtap="change" data-dir="1">＋</view>
+  <view class="quick-amts" wx:if="{{presetList.length}}">
+    <view class="amt" wx:for="{{presetList}}" wx:key="*this" data-value="{{item}}" catchtap="pickPreset" hover-class="amt-pressed">{{item}}</view>
+  </view>
 </view>

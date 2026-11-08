@@ -1,1 +1,10 @@
-<image class="ico" src="/images/icons/{{name}}.png" style="width: {{box}}rpx; height: {{box}}rpx;" mode="aspectFit" />
+<image
+  wx:if="{{!failed}}"
+  class="ico"
+  src="/images/icons/{{name}}.png"
+  style="width: {{box}}rpx; height: {{box}}rpx;"
+  mode="aspectFit"
+  lazy-load
+  binderror="onError"
+/>
+<view wx:else class="ico-fallback" style="width: {{box}}rpx; height: {{box}}rpx;"></view>

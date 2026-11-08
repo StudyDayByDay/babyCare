@@ -29,6 +29,29 @@ function buildVisitText(baby, range) {
   return lines.join('\n')
 }
 
+function agoText(ts, now) {
+  const min = Math.max(0, Math.round((Number(now) - Number(ts)) / 60000))
+  if (min < 1) return '刚刚'
+  if (min < 60) return min + '分钟前'
+  const h = Math.floor(min / 60)
+  const m = min % 60
+  if (!m) return h + '小时前'
+  return h + '小时' + m + '分前'
+}
+
+function sinceList(records, now) {
+  const latest = {}
+  ;(records || []).forEach((rec) => {
+    let ts = rec.happenedAt
+    if (rec.type === 'sleep' && rec.payload && rec.payload.endAt) ts = rec.payload.endAt
+    if (!latest[rec.type] || ts > latest[rec.type]) latest[rec.type] = ts
+  })
+  const rows = []
+  if (latest.feed) rows.push({ label: '上次喂奶', text: agoText(latest.feed, now), icon: 'feed', tone: 'feed' })
+  if (latest.diaper) rows.push({ label: '上次换尿布', text: agoText(latest.diaper, now), icon: 'diaper', tone: 'diaper' })
+  if (latest.sleep) rows.push({ label: '上次睡醒', text: agoText(latest.sleep, now), icon: 'sleep', tone: 'sleep' })
+  return rows
+}
 function milkView(summary) {
   const bottle = Number(summary.formulaMl || 0) + Number(summary.bottleBreastMl || 0)
   const breast = Number(summary.breastMin || 0)
@@ -60,4 +83,4 @@ function groupDoses(doses) {
   return { groups, nextGroup }
 }
 
-module.exports = { statusText, buildVisitText, milkView, groupDoses }
+module.exports = { statusText, buildVisitText, milkView, groupDoses, sinceList, agoText }

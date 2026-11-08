@@ -2,10 +2,12 @@ const pageBehavior = require('../../behaviors/page.js')
 const api = require('../../services/api.js')
 const session = require('../../services/session.js')
 const { dayKey, weightText } = require('../../utils/date.js')
+const theme = require('../../utils/theme.js')
 
 Page({
   behaviors: [pageBehavior],
   data: {
+    loading: true,
     id: '',
     nickname: '',
     gender: '未填',
@@ -24,7 +26,10 @@ Page({
     notes: '',
     customSupplements: [],
     supInput: '',
-    saving: false
+    saving: false,
+    errors: {},
+    formError: '',
+    theme
   },
   onLoad(query) {
     this.fresh = query.fresh === '1'
@@ -32,14 +37,31 @@ Page({
     this.setData({ today: dayKey(), id: this.fresh ? '' : this.editId })
   },
   onShow() {
-    this.prepare().then((data) => {
-      if (this.filled) return
+    this.reload()
+  },
+  retry() {
+    this.filled = false
+    this.setData({ pageError: '', loading: true })
+    this.reload()
+  },
+  reload() {
+    return this.prepare().then((data) => {
+      if (this.filled) {
+        this.setData({ loading: false, pageError: '' })
+        return
+      }
       this.filled = true
-      if (this.fresh) return
+      if (this.fresh) {
+        this.setData({ loading: false, pageError: '' })
+        return
+      }
       const found = (data.babies || []).find((baby) => baby._id === this.editId)
       if (found) this.fill(found)
       else if (data.baby && !this.editId) this.fill(data.baby)
-    }).catch((err) => this.fail(err))
+      this.setData({ loading: false, pageError: '' })
+    }).catch((err) => {
+      this.setData({ loading: false, pageError: err.message || '云服务没有连上' })
+    })
   },
   fill(baby) {
     this.setData({
@@ -60,8 +82,13 @@ Page({
     })
   },
   onInput(e) {
+    const field = e.currentTarget.dataset.field
     const patch = {}
-    patch[e.currentTarget.dataset.field] = e.detail.value
+    patch[field] = e.detail.value
+    if (field === 'nickname' && this.data.errors.nickname) {
+      patch['errors.nickname'] = ''
+      patch.formError = ''
+    }
     this.setData(patch)
   },
   onChip(e) {
@@ -70,7 +97,7 @@ Page({
     this.setData(patch)
   },
   onBirth(e) {
-    this.setData({ birthday: e.detail.value })
+    this.setData({ birthday: e.detail.value, 'errors.birthday': '', formError: '' })
   },
   onTime(e) {
     this.setData({ birthTime: e.detail.value })
@@ -97,12 +124,24 @@ Page({
     const index = Number(e.currentTarget.dataset.index)
     this.setData({ customSupplements: this.data.customSupplements.filter((_, i) => i !== index) })
   },
+  validate() {
+    const errors = {}
+    const nickname = String(this.data.nickname || '').trim()
+    if (!nickname) errors.nickname = '写一个称呼吧'
+    else if (nickname.length > 20) errors.nickname = '称呼最多 20 个字'
+    if (!this.data.birthday) errors.birthday = '选一下出生日'
+    const first = Object.keys(errors)[0]
+    this.setData({ errors, formError: first ? errors[first] : '' })
+    if (first) wx.pageScrollTo({ scrollTop: 0, duration: 200 })
+    return !first
+  },
   save() {
     if (this.data.saving) return
+    if (!this.validate()) return
     this.setData({ saving: true })
     api.saveBaby({
       _id: this.data.id,
-      nickname: this.data.nickname,
+      nickname: String(this.data.nickname || '').trim(),
       gender: this.data.gender,
       birthday: this.data.birthday,
       birthTime: this.data.birthTime,
@@ -116,7 +155,9 @@ Page({
       customSupplements: this.data.customSupplements
     }).then((data) => {
       session.apply(data)
-      wx.navigateBack()
+      this.setData({ saving: false })
+      this.ok('已保存')
+      this.backAfter(450)
     }).catch((err) => {
       this.setData({ saving: false })
       this.fail(err)
@@ -126,7 +167,7 @@ Page({
     wx.showModal({
       title: '删除这个宝宝？',
       content: '喂养、用药、生长记录都会清掉，而且找不回来。',
-      confirmColor: '#C4624E',
+      confirmColor: theme.danger,
       success: (res) => {
         if (!res.confirm) return
         api.deleteBaby({ babyId: this.data.id }).then((data) => {

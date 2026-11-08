@@ -1,44 +1,171 @@
 <view class="page {{elder ? 'elder' : ''}}">
-  <view class="card" wx:if="{{needBaby}}">
-    <view class="h1">先建立宝宝档案</view>
-    <button class="btn btn-primary btn-block" bindtap="goBaby">去填写</button>
-  </view>
-  <block wx:else>
-    <view class="muted">剂量和次数按医嘱自己填。这里只负责记和提醒，不算该吃多少。</view>
-    <view class="card" wx:if="{{!templateReady}}">
-      <view class="h2">微信通知还没打开</view>
-      <view class="muted">每一顿仍然会出现在今天。配置订阅模板后，手机会收到服务通知。</view>
+  <block wx:if="{{loading}}">
+    <view class="skeleton-card">
+      <view class="skeleton-line w-40"></view>
+      <view class="skeleton-line"></view>
     </view>
-    <button wx:if="{{templateReady}}" class="btn btn-ghost btn-block" bindtap="allowRemind">允许吃药提醒</button>
-    <view class="card" wx:for="{{doses}}" wx:key="_id">
-      <view class="row">
-        <view class="med-time">{{item.slotTime}}</view>
-        <view class="muted">{{item.statusText}}</view>
-      </view>
-      <view class="h2">{{item.name}}</view>
-      <view class="muted">计划 {{item.planDoseText}}<text wx:if="{{item.memberName}}"> · {{item.memberName}}</text></view>
-      <view class="muted" wx:if="{{item.note}}">{{item.note}}</view>
-      <view wx:if="{{editId === item._id}}">
-        <stepper elder="{{elder}}" value="{{editAmount}}" min="{{0}}" max="{{100}}" step="{{0.5}}" unit="{{item.doseUnit}}" bind:change="onEditAmount" />
-        <button class="btn btn-primary btn-block" data-id="{{item._id}}" bindtap="confirmAmount">按这个数量记已吃</button>
-      </view>
-      <block wx:else>
-        <button class="btn btn-primary btn-block" data-id="{{item._id}}" data-when="now" bindtap="markTaken">吃了</button>
-        <button class="btn btn-ghost btn-block" data-id="{{item._id}}" data-when="plan" bindtap="markTaken">按计划时间补记</button>
-        <button class="btn btn-line btn-block" data-id="{{item._id}}" bindtap="markSkip">没吃</button>
-        <view class="link" data-id="{{item._id}}" data-amount="{{item.doseAmount}}" bindtap="startEdit">数量不对</view>
-      </block>
+    <view class="skeleton-card">
+      <view class="skeleton-line w-70"></view>
+      <view class="skeleton-line"></view>
     </view>
-    <view class="muted" wx:if="{{!doses.length}}">今天还没有按顿安排的药。</view>
-    <view class="h2" style="margin: 28rpx 0 12rpx;">进行中的疗程</view>
-    <view class="card" wx:for="{{meds}}" wx:key="_id">
-      <view class="h2">{{item.name}}</view>
-      <view class="muted">{{item.planText}}</view>
-      <view class="muted">{{item.startDay}} 到 {{item.endDay}}<text wx:if="{{item.mealNote}}"> · {{item.mealNote}}</text></view>
-      <button wx:if="{{item.frequencyType === 'asNeeded'}}" class="btn btn-primary btn-block" data-id="{{item._id}}" bindtap="takeNow">现在吃了</button>
-      <button class="btn btn-ghost btn-block" data-id="{{item._id}}" bindtap="edit">修改</button>
-      <button class="btn btn-line btn-block" data-id="{{item._id}}" bindtap="stop">结束用药</button>
-    </view>
-    <button class="btn btn-primary btn-block" bindtap="create">添加用药</button>
   </block>
+
+  <view wx:elif="{{pageError}}" class="card error-state">
+    <view class="heading">还没连上云</view>
+    <view class="caption mt-1">{{pageError}}</view>
+    <button class="btn btn-primary btn-block" hover-class="is-pressed" bindtap="retry">再试一次</button>
+  </view>
+
+  <view wx:elif="{{needBaby}}" class="card">
+    <empty
+      icon="baby"
+      tone="sleep"
+      title="先建立宝宝档案"
+      hint="有了档案，用药才能按宝宝分开记。"
+      action-text="去填写"
+      elder="{{elder}}"
+      bind:action="goBaby"
+    />
+  </view>
+
+  <block wx:else>
+    <view class="page-head">
+      <view class="page-head-main">
+        <view class="display">用药</view>
+        <view class="caption mt-1">剂量和次数按医嘱自己填，这里只负责记和提醒。</view>
+      </view>
+      <button class="btn btn-primary btn-sm" hover-class="is-pressed" bindtap="create">添加用药</button>
+    </view>
+
+    <view class="card" wx:if="{{totalToday}}">
+      <view class="row">
+        <view class="heading">今天已吃</view>
+        <view class="pill {{takenToday === totalToday ? 'done' : 'pending'}}">{{takenToday}} / {{totalToday}}</view>
+      </view>
+      <view class="progress mt-2">
+        <view class="progress-fill brand" style="width: {{medPercent}}%;"></view>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{!templateReady}}">
+      <view class="heading">微信通知还没打开</view>
+      <view class="caption mt-1">每一顿仍然会出现在今天。配置订阅模板后，手机会收到服务通知。</view>
+    </view>
+    <button
+      wx:if="{{templateReady}}"
+      class="btn btn-secondary btn-block mb-3"
+      hover-class="is-pressed"
+      bindtap="allowRemind"
+    >允许吃药提醒</button>
+
+    <view
+      class="card"
+      wx:for="{{doseGroups}}"
+      wx:key="time"
+      wx:for-item="group"
+      style="animation-delay: {{index * 50 + 120}}ms"
+    >
+      <view class="row mb-2">
+        <view class="title">{{group.time}}</view>
+        <view class="pill {{group.pending ? 'pending' : 'done'}}">{{group.pending ? '待吃' : '已完成'}}</view>
+      </view>
+      <view class="dose-block" wx:for="{{group.items}}" wx:key="_id" wx:for-item="dose">
+        <view class="row">
+          <view class="grow">
+            <view class="list-title">{{dose.name}}</view>
+            <view class="list-sub">计划 {{dose.planDoseText}}<text wx:if="{{dose.memberName}}"> · {{dose.memberName}}</text></view>
+            <view class="list-sub" wx:if="{{dose.note}}">{{dose.note}}</view>
+          </view>
+          <view class="pill {{dose.statusClass}}">{{dose.statusText}}</view>
+        </view>
+        <view wx:if="{{dose.status === 'pending'}}" class="dose-actions mt-2">
+          <button
+            class="btn btn-primary btn-sm"
+            hover-class="is-pressed"
+            data-id="{{dose._id}}"
+            data-when="now"
+            bindtap="markTaken"
+          >吃了</button>
+          <button
+            class="btn btn-icon"
+            hover-class="is-pressed"
+            data-id="{{dose._id}}"
+            data-status="{{dose.status}}"
+            data-amount="{{dose.doseAmount}}"
+            bindtap="openSheet"
+            aria-label="更多操作"
+          >…</button>
+        </view>
+        <view wx:else class="dose-actions mt-2">
+          <button
+            class="btn btn-icon"
+            hover-class="is-pressed"
+            data-id="{{dose._id}}"
+            data-status="{{dose.status}}"
+            data-amount="{{dose.doseAmount}}"
+            bindtap="openSheet"
+            aria-label="更多操作"
+          >…</button>
+        </view>
+        <view wx:if="{{editId === dose._id}}" class="dose-edit mt-2">
+          <stepper
+            elder="{{elder}}"
+            value="{{editAmount}}"
+            min="{{0.5}}"
+            max="{{100}}"
+            step="{{0.5}}"
+            unit="{{dose.doseUnit}}"
+            bind:change="onEditAmount"
+          />
+          <view class="pair mt-2">
+            <button class="btn btn-secondary" hover-class="is-pressed" bindtap="cancelEdit">取消</button>
+            <button class="btn btn-primary" hover-class="is-pressed" bindtap="confirmAmount">按这个数量记已吃</button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{!doseGroups.length}}">
+      <empty
+        icon="med"
+        tone="med"
+        title="今天没有按顿安排的药"
+        hint="按医嘱添加一个疗程，之后每顿都会出现在这里。"
+        action-text="添加用药"
+        elder="{{elder}}"
+        bind:action="create"
+      />
+    </view>
+
+    <block wx:if="{{meds.length}}">
+      <view class="section-head mt-3">
+        <view class="section-title">进行中的疗程</view>
+      </view>
+      <view class="card" wx:for="{{meds}}" wx:key="_id" style="animation-delay: {{index * 45 + 160}}ms">
+        <view class="heading">{{item.name}}</view>
+        <view class="sub mt-1">{{item.planText}}</view>
+        <view class="sub">{{item.startPretty}} 到 {{item.endPretty}}<text wx:if="{{item.mealNote}}"> · {{item.mealNote}}</text></view>
+        <button
+          wx:if="{{item.frequencyType === 'asNeeded'}}"
+          class="btn btn-secondary btn-block mt-3"
+          hover-class="is-pressed"
+          data-id="{{item._id}}"
+          bindtap="takeNow"
+        >现在吃了</button>
+        <view class="pair mt-3">
+          <button class="btn btn-secondary" hover-class="is-pressed" data-id="{{item._id}}" bindtap="edit">修改</button>
+          <button class="btn btn-ghost" hover-class="is-pressed" data-id="{{item._id}}" bindtap="stop">结束用药</button>
+        </view>
+      </view>
+    </block>
+  </block>
+
+  <sheet
+    show="{{sheet.show}}"
+    title="{{sheet.title}}"
+    items="{{sheet.items}}"
+    elder="{{elder}}"
+    bind:close="closeSheet"
+    bind:select="onSheetSelect"
+  />
 </view>

@@ -1,50 +1,120 @@
 <view class="page tab {{elder ? 'elder' : ''}}">
-  <view class="card" wx:if="{{pageError}}">
-    <view class="h2">还没连上云</view>
-    <view class="muted">{{pageError}}</view>
-  </view>
-  <view class="card" wx:elif="{{needBaby}}">
-    <view class="bubble lg tone-sleep">
-      <icon name="baby" size="{{56}}" elder="{{elder}}" />
+  <block wx:if="{{loading}}">
+    <view class="skeleton-card">
+      <view class="skeleton-line w-40"></view>
+      <view class="skeleton-line"></view>
     </view>
-    <view class="h1">先建立宝宝档案</view>
-    <button class="btn btn-primary btn-block" bindtap="goBaby">去填写</button>
+    <view class="skeleton-card">
+      <view class="skeleton-line w-70"></view>
+      <view class="skeleton-line"></view>
+      <view class="skeleton-line"></view>
+    </view>
+  </block>
+
+  <view wx:elif="{{pageError}}" class="card error-state">
+    <view class="heading">还没连上云</view>
+    <view class="caption mt-1">{{pageError}}</view>
+    <button class="btn btn-primary btn-block" hover-class="is-pressed" bindtap="retry">再试一次</button>
   </view>
+
+  <view wx:elif="{{needBaby}}" class="card">
+    <empty
+      icon="baby"
+      tone="sleep"
+      title="先建立宝宝档案"
+      hint="有了出生日，才知道这个阶段该记哪些。"
+      action-text="去填写"
+      elder="{{elder}}"
+      bind:action="goBaby"
+    />
+  </view>
+
   <block wx:else>
-    <picker mode="date" value="{{day}}" bindchange="onDate">
-      <view class="card">
-        <view class="muted">这一天</view>
-        <view class="h1">{{pretty}}</view>
-      </view>
-    </picker>
-    <view class="actions">
-      <view class="action" wx:for="{{actions}}" wx:key="key" data-key="{{item.key}}" bindtap="onAction">
-        <view class="bubble tone-{{item.tone}}"><icon name="{{item.icon}}" elder="{{elder}}" /></view>
-        <view class="action-title">{{item.title}}</view>
-        <view class="action-hint">{{item.hint}}</view>
+    <view class="datebar">
+      <view class="date-btn" bindtap="shift" data-dir="-1" hover-class="is-pressed">‹</view>
+      <picker class="grow" mode="date" value="{{day}}" bindchange="onDate">
+        <view class="datebar-main">{{pretty}}<text class="chev">›</text></view>
+      </picker>
+      <view class="date-btn" bindtap="shift" data-dir="1" hover-class="is-pressed">›</view>
+    </view>
+    <view class="text-center" wx:if="{{!isToday}}">
+      <view class="link" bindtap="goToday" hover-class="is-pressed">回到今天</view>
+    </view>
+
+    <view class="quick-grid cols-3 mb-3">
+      <view
+        class="quick-card"
+        wx:for="{{actions}}"
+        wx:key="key"
+        data-key="{{item.key}}"
+        bindtap="onAction"
+        hover-class="is-pressed"
+        style="animation-delay: {{index * 40 + 80}}ms"
+      >
+        <view class="bubble tone-{{item.tone}}">
+          <icon name="{{item.icon}}" size="{{44}}" elder="{{elder}}" />
+        </view>
+        <view class="quick-title">{{item.title}}</view>
       </view>
     </view>
-    <view class="link" wx:if="{{more.length && !showMore}}" bindtap="toggleMore">还要记喂奶或尿布</view>
-    <view class="actions" wx:if="{{showMore}}">
-      <view class="action" wx:for="{{more}}" wx:key="key" data-key="{{item.key}}" bindtap="onAction">
-        <view class="bubble tone-{{item.tone}}"><icon name="{{item.icon}}" elder="{{elder}}" /></view>
-        <view class="action-title">{{item.title}}</view>
-        <view class="action-hint">{{item.hint}}</view>
+
+    <block wx:if="{{more.length}}">
+      <view class="collapse-head {{showMore ? 'open' : ''}}" bindtap="toggleMore" hover-class="is-pressed">
+        {{showMore ? '收起' : '还要记喂奶或尿布'}}
+        <text class="chev">›</text>
       </view>
-    </view>
+      <view wx:if="{{showMore}}" class="quick-grid mb-3">
+        <view
+          class="quick-card"
+          wx:for="{{more}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="onAction"
+          hover-class="is-pressed"
+          style="animation-delay: {{index * 40 + 80}}ms"
+        >
+          <view class="bubble tone-{{item.tone}}">
+            <icon name="{{item.icon}}" size="{{44}}" elder="{{elder}}" />
+          </view>
+          <view class="quick-title">{{item.title}}</view>
+          <view class="quick-hint">{{item.hint}}</view>
+        </view>
+      </view>
+    </block>
+
     <view class="card">
-      <view class="h2">流水</view>
-      <view class="muted">点一条可以修改。合计在「今天」和「统计」。</view>
-      <view wx:if="{{!records.length}}" class="muted" style="margin-top: 16rpx;">这一天还没有记录。</view>
-      <view class="tl" wx:for="{{records}}" wx:key="_id" data-id="{{item._id}}" data-type="{{item.type}}" bindtap="openRecord">
-        <view class="tl-side">
+      <view class="section-head">
+        <view class="section-title">流水</view>
+        <view class="pill skip" wx:if="{{records.length}}">{{records.length}} 条</view>
+      </view>
+      <view class="caption">点一条可以修改。合计在「今天」和「统计」。</view>
+      <empty
+        wx:if="{{!records.length}}"
+        compact
+        icon="record"
+        tone="note"
+        title="这一天还没有记录"
+        hint="点上面的按钮记一笔。"
+        elder="{{elder}}"
+      />
+      <view
+        class="timeline-row"
+        wx:for="{{records}}"
+        wx:key="_id"
+        data-id="{{item._id}}"
+        data-type="{{item.type}}"
+        bindtap="openRecord"
+        hover-class="is-pressed"
+        style="animation-delay: {{index * 40 + 220}}ms"
+      >
+        <view class="bubble sm tone-{{item.tone}}">
           <icon name="{{item.icon}}" size="{{36}}" elder="{{elder}}" />
-          <view class="tl-time">{{item.timeText}}</view>
         </view>
-        <view class="tl-body">
-          <view>{{item.text}}</view>
-          <view class="tl-who">{{item.memberName}}</view>
+        <view class="timeline-body">
+          <view class="timeline-title">{{item.text}}</view>
+          <view class="timeline-meta">{{item.timeText}}<text wx:if="{{item.memberName}}"> · {{item.memberName}}</text></view>
         </view>
+        <text class="timeline-chev">›</text>
       </view>
     </view>
   </block>

@@ -1,60 +1,92 @@
 .stepper {
   display: flex;
   align-items: center;
-  background: #F7F4EF;
-  border: 1rpx solid #E4DDD4;
-  border-radius: 24rpx;
+  background: var(--surface-2, #F1EDFA);
+  border: 2rpx solid var(--control-line, #857B9F);
+  border-radius: var(--r-control, 24rpx);
   overflow: hidden;
 }
-
 .step-btn {
-  width: 96rpx;
+  width: 88rpx;
   height: 88rpx;
   line-height: 88rpx;
   text-align: center;
   font-size: 40rpx;
   font-weight: 700;
-  color: #24302B;
+  color: var(--ink, #262233);
 }
-
+.step-btn.off {
+  opacity: 0.32;
+}
+.step-pressed {
+  background: var(--surface-3, #E7E0F7);
+}
 .step-val {
   flex: 1;
+  min-width: 0;
   height: 88rpx;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .step-input {
-  width: 180rpx;
+  width: 160rpx;
   height: 88rpx;
   line-height: 88rpx;
   text-align: center;
   font-size: 34rpx;
   font-weight: 700;
-  color: #24302B;
+  color: var(--ink, #262233);
+  font-variant-numeric: tabular-nums;
 }
-
 .step-unit {
   margin-left: 8rpx;
   font-size: 26rpx;
-  font-weight: 500;
-  color: #6E7872;
+  color: var(--ink-3, #6F6781);
+  flex-shrink: 0;
 }
-
-.elder .step-btn {
-  width: 120rpx;
-  height: 108rpx;
-  line-height: 108rpx;
+.quick-amts {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 12rpx;
+}
+.amt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  padding: 0 24rpx;
+  margin: 0 12rpx 12rpx 0;
+  border-radius: 999rpx;
+  background: var(--surface-2, #F1EDFA);
+  border: 2rpx solid var(--control-line, #857B9F);
+  color: var(--ink, #262233);
+  font-size: 26rpx;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.amt-pressed {
+  background: var(--brand-soft, #EDE9FE);
+}
+.stepper.elder .step-btn {
+  width: 104rpx;
+  height: 112rpx;
+  line-height: 112rpx;
   font-size: 48rpx;
 }
-
-.elder .step-val {
-  height: 108rpx;
+.stepper.elder .step-val {
+  height: 112rpx;
 }
-
-.elder .step-input {
-  height: 108rpx;
-  line-height: 108rpx;
+.stepper.elder .step-input {
+  height: 112rpx;
+  line-height: 112rpx;
   font-size: 40rpx;
+}
+.stepper.elder .step-unit {
+  font-size: 30rpx;
+}
+.stepper-wrap.elder .amt {
+  min-height: 104rpx;
+  padding: 0 32rpx;
+  font-size: 30rpx;
 }

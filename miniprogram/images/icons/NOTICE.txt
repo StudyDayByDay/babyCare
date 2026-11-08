@@ -1,0 +1,3 @@
+这些小图来自 Google Material Symbols。
+https://fonts.google.com/icons
+采用 Apache License 2.0，已下载进项目，小程序运行时不访问该网站。

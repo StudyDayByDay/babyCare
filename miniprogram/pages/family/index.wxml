@@ -1,0 +1,24 @@
+<view class="page {{elder ? 'elder' : ''}}">
+  <view class="card">
+    <view class="muted">邀请码</view>
+    <view class="code">{{inviteCode}}</view>
+    <view class="muted">爷爷奶奶用自己的微信打开小程序，输入这 6 位。不要发到大群。</view>
+    <button class="btn btn-primary btn-block" bindtap="copy">复制邀请码</button>
+    <button wx:if="{{isOwner}}" class="btn btn-line btn-block" bindtap="renew">换一个邀请码</button>
+  </view>
+  <view class="card">
+    <view class="h2">家人</view>
+    <view class="menu" wx:for="{{members}}" wx:key="_id">
+      <text>{{item.label}}<text class="muted" wx:if="{{item.isOwner}}"> 创建人</text><text class="muted" wx:if="{{item.isMe}}"> 我</text></text>
+      <text wx:if="{{isOwner && !item.isMe}}" class="link" data-id="{{item._id}}" bindtap="remove">移出</text>
+    </view>
+  </view>
+  <view class="card">
+    <view class="h2">加入别人的家庭</view>
+    <view class="muted">只有还没建宝宝档案时可以加入。已经有档案的话，把你的邀请码发给对方。</view>
+    <input class="input" type="number" maxlength="6" value="{{code}}" bindinput="onCode" placeholder="6 位数字" />
+    <button class="btn btn-ghost btn-block" bindtap="join">加入</button>
+    <button wx:if="{{!isOwner}}" class="btn btn-line btn-block" bindtap="leave">退出这个家庭</button>
+  </view>
+  <view class="muted">吃药的微信提醒要每个人自己点一次允许，爷爷奶奶的手机才会响。</view>
+</view>

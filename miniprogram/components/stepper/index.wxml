@@ -1,0 +1,16 @@
+<view class="stepper {{elder ? 'elder' : ''}}">
+  <view class="step-btn" catchtap="change" data-dir="-1">－</view>
+  <view class="step-val">
+    <input
+      class="step-input"
+      type="{{decimal ? 'digit' : 'number'}}"
+      value="{{text}}"
+      bindinput="onInput"
+      bindblur="onBlur"
+      confirm-type="done"
+      always-embed
+    />
+    <text wx:if="{{unit}}" class="step-unit">{{unit}}</text>
+  </view>
+  <view class="step-btn" catchtap="change" data-dir="1">＋</view>
+</view>

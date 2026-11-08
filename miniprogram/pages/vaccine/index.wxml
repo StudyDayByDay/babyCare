@@ -1,0 +1,24 @@
+<view class="page {{elder ? 'elder' : ''}}">
+  <view class="muted">按国家免疫规划 2025 版的常见时间列出，各地和自费疫苗不一样。用来提醒你核对接种本，不是接种通知。</view>
+  <button class="btn btn-primary btn-block" bindtap="sync">按出生日生成待办</button>
+  <view class="h2" style="margin: 24rpx 0 12rpx;">待核对</view>
+  <view class="card" wx:for="{{pending}}" wx:key="_id">
+    <view class="h2">{{item.name}}</view>
+    <view class="muted">{{item.dueText}} {{item.dueDay}}</view>
+    <button class="btn btn-primary btn-block" data-id="{{item._id}}" bindtap="done">接种本上已有</button>
+    <button class="btn btn-line btn-block" data-id="{{item._id}}" bindtap="skip">这次不做</button>
+  </view>
+  <view class="muted" wx:if="{{!pending.length}}">没有待核对的项目。</view>
+  <view class="card">
+    <view class="h2">自己添加</view>
+    <input class="input" value="{{customName}}" bindinput="onName" placeholder="自费疫苗名称" />
+    <view class="gap"></view>
+    <picker mode="date" value="{{customDay}}" bindchange="onCustomDay"><view class="input">{{customDay}}</view></picker>
+    <button class="btn btn-ghost btn-block" bindtap="addCustom">加上</button>
+  </view>
+  <view class="h2" wx:if="{{doneList.length}}">已记录</view>
+  <view class="card" wx:for="{{doneList}}" wx:key="_id">
+    <view>{{item.name}}</view>
+    <view class="muted">{{item.status === 'done' ? '已接种' : '不做了'}} {{item.doneDay || item.dueDay}}</view>
+  </view>
+</view>

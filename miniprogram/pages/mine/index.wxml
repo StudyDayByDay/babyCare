@@ -1,0 +1,62 @@
+<view class="page tab {{elder ? 'elder' : ''}}">
+  <view class="card" wx:if="{{baby}}">
+    <view class="muted">当前宝宝</view>
+    <view class="h1">{{baby.nickname}}</view>
+    <view class="muted">{{baby.birthday}} {{baby.gender}}</view>
+    <button class="btn btn-ghost btn-block" bindtap="editBaby">修改档案</button>
+  </view>
+  <view class="card" wx:else>
+    <view class="h2">还没有宝宝档案</view>
+    <button class="btn btn-primary btn-block" bindtap="editBaby">建立档案</button>
+  </view>
+
+  <view class="card" wx:if="{{babies.length > 1}}">
+    <view class="h2">切换宝宝</view>
+    <view class="chips">
+      <view class="chip {{baby._id === item._id ? 'on' : ''}}" wx:for="{{babies}}" wx:key="_id" data-id="{{item._id}}" bindtap="onSwitch">{{item.nickname}}</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="label">我是</view>
+    <picker mode="selector" range="{{roles}}" value="{{roleIndex}}" bindchange="onRole">
+      <view class="input">{{roles[roleIndex]}}</view>
+    </picker>
+    <view class="gap"></view>
+    <view class="label">怎么称呼（可不填）</view>
+    <input class="input" value="{{displayName}}" bindinput="onName" bindblur="onNameBlur" placeholder="例如：王阿姨" />
+    <view class="row" style="margin-top: 28rpx;">
+      <view>
+        <view class="h2">大字模式</view>
+        <view class="muted">按钮和字更大，给老人用</view>
+      </view>
+      <switch checked="{{elder}}" color="#3E6B58" bindchange="onElder" />
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="menu" bindtap="go" data-url="/pages/family/index">
+      <view class="menu-main"><view class="bubble sm tone-sleep"><icon name="family" size="{{40}}" elder="{{elder}}" /></view>家庭成员</view>
+      <text class="muted">邀请码</text>
+    </view>
+    <view class="menu" bindtap="go" data-url="/pages/med-list/index">
+      <view class="menu-main"><view class="bubble sm tone-med"><icon name="med" size="{{40}}" elder="{{elder}}" /></view>用药</view>
+      <text class="muted">按顿提醒</text>
+    </view>
+    <view class="menu" bindtap="go" data-url="/pages/growth/index">
+      <view class="menu-main"><view class="bubble sm tone-sleep"><icon name="growth" size="{{40}}" elder="{{elder}}" /></view>身高体重</view>
+      <text class="muted">儿保时记</text>
+    </view>
+    <view class="menu" bindtap="go" data-url="/pages/vaccine/index">
+      <view class="menu-main"><view class="bubble sm tone-feed"><icon name="vaccine" size="{{40}}" elder="{{elder}}" /></view>疫苗</view>
+      <text class="muted">核对接种本</text>
+    </view>
+    <view class="menu" bindtap="go" data-url="/pages/export/index">
+      <view class="menu-main"><view class="bubble sm tone-note"><icon name="export" size="{{40}}" elder="{{elder}}" /></view>导出打印</view>
+      <text class="muted">表格</text>
+    </view>
+    <button class="btn btn-line btn-block" bindtap="addBaby">再加一个宝宝</button>
+  </view>
+
+  <view class="muted">只帮你记账、提醒和导出。不算剂量，也不判断正不正常。{{templateHint}}</view>
+</view>

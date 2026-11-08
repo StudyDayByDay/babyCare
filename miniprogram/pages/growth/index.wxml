@@ -1,0 +1,23 @@
+<view class="page {{elder ? 'elder' : ''}}">
+  <view class="muted">儿保或在家量到的数字。这里不画正常范围。</view>
+  <view class="card">
+    <picker mode="date" value="{{day}}" bindchange="onDay"><view class="input">{{day}}</view></picker>
+    <view class="gap"></view>
+    <text class="label">体重</text>
+    <stepper elder="{{elder}}" value="{{weightG}}" min="{{0}}" max="{{50000}}" step="{{10}}" unit="克" bind:change="onWeight" />
+    <view class="muted">{{weightHint}}</view>
+    <text class="label">身长</text>
+    <stepper elder="{{elder}}" value="{{heightCm}}" min="{{0}}" max="{{160}}" step="{{0.5}}" unit="厘米" bind:change="onHeight" />
+    <view class="gap"></view>
+    <text class="label">头围</text>
+    <stepper elder="{{elder}}" value="{{headCm}}" min="{{0}}" max="{{80}}" step="{{0.5}}" unit="厘米" bind:change="onHead" />
+    <button class="btn btn-primary btn-block" bindtap="save">记下这次</button>
+  </view>
+  <view class="card" wx:for="{{list}}" wx:key="_id">
+    <view class="row">
+      <view class="h2">{{item.day}}</view>
+      <view class="link" data-id="{{item._id}}" bindtap="remove">删除</view>
+    </view>
+    <view class="muted">{{item.text}}</view>
+  </view>
+</view>

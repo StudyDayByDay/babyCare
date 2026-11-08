@@ -1,0 +1,92 @@
+<view class="page tab {{elder ? 'elder' : ''}}">
+  <view class="card" wx:if="{{pageError}}">
+    <view class="h2">还没连上云</view>
+    <view class="muted">{{pageError}}</view>
+    <button class="btn btn-primary btn-block" bindtap="retry">再试一次</button>
+  </view>
+
+  <view class="card" wx:elif="{{needBaby}}">
+    <view class="bubble lg tone-sleep">
+      <icon name="baby" size="{{56}}" elder="{{elder}}" />
+    </view>
+    <view class="h1">先记下宝宝的出生日</view>
+    <view class="muted">用来算第几天，也用来决定这个阶段要记哪些。</view>
+    <button class="btn btn-primary btn-block" bindtap="goBaby">建立档案</button>
+  </view>
+
+  <block wx:elif="{{baby}}">
+    <view class="row">
+      <view>
+        <view class="h1">{{baby.nickname}}</view>
+        <view class="muted">{{ageText}} · {{stageLabel}} · {{pretty}}</view>
+      </view>
+    </view>
+
+    <view class="card card-med" wx:if="{{nextGroup}}" style="margin-top: 24rpx;">
+      <view class="row">
+        <view class="menu-main">
+          <view class="bubble sm tone-med">
+            <icon name="med" size="{{40}}" elder="{{elder}}" />
+          </view>
+          <view class="h2">今天的药</view>
+        </view>
+        <view class="muted">已吃 {{summary.medTaken}} / {{summary.medTotal}}</view>
+      </view>
+      <view class="med-time">{{nextGroup.time}}</view>
+      <view wx:for="{{nextGroup.items}}" wx:key="_id" class="muted">{{item.name}} {{item.planDoseText}} · {{item.statusText}}</view>
+      <button class="btn btn-warm btn-block" bindtap="takeNext">这顿吃了</button>
+      <view class="link" bindtap="goMed">分开记，或改数量</view>
+    </view>
+    <view class="card" wx:elif="{{summary.medTotal}}" style="margin-top: 24rpx;">
+      <view class="h2">今天的药记完了</view>
+      <view class="muted">已吃 {{summary.medTaken}} / {{summary.medTotal}}</view>
+    </view>
+
+    <view class="tiles" style="margin-top: 8rpx;">
+      <view class="tile">
+        <view class="bubble sm tone-feed"><icon name="feed" size="{{40}}" elder="{{elder}}" /></view>
+        <view class="tile-num">{{milk.num}}</view>
+        <view class="tile-label">奶 · {{milk.sub}}</view>
+      </view>
+      <view class="tile">
+        <view class="bubble sm tone-diaper"><icon name="diaper" size="{{40}}" elder="{{elder}}" /></view>
+        <view class="tile-num">{{summary.diaperCount}}次</view>
+        <view class="tile-label">尿布 · 大便 {{summary.poopCount}} 次</view>
+      </view>
+      <view class="tile">
+        <view class="bubble sm tone-sleep"><icon name="sleep" size="{{40}}" elder="{{elder}}" /></view>
+        <view class="tile-num">{{sleepText}}</view>
+        <view class="tile-label">睡眠</view>
+      </view>
+      <view class="tile">
+        <view class="bubble sm tone-diaper"><icon name="stool" size="{{40}}" elder="{{elder}}" /></view>
+        <view class="tile-num">{{summary.poopCount}}次</view>
+        <view class="tile-label">大便 · 小便 {{summary.peeCount}} 次</view>
+      </view>
+    </view>
+
+    <view class="actions">
+      <view class="action" wx:for="{{quick}}" wx:key="key" data-key="{{item.key}}" bindtap="onAction">
+        <view class="bubble tone-{{item.tone}}"><icon name="{{item.icon}}" elder="{{elder}}" /></view>
+        <view class="action-title">{{item.title}}</view>
+        <view class="action-hint">{{item.hint}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="h2">今天的记录</view>
+      <view class="muted" wx:if="{{dailyText}}">护理：{{dailyText}}</view>
+      <view wx:if="{{!records.length}}" class="muted" style="margin-top: 12rpx;">还没有。夜奶时点上面的大按钮就行。</view>
+      <view class="tl" wx:for="{{records}}" wx:key="_id" data-id="{{item._id}}" data-type="{{item.type}}" bindtap="openRecord">
+        <view class="tl-side">
+          <icon name="{{item.icon}}" size="{{36}}" elder="{{elder}}" />
+          <view class="tl-time">{{item.timeText}}</view>
+        </view>
+        <view class="tl-body">
+          <view>{{item.text}}</view>
+          <view class="tl-who" wx:if="{{item.memberName}}">{{item.memberName}}</view>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

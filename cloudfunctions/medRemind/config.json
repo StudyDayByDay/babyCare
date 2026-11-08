@@ -1,0 +1,13 @@
+{
+  "timeout": 20,
+  "permissions": {
+    "openapi": ["subscribeMessage.send"]
+  },
+  "triggers": [
+    {
+      "name": "medTick",
+      "type": "timer",
+      "config": "0 */5 * * * * *"
+    }
+  ]
+}

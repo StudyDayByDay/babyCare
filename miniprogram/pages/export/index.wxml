@@ -1,0 +1,15 @@
+<view class="page {{elder ? 'elder' : ''}}">
+  <view class="chips">
+    <view class="chip {{span === 7 ? 'on' : ''}}" data-span="7" bindtap="onSpan">近 7 天</view>
+    <view class="chip {{span === 30 ? 'on' : ''}}" data-span="30" bindtap="onSpan">近 30 天</view>
+  </view>
+  <view class="muted">生成表格后，用微信打开或发到电脑再打印。小程序里没有直接连接打印机的按钮。</view>
+  <view class="card" wx:for="{{days}}" wx:key="day">
+    <view class="h2">{{item.day}}</view>
+    <view class="muted">喂养 {{item.feedCount}} 次 · 亲喂 {{item.breastMin}} 分钟 · 配方 {{item.formulaMl}} 毫升</view>
+    <view class="muted">尿布 {{item.diaperCount}} · 大便 {{item.poopCount}} {{item.poopText}} · 睡眠 {{item.sleepText}}</view>
+    <view class="muted">用药 {{item.medTaken}}/{{item.medTotal}}</view>
+  </view>
+  <button class="btn btn-ghost btn-block" bindtap="copy">复制这段文字</button>
+  <button class="btn btn-primary btn-block" loading="{{saving}}" disabled="{{saving}}" bindtap="makeFile">生成表格</button>
+</view>

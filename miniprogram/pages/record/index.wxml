@@ -1,0 +1,51 @@
+<view class="page tab {{elder ? 'elder' : ''}}">
+  <view class="card" wx:if="{{pageError}}">
+    <view class="h2">还没连上云</view>
+    <view class="muted">{{pageError}}</view>
+  </view>
+  <view class="card" wx:elif="{{needBaby}}">
+    <view class="bubble lg tone-sleep">
+      <icon name="baby" size="{{56}}" elder="{{elder}}" />
+    </view>
+    <view class="h1">先建立宝宝档案</view>
+    <button class="btn btn-primary btn-block" bindtap="goBaby">去填写</button>
+  </view>
+  <block wx:else>
+    <picker mode="date" value="{{day}}" bindchange="onDate">
+      <view class="card">
+        <view class="muted">这一天</view>
+        <view class="h1">{{pretty}}</view>
+      </view>
+    </picker>
+    <view class="actions">
+      <view class="action" wx:for="{{actions}}" wx:key="key" data-key="{{item.key}}" bindtap="onAction">
+        <view class="bubble tone-{{item.tone}}"><icon name="{{item.icon}}" elder="{{elder}}" /></view>
+        <view class="action-title">{{item.title}}</view>
+        <view class="action-hint">{{item.hint}}</view>
+      </view>
+    </view>
+    <view class="link" wx:if="{{more.length && !showMore}}" bindtap="toggleMore">还要记喂奶或尿布</view>
+    <view class="actions" wx:if="{{showMore}}">
+      <view class="action" wx:for="{{more}}" wx:key="key" data-key="{{item.key}}" bindtap="onAction">
+        <view class="bubble tone-{{item.tone}}"><icon name="{{item.icon}}" elder="{{elder}}" /></view>
+        <view class="action-title">{{item.title}}</view>
+        <view class="action-hint">{{item.hint}}</view>
+      </view>
+    </view>
+    <view class="card">
+      <view class="h2">流水</view>
+      <view class="muted">点一条可以修改。合计在「今天」和「统计」。</view>
+      <view wx:if="{{!records.length}}" class="muted" style="margin-top: 16rpx;">这一天还没有记录。</view>
+      <view class="tl" wx:for="{{records}}" wx:key="_id" data-id="{{item._id}}" data-type="{{item.type}}" bindtap="openRecord">
+        <view class="tl-side">
+          <icon name="{{item.icon}}" size="{{36}}" elder="{{elder}}" />
+          <view class="tl-time">{{item.timeText}}</view>
+        </view>
+        <view class="tl-body">
+          <view>{{item.text}}</view>
+          <view class="tl-who">{{item.memberName}}</view>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

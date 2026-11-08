@@ -1,0 +1,70 @@
+<view class="page {{elder ? 'elder' : ''}}">
+  <view class="card">
+  <view class="field">
+    <text class="label">药名</text>
+    <input class="input" value="{{name}}" bindinput="onName" placeholder="按药盒上的名字写" />
+  </view>
+  <view class="field">
+    <text class="label">一次吃多少</text>
+    <stepper elder="{{elder}}" value="{{doseAmount}}" min="{{0.5}}" max="{{100}}" step="{{0.5}}" bind:change="onAmount" />
+    <view class="gap"></view>
+    <picker mode="selector" range="{{units}}" value="{{unitIndex}}" bindchange="onUnit">
+      <view class="input">{{units[unitIndex]}}</view>
+    </picker>
+  </view>
+  <view class="field">
+    <text class="label">怎么吃</text>
+    <view class="chips">
+      <view class="chip {{frequencyType === 'timesPerDay' ? 'on' : ''}}" data-value="timesPerDay" bindtap="onFreq">一天几次</view>
+      <view class="chip {{frequencyType === 'intervalHours' ? 'on' : ''}}" data-value="intervalHours" bindtap="onFreq">每隔几小时</view>
+      <view class="chip {{frequencyType === 'asNeeded' ? 'on' : ''}}" data-value="asNeeded" bindtap="onFreq">按需</view>
+    </view>
+  </view>
+  <view class="field" wx:if="{{frequencyType === 'timesPerDay'}}">
+    <text class="label">一天几次</text>
+    <stepper elder="{{elder}}" value="{{timesPerDay}}" min="{{1}}" max="{{6}}" step="{{1}}" unit="次" bind:change="onTimes" />
+    <view class="muted">例如一天 3 次、一次 2 颗。某一顿可以单独改数量。</view>
+    <view class="row" style="margin: 16rpx 0;">
+      <text>每一顿数量相同</text>
+      <switch checked="{{sameDose}}" color="#3E6B58" bindchange="onSame" />
+    </view>
+    <view wx:for="{{slots}}" wx:key="index" style="margin-bottom: 16rpx;">
+      <picker mode="time" value="{{item.time}}" data-index="{{index}}" bindchange="onSlotTime">
+        <view class="input">{{item.time}}</view>
+      </picker>
+      <view wx:if="{{!sameDose}}" class="gap"></view>
+      <stepper wx:if="{{!sameDose}}" elder="{{elder}}" value="{{item.doseAmount}}" min="{{0.5}}" max="{{100}}" step="{{0.5}}" unit="{{units[unitIndex]}}" data-index="{{index}}" bind:change="onSlotAmount" />
+    </view>
+  </view>
+  <view class="field" wx:if="{{frequencyType === 'intervalHours'}}">
+    <text class="label">每隔几小时</text>
+    <stepper elder="{{elder}}" value="{{intervalHours}}" min="{{1}}" max="{{24}}" step="{{1}}" unit="小时" bind:change="onInterval" />
+    <view class="gap"></view>
+    <text class="label">第一顿时间</text>
+    <picker mode="time" value="{{firstTime}}" bindchange="onFirstTime"><view class="input">{{firstTime}}</view></picker>
+  </view>
+  <view class="field">
+    <text class="label">从哪天开始</text>
+    <picker mode="date" value="{{startDay}}" bindchange="onStart"><view class="input">{{startDay}}</view></picker>
+  </view>
+  <view class="field" wx:if="{{frequencyType !== 'asNeeded'}}">
+    <text class="label">吃几天</text>
+    <stepper elder="{{elder}}" value="{{days}}" min="{{1}}" max="{{31}}" step="{{1}}" unit="天" bind:change="onDays" />
+    <view class="muted">吃到 {{endDay}}</view>
+  </view>
+  <view class="field">
+    <text class="label">备注</text>
+    <view class="chips">
+      <view class="chip {{mealNote === item ? 'on' : ''}}" wx:for="{{meals}}" wx:key="*this" data-value="{{item}}" bindtap="onMeal">{{item || '无'}}</view>
+    </view>
+  </view>
+  <view class="row">
+    <view>
+      <view class="h2">到点提醒</view>
+      <view class="muted">同一分钟的药合成一条微信通知</view>
+    </view>
+    <switch checked="{{remind}}" color="#3E6B58" bindchange="onRemind" />
+  </view>
+  </view>
+  <button class="btn btn-primary btn-block" loading="{{saving}}" disabled="{{saving}}" bindtap="save">保存疗程</button>
+</view>

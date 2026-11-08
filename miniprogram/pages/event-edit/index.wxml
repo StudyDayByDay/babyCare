@@ -1,0 +1,163 @@
+<view class="page {{elder ? 'elder' : ''}}">
+  <view class="card" wx:if="{{type === 'sleep'}}">
+    <view class="field">
+      <text class="label">开始</text>
+      <view class="pair">
+        <view class="pair-item">
+          <picker mode="date" value="{{startDay}}" bindchange="onPick" data-field="startDay"><view class="input">{{startDay}}</view></picker>
+        </view>
+        <view class="pair-item">
+          <picker mode="time" value="{{startTime}}" bindchange="onPick" data-field="startTime"><view class="input">{{startTime}}</view></picker>
+        </view>
+      </view>
+    </view>
+    <view class="field">
+      <text class="label">结束</text>
+      <view class="pair">
+        <view class="pair-item">
+          <picker mode="date" value="{{endDay}}" bindchange="onPick" data-field="endDay"><view class="input">{{endDay}}</view></picker>
+        </view>
+        <view class="pair-item">
+          <picker mode="time" value="{{endTime}}" bindchange="onPick" data-field="endTime"><view class="input">{{endTime}}</view></picker>
+        </view>
+      </view>
+      <view class="muted">{{sleepHint}}</view>
+    </view>
+    <view class="field">
+      <text class="label">头朝向</text>
+      <view class="chips">
+        <view class="chip {{direction === item ? 'on' : ''}}" wx:for="{{directions}}" wx:key="*this" data-field="direction" data-value="{{item}}" bindtap="onChip">{{item}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card" wx:else>
+    <view class="pair">
+      <view class="pair-item">
+        <text class="label">日期</text>
+        <picker mode="date" value="{{day}}" bindchange="onPick" data-field="day"><view class="input">{{day}}</view></picker>
+      </view>
+      <view class="pair-item">
+        <text class="label">时间</text>
+        <picker mode="time" value="{{time}}" bindchange="onPick" data-field="time"><view class="input">{{time}}</view></picker>
+      </view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{type === 'feed'}}">
+    <view class="field">
+      <text class="label">左侧</text>
+      <stepper elder="{{elder}}" value="{{leftMin}}" min="{{0}}" max="{{180}}" step="{{1}}" unit="分钟" bind:change="onStep" data-field="leftMin" />
+    </view>
+    <view class="field">
+      <text class="label">右侧</text>
+      <stepper elder="{{elder}}" value="{{rightMin}}" min="{{0}}" max="{{180}}" step="{{1}}" unit="分钟" bind:change="onStep" data-field="rightMin" />
+    </view>
+    <view class="field">
+      <text class="label">瓶喂母乳</text>
+      <stepper elder="{{elder}}" value="{{bottleBreastMl}}" min="{{0}}" max="{{500}}" step="{{5}}" unit="毫升" bind:change="onStep" data-field="bottleBreastMl" />
+    </view>
+    <view class="field">
+      <text class="label">配方奶</text>
+      <stepper elder="{{elder}}" value="{{formulaMl}}" min="{{0}}" max="{{500}}" step="{{5}}" unit="毫升" bind:change="onStep" data-field="formulaMl" />
+    </view>
+    <view class="field">
+      <text class="label">吐奶</text>
+      <view class="chips">
+        <view class="chip {{spit === item ? 'on' : ''}}" wx:for="{{spits}}" wx:key="*this" data-field="spit" data-value="{{item}}" bindtap="onChip">{{item}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{type === 'diaper'}}">
+    <view class="field">
+      <text class="label">这一次</text>
+      <view class="chips">
+        <view class="chip {{pee ? 'on' : ''}}" bindtap="onToggle" data-field="pee">小便</view>
+        <view class="chip {{poop ? 'on' : ''}}" bindtap="onToggle" data-field="poop">大便</view>
+      </view>
+    </view>
+    <block wx:if="{{poop}}">
+      <view class="field">
+        <text class="label">颜色</text>
+        <view class="chips">
+          <view class="chip {{color === item.value ? 'on' : ''}}" wx:for="{{colors}}" wx:key="value" data-field="color" data-value="{{item.value}}" bindtap="onChip"><view class="dot dot-{{item.tone}}"></view>{{item.value}}</view>
+        </view>
+        <view class="muted">白陶土、血丝记下来给医生看。看到了请尽快联系医生。</view>
+      </view>
+      <view class="field">
+        <text class="label">性状</text>
+        <view class="chips">
+          <view class="chip {{texture === item ? 'on' : ''}}" wx:for="{{textures}}" wx:key="*this" data-field="texture" data-value="{{item}}" bindtap="onChip">{{item}}</view>
+        </view>
+      </view>
+      <view class="field">
+        <text class="label">量</text>
+        <view class="chips">
+          <view class="chip {{amount === item ? 'on' : ''}}" wx:for="{{amounts}}" wx:key="*this" data-field="amount" data-value="{{item}}" bindtap="onChip">{{item}}</view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view class="card" wx:if="{{type === 'temp'}}">
+    <text class="label">体温</text>
+    <stepper elder="{{elder}}" value="{{celsius}}" min="{{34}}" max="{{42}}" step="{{0.1}}" unit="℃" bind:change="onStep" data-field="celsius" />
+    <view class="muted">只记录测到的数字。</view>
+  </view>
+
+  <view class="card" wx:if="{{type === 'solid'}}">
+    <view class="field">
+      <text class="label">吃了什么</text>
+      <input class="input" value="{{solidName}}" bindinput="onInput" data-field="solidName" placeholder="例如米糊" />
+    </view>
+    <view class="field">
+      <text class="label">形态</text>
+      <view class="chips">
+        <view class="chip {{foodTexture === item ? 'on' : ''}}" wx:for="{{foodTextures}}" wx:key="*this" data-field="foodTexture" data-value="{{item}}" bindtap="onChip">{{item}}</view>
+      </view>
+    </view>
+    <view class="field">
+      <text class="label">量（可不填）</text>
+      <input class="input" value="{{amountText}}" bindinput="onInput" data-field="amountText" placeholder="两勺、半碗" />
+    </view>
+    <view class="field">
+      <view class="chip {{isNew ? 'on' : ''}}" bindtap="onToggle" data-field="isNew">第一次吃这个</view>
+    </view>
+    <view class="field">
+      <text class="label">接受情况</text>
+      <view class="chips">
+        <view class="chip {{reaction === item ? 'on' : ''}}" wx:for="{{reactions}}" wx:key="*this" data-field="reaction" data-value="{{item}}" bindtap="onChip">{{item}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{type === 'milestone'}}">
+    <view class="field">
+      <text class="label">选一个，或自己写</text>
+      <view class="chips">
+        <view class="chip {{milestone === item ? 'on' : ''}}" wx:for="{{presets}}" wx:key="*this" data-field="milestone" data-value="{{item}}" bindtap="onChip">{{item}}</view>
+      </view>
+    </view>
+    <input class="input" value="{{milestone}}" bindinput="onInput" data-field="milestone" placeholder="或自己写" />
+    <view class="muted" wx:if="{{hint}}">{{hint}}</view>
+  </view>
+
+  <view class="card" wx:if="{{type === 'note'}}">
+    <view class="field">
+      <text class="label">哪一类</text>
+      <view class="chips">
+        <view class="chip {{category === item ? 'on' : ''}}" wx:for="{{categories}}" wx:key="*this" data-field="category" data-value="{{item}}" bindtap="onChip">{{item}}</view>
+      </view>
+    </view>
+    <textarea class="textarea" value="{{noteText}}" bindinput="onInput" data-field="noteText" placeholder="症状、医生原话。不写判断。" />
+  </view>
+
+  <view class="card" wx:if="{{type === 'feed' || type === 'diaper' || type === 'sleep' || type === 'solid'}}">
+    <text class="label">备注</text>
+    <input class="input" value="{{note}}" bindinput="onInput" data-field="note" placeholder="可不填" />
+  </view>
+
+  <button class="btn btn-primary btn-block" loading="{{saving}}" disabled="{{saving}}" bindtap="save">保存</button>
+  <button wx:if="{{recordId}}" class="btn btn-line btn-block" bindtap="remove">删除这条记录</button>
+</view>

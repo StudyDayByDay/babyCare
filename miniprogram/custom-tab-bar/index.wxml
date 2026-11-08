@@ -1,0 +1,15 @@
+<view class="bar {{elder ? 'elder' : ''}}">
+  <view
+    class="item {{selected === index ? 'on' : ''}}"
+    wx:for="{{list}}"
+    wx:key="text"
+    data-index="{{index}}"
+    bindtap="onSwitch"
+  >
+    <view class="ico-wrap">
+      <icon name="{{item.icon}}" size="{{44}}" elder="{{elder}}" />
+    </view>
+    <text>{{item.text}}</text>
+    <view class="mark"></view>
+  </view>
+</view>

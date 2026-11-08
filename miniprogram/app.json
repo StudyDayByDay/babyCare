@@ -1,0 +1,43 @@
+{
+  "pages": [
+    "pages/today/index",
+    "pages/record/index",
+    "pages/stats/index",
+    "pages/mine/index",
+    "pages/baby-edit/index",
+    "pages/event-edit/index",
+    "pages/daily-edit/index",
+    "pages/med-list/index",
+    "pages/med-edit/index",
+    "pages/growth/index",
+    "pages/vaccine/index",
+    "pages/family/index",
+    "pages/export/index"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#F4F1EC",
+    "navigationBarTitleText": "宝宝记录",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F4F1EC",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#6E7872",
+    "selectedColor": "#3E6B58",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      { "pagePath": "pages/today/index", "text": "今天" },
+      { "pagePath": "pages/record/index", "text": "记录" },
+      { "pagePath": "pages/stats/index", "text": "统计" },
+      { "pagePath": "pages/mine/index", "text": "我的" }
+    ]
+  },
+  "usingComponents": {
+    "stepper": "/components/stepper/index",
+    "icon": "/components/icon/index"
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

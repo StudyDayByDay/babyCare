@@ -1,0 +1,60 @@
+.stepper {
+  display: flex;
+  align-items: center;
+  background: #F7F4EF;
+  border: 1rpx solid #E4DDD4;
+  border-radius: 24rpx;
+  overflow: hidden;
+}
+
+.step-btn {
+  width: 96rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #24302B;
+}
+
+.step-val {
+  flex: 1;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-input {
+  width: 180rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #24302B;
+}
+
+.step-unit {
+  margin-left: 8rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #6E7872;
+}
+
+.elder .step-btn {
+  width: 120rpx;
+  height: 108rpx;
+  line-height: 108rpx;
+  font-size: 48rpx;
+}
+
+.elder .step-val {
+  height: 108rpx;
+}
+
+.elder .step-input {
+  height: 108rpx;
+  line-height: 108rpx;
+  font-size: 40rpx;
+}

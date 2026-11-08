@@ -1,0 +1,32 @@
+<view class="page tab {{elder ? 'elder' : ''}}">
+  <view class="card" wx:if="{{needBaby}}">
+    <view class="h1">先建立宝宝档案</view>
+    <button class="btn btn-primary btn-block" bindtap="goBaby">去填写</button>
+  </view>
+  <block wx:else>
+    <view class="chips">
+      <view class="chip {{span === 7 ? 'on' : ''}}" data-span="7" bindtap="onSpan">近 7 天</view>
+      <view class="chip {{span === 30 ? 'on' : ''}}" data-span="30" bindtap="onSpan">近 30 天</view>
+    </view>
+    <view class="muted">这是合计，不判断正不正常。</view>
+    <view class="tiles" wx:if="{{totals}}">
+      <view class="tile"><view class="tile-num">{{totals.feedCount}}次</view><view class="tile-label">喂养</view></view>
+      <view class="tile"><view class="tile-num">{{totals.formulaMl}}</view><view class="tile-label">配方毫升</view></view>
+      <view class="tile"><view class="tile-num">{{totals.breastMin}}</view><view class="tile-label">亲喂分钟</view></view>
+      <view class="tile"><view class="tile-num">{{totals.poopCount}}次</view><view class="tile-label">大便</view></view>
+      <view class="tile"><view class="tile-num">{{sleepText}}</view><view class="tile-label">睡眠</view></view>
+      <view class="tile"><view class="tile-num">{{totals.medTaken}}/{{totals.medTotal}}</view><view class="tile-label">用药已吃</view></view>
+    </view>
+    <view class="card">
+      <view class="h2">每天</view>
+      <view wx:for="{{days}}" wx:key="day" data-day="{{item.day}}" bindtap="openDay" style="padding: 16rpx 0; border-top: 1rpx solid #EFE7DE;">
+        <view class="row">
+          <text>{{item.day}}</text>
+          <text class="muted">喂 {{item.feedCount}} · 便 {{item.poopCount}}</text>
+        </view>
+        <view class="bar"><view class="bar-in" style="width: {{item.feedWidth}}%;"></view></view>
+      </view>
+    </view>
+    <button class="btn btn-ghost btn-block" bindtap="goExport">导出给医生看</button>
+  </block>
+</view>

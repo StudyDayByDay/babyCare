@@ -2,13 +2,21 @@ const pageBehavior = require('../../behaviors/page.js')
 const api = require('../../services/api.js')
 const { dayKey, timeKey, toTs, stageOf, durationText } = require('../../utils/date.js')
 const { milestones, iconFor, toneFor } = require('../../utils/stage.js')
+const {
+  simpleByKey,
+  defaultValues,
+  viewOf,
+  convertUnit,
+  clampToRange,
+  clientIssue,
+  payloadOf
+} = require('../../utils/recordTypes.js')
 const theme = require('../../utils/theme.js')
 
 const TITLES = {
   feed: '记喂奶',
   diaper: '记尿布',
   sleep: '记睡眠',
-  temp: '记体温',
   solid: '记用餐',
   milestone: '记里程碑',
   note: '记一笔'
@@ -18,7 +26,6 @@ const HINTS = {
   feed: '亲喂和瓶喂可以一起记，只填这次发生的。',
   diaper: '选这一片尿布的情况，颜色只在有大便时出现。',
   sleep: '记下起止时间，头朝向可选。',
-  temp: '只记测到的数字，不判断正不正常。',
   solid: '记吃了什么、吃得怎么样。',
   milestone: '只是留个纪念，不是发育评估。',
   note: '症状、就医、医生原话都记在这里。'
@@ -75,6 +82,7 @@ Page({
     direction: '仰',
     directions: ['左', '右', '仰'],
     celsius: 36.5,
+    values: {},
     solidName: '',
     foodTexture: '泥',
     foodTextures: ['泥', '碎末', '手指食物', '正餐'],
@@ -97,13 +105,17 @@ Page({
     const later = now + 60 * 60 * 1000
     const start = splitAt(now)
     const end = splitAt(later)
+    const spec = simpleByKey(type)
+    const values = spec ? defaultValues(spec) : {}
     this.recordId = query.id || ''
     this.setData({
       type,
-      title: TITLES[type] || '记一笔',
-      typeHint: HINTS[type] || '',
+      title: spec ? spec.formTitle : (TITLES[type] || '记一笔'),
+      typeHint: spec ? spec.formHint : (HINTS[type] || ''),
       icon: iconFor(type),
       tone: toneFor(type),
+      simple: spec ? viewOf(spec, values) : null,
+      values,
       recordId: this.recordId,
       day: query.day || start.day,
       time: start.time,
@@ -113,7 +125,7 @@ Page({
       endTime: end.time,
       hint: type === 'milestone' ? '只是留个纪念，不是发育评估。' : ''
     })
-    wx.setNavigationBarTitle({ title: TITLES[type] || '记一笔' })
+    wx.setNavigationBarTitle({ title: (spec ? spec.formTitle : TITLES[type]) || '记一笔' })
   },
   onShow() {
     if (!this.loaded) this.setData({ loading: true })
@@ -185,7 +197,15 @@ Page({
         direction: p.direction || '仰'
       })
     }
-    if (rec.type === 'temp') patch.celsius = p.celsius || 36.5
+    const spec = simpleByKey(rec.type)
+    if (spec) {
+      const values = defaultValues(spec)
+      spec.fields.forEach((field) => {
+        if (p[field.key] != null && p[field.key] !== '') values[field.key] = p[field.key]
+      })
+      patch.values = values
+      patch.simple = viewOf(spec, values)
+    }
     if (rec.type === 'solid') {
       Object.assign(patch, {
         solidName: p.name || '',
@@ -259,9 +279,30 @@ Page({
     }
     this.setData(patch, () => this.updateSummary())
   },
-  setTemp(e) {
-    const value = Number(e.currentTarget.dataset.value)
-    this.setData({ celsius: value, formError: '' })
+  onSimpleStep(e) {
+    const values = Object.assign({}, this.data.values)
+    values[e.currentTarget.dataset.key] = e.detail.value
+    this.setData({ values, formError: '' })
+  },
+  onSimpleChip(e) {
+    const spec = simpleByKey(this.data.type)
+    if (!spec) return
+    const key = e.currentTarget.dataset.key
+    const value = e.currentTarget.dataset.value
+    const optional = e.currentTarget.dataset.optional === true || e.currentTarget.dataset.optional === 'true'
+    let values = Object.assign({}, this.data.values)
+    const previous = values[key]
+    values[key] = optional && previous === value ? '' : value
+    if (spec.unitSwitch && key === spec.unitSwitch.unitKey && previous !== values[key]) {
+      values[spec.unitSwitch.valueKey] = convertUnit(values[spec.unitSwitch.valueKey], previous, values[key], spec.unitSwitch)
+      values = clampToRange(spec, values)
+    }
+    this.setData({ values, simple: viewOf(spec, values), formError: '' })
+  },
+  onSimpleInput(e) {
+    const values = Object.assign({}, this.data.values)
+    values[e.currentTarget.dataset.key] = e.detail.value
+    this.setData({ values, formError: '' })
   },
   onToggle(e) {
     const field = e.currentTarget.dataset.field
@@ -276,8 +317,11 @@ Page({
   },
   validate() {
     const d = this.data
+    const spec = simpleByKey(d.type)
     let error = ''
-    if (d.type === 'feed') {
+    if (spec) {
+      error = clientIssue(spec, d.values)
+    } else if (d.type === 'feed') {
       if (!(d.leftMin > 0 || d.rightMin > 0 || d.bottleBreastMl > 0 || d.formulaMl > 0)) {
         error = '至少填一项：亲喂或瓶喂'
       }
@@ -290,8 +334,6 @@ Page({
       const min = (end - start) / 60000
       if (min <= 0) error = '结束时间要晚于开始时间'
       else if (min > 18 * 60) error = '睡这么久？确认一下起止时间'
-    } else if (d.type === 'temp') {
-      if (!(d.celsius >= 34 && d.celsius <= 42)) error = '体温要在 34 到 42 之间'
     } else if (d.type === 'solid') {
       if (!String(d.solidName || '').trim()) error = '写了吃了什么再保存'
     } else if (d.type === 'milestone') {
@@ -305,6 +347,8 @@ Page({
   },
   payload() {
     const d = this.data
+    const spec = simpleByKey(d.type)
+    if (spec) return payloadOf(spec, d.values)
     if (d.type === 'feed') {
       return { leftMin: d.leftMin, rightMin: d.rightMin, bottleBreastMl: d.bottleBreastMl, formulaMl: d.formulaMl, spit: d.spit, note: d.note }
     }
@@ -314,7 +358,6 @@ Page({
     if (d.type === 'sleep') {
       return { startAt: toTs(d.startDay, d.startTime), endAt: toTs(d.endDay, d.endTime), direction: d.direction, note: d.note }
     }
-    if (d.type === 'temp') return { celsius: d.celsius }
     if (d.type === 'solid') {
       return { name: d.solidName, texture: d.foodTexture, amountText: d.amountText, isNew: d.isNew, reaction: d.reaction, note: d.note }
     }

@@ -1,5 +1,6 @@
-const { timeKey, trimNum } = require('./date')
+const { timeKey } = require('./date')
 const { doseLabel } = require('./medPlan')
+const { simpleByKey, describeSimple } = require('./recordTypes')
 
 function describeRecord(rec) {
   const p = rec.payload || {}
@@ -28,7 +29,8 @@ function describeRecord(rec) {
     if (p.note) bits.push(p.note)
     return bits.join('，')
   }
-  if (rec.type === 'temp') return '体温' + trimNum(p.celsius) + '℃'
+  const simple = simpleByKey(rec.type)
+  if (simple) return describeSimple(simple, p)
   if (rec.type === 'solid') {
     const bits = [p.name || '用餐']
     if (p.texture) bits.push(p.texture)
@@ -44,11 +46,12 @@ function describeRecord(rec) {
 }
 
 function typeName(type) {
+  const simple = simpleByKey(type)
+  if (simple) return simple.title
   return {
     feed: '喂养',
     diaper: '尿布',
     sleep: '睡眠',
-    temp: '体温',
     solid: '用餐',
     milestone: '里程碑',
     note: '备注'

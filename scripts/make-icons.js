@@ -21,6 +21,7 @@ const ICONS = [
   ['sleep', 'bedtime', '#55668C'],
   ['care', 'clean_hands', '#B05E46'],
   ['temp', 'thermometer', '#9A4E63'],
+  ['jaundice', 'water_drop', '#A97820'],
   ['meal', 'rice_bowl', '#6B743F'],
   ['mile', 'star', '#A47C22'],
   ['note', 'sticky_note_2', '#7A6248'],

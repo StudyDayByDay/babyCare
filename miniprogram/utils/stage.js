@@ -1,3 +1,5 @@
+const { listSimple, simpleByKey } = require('./recordTypes.js')
+
 function stageLabel(stage) {
   return {
     newborn: '新生儿',
@@ -14,7 +16,14 @@ function recordActions(stage) {
     { key: 'diaper', title: '尿布', hint: '尿和便可以一起', tone: 'diaper', icon: 'diaper', show: stage !== 'preschool' },
     { key: 'sleep', title: '睡眠', hint: '起止和头朝向', tone: 'sleep', icon: 'sleep', show: true },
     { key: 'daily', title: '护理', hint: '补剂、清洁、早教', tone: 'care', icon: 'care', show: true },
-    { key: 'temp', title: '体温', hint: '测到多少记多少', tone: 'temp', icon: 'temp', show: true },
+    ...listSimple(stage).map((spec) => ({
+      key: spec.key,
+      title: spec.title,
+      hint: spec.hint,
+      tone: spec.tone,
+      icon: spec.icon,
+      show: true
+    })),
     { key: 'solid', title: stage === 'solid' ? '辅食' : '用餐', hint: '吃了什么', tone: 'solid', icon: 'meal', show: stage === 'solid' || stage === 'toddler' || stage === 'preschool' },
     { key: 'milestone', title: '里程碑', hint: '只留纪念，不是评估', tone: 'mile', icon: 'mile', show: true },
     { key: 'note', title: '生病就医', hint: '症状和医生原话', tone: 'note', icon: 'note', show: true },
@@ -49,11 +58,12 @@ function showNewbornCare(dayNo) {
 }
 
 function iconFor(type) {
+  const spec = simpleByKey(type)
+  if (spec) return spec.icon
   return {
     feed: 'feed',
     diaper: 'diaper',
     sleep: 'sleep',
-    temp: 'temp',
     solid: 'meal',
     milestone: 'mile',
     note: 'note',
@@ -65,11 +75,12 @@ function iconFor(type) {
 }
 
 function toneFor(type) {
+  const spec = simpleByKey(type)
+  if (spec) return spec.tone
   return {
     feed: 'feed',
     diaper: 'diaper',
     sleep: 'sleep',
-    temp: 'temp',
     solid: 'solid',
     milestone: 'mile',
     note: 'note',

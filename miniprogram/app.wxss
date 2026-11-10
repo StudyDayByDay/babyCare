@@ -73,6 +73,7 @@ page {
   --tone-sleep: #ECEEF8;
   --tone-care: #FAECE5;
   --tone-temp: #F8EAEF;
+  --tone-jaundice: #FBF3DC;
   --tone-solid: #F0F1E3;
   --tone-mile: #FBF2DD;
   --tone-note: #F4EEE6;
@@ -113,6 +114,7 @@ page {
 .tone-sleep { background: var(--tone-sleep); }
 .tone-care { background: var(--tone-care); }
 .tone-temp { background: var(--tone-temp); }
+.tone-jaundice { background: var(--tone-jaundice); }
 .tone-solid { background: var(--tone-solid); }
 .tone-mile { background: var(--tone-mile); }
 .tone-note { background: var(--tone-note); }

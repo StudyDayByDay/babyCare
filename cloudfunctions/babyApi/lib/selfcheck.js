@@ -54,6 +54,18 @@ const sleep = resolveSleep(toTs('2026-11-08', '20:00'), toTs('2026-11-08', '07:0
 assert(sleep.durationMin === 11 * 60, '结束早于开始按第二天')
 const feed = sanitizePayload('feed', { leftMin: 8, rightMin: 6, formulaMl: 30, spit: '少' })
 assert(feed.leftMin === 8 && feed.formulaMl === 30 && feed.spit === '少', '混合喂养一次保存')
+const temp = sanitizePayload('temp', { celsius: 36.56 })
+assert(temp.celsius === 36.56, '体温保留小数')
+const jaundice = sanitizePayload('jaundice', { value: 171, unit: 'μmol/L', site: '额头', note: '出院时' })
+assert(jaundice.value === 171 && jaundice.unit === 'μmol/L' && jaundice.site === '额头', '黄疸记数字和部位')
+let rejected = false
+try { sanitizePayload('jaundice', { value: 0, unit: 'mg/dL' }) } catch (err) { rejected = err.message.indexOf('数字') >= 0 }
+assert(rejected, '黄疸没有数字时不保存')
+const fs = require('fs')
+const path = require('path')
+const catalog = fs.readFileSync(path.join(__dirname, 'recordTypes.js'))
+assert(catalog.equals(fs.readFileSync(path.join(__dirname, '../../../shared/recordTypes.js'))), '记录项目录和 shared 不一致')
+assert(catalog.equals(fs.readFileSync(path.join(__dirname, '../../../miniprogram/utils/recordTypes.js'))), '记录项目录和小程序不一致')
 
 const plan = dueDays('2026-11-08')
 assert(plan[0].dueDay === '2026-11-08', '卡介苗出生日')

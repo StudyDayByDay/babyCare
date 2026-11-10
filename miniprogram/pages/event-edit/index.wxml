@@ -95,6 +95,53 @@
       </view>
     </view>
 
+    <view class="card" wx:if="{{simple}}">
+      <view class="field" wx:for="{{simple.fields}}" wx:key="key">
+        <block wx:if="{{item.kind === 'stepper'}}">
+          <text class="label">{{item.label}}</text>
+          <view class="display text-center mb-3" wx:if="{{item.headline}}">{{values[item.key]}}{{item.unit}}</view>
+          <stepper
+            elder="{{elder}}"
+            value="{{values[item.key]}}"
+            min="{{item.min}}"
+            max="{{item.max}}"
+            step="{{item.step}}"
+            unit="{{item.unit}}"
+            presets="{{item.presetText}}"
+            bind:change="onSimpleStep"
+            data-key="{{item.key}}"
+          />
+        </block>
+        <block wx:elif="{{item.kind === 'chips'}}">
+          <text class="label">{{item.label}}</text>
+          <view class="chips">
+            <view
+              class="chip {{values[item.key] === opt ? 'on' : ''}}"
+              wx:for="{{item.options}}"
+              wx:for-item="opt"
+              wx:key="*this"
+              data-key="{{item.key}}"
+              data-value="{{opt}}"
+              data-optional="{{item.optional}}"
+              bindtap="onSimpleChip"
+              hover-class="is-pressed"
+            >{{opt}}</view>
+          </view>
+        </block>
+        <block wx:else>
+          <text class="label">{{item.label}}</text>
+          <input
+            class="input"
+            value="{{values[item.key]}}"
+            data-key="{{item.key}}"
+            bindinput="onSimpleInput"
+            placeholder="{{item.placeholder}}"
+            placeholder-class="input-ph"
+          />
+        </block>
+      </view>
+    </view>
+
     <view class="card" wx:if="{{type === 'feed'}}">
       <view class="heading mb-3">亲喂</view>
       <view class="field">
@@ -185,20 +232,6 @@
           </view>
         </view>
       </block>
-    </view>
-
-    <view class="card" wx:if="{{type === 'temp'}}">
-      <view class="field">
-        <text class="label">体温</text>
-        <view class="display text-center mb-3">{{celsius}}℃</view>
-        <stepper elder="{{elder}}" value="{{celsius}}" min="{{34}}" max="{{42}}" step="{{0.1}}" unit="℃" bind:change="onStep" data-field="celsius" />
-        <view class="chips mt-2">
-          <view class="chip" data-value="36.5" bindtap="setTemp" hover-class="is-pressed">36.5</view>
-          <view class="chip" data-value="37.0" bindtap="setTemp" hover-class="is-pressed">37.0</view>
-          <view class="chip" data-value="38.0" bindtap="setTemp" hover-class="is-pressed">38.0</view>
-        </view>
-      </view>
-      <view class="muted">只记录测到的数字。</view>
     </view>
 
     <view class="card" wx:if="{{type === 'solid'}}">

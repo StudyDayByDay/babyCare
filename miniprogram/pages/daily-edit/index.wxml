@@ -113,6 +113,7 @@
             hover-class="is-pressed"
           >{{item}}</view>
         </view>
+        <view class="caption mt-1">看起来的情况。仪器上的数字请到「记录」里记黄疸。</view>
       </view>
       <view class="field">
         <text class="label">脐带</text>

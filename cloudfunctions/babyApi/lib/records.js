@@ -1,8 +1,9 @@
 const { fail, text, num, oneOf, clean, ownBaby, memberLabel } = require('./auth')
 const { dayKey } = require('./date')
 const { describeRecord } = require('./describe')
+const { simpleKeys, simpleByKey, sanitizeSimple } = require('./recordTypes')
 
-const TYPES = ['feed', 'diaper', 'sleep', 'temp', 'solid', 'milestone', 'note']
+const TYPES = ['feed', 'diaper', 'sleep', 'solid', 'milestone', 'note'].concat(simpleKeys())
 
 function resolveSleep(startAt, endAt) {
   let end = Number(endAt)
@@ -15,6 +16,8 @@ function resolveSleep(startAt, endAt) {
 
 function sanitizePayload(type, payload) {
   const src = payload || {}
+  const simple = simpleByKey(type)
+  if (simple) return sanitizeSimple(simple, src, { num, text, oneOf })
   if (type === 'feed') {
     const data = {
       leftMin: num(src.leftMin, 0, 180),
@@ -58,9 +61,6 @@ function sanitizePayload(type, payload) {
       direction: oneOf(src.direction, ['左', '右', '仰'], '仰'),
       note: text(src.note, 80)
     }
-  }
-  if (type === 'temp') {
-    return { celsius: num(src.celsius, 34, 42) }
   }
   if (type === 'solid') {
     const name = text(src.name, 40)

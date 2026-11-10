@@ -25,6 +25,9 @@ Component({
     },
     step(step) {
       this.setData({ decimal: Number(step) < 1 })
+    },
+    presets(value) {
+      this.setData({ presetList: this.splitPresets(value) })
     }
   },
   lifetimes: {

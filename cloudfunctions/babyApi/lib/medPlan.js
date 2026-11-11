@@ -39,7 +39,7 @@ function planDoses(input) {
     const end = toTs(input.endDay, '23:59')
     const step = hours * 60 * 60 * 1000
     let guard = 0
-    while (cursor <= end && guard < 200) {
+    while (cursor <= end && guard < 4000) {
       doses.push({
         day: dayKey(cursor),
         planAt: cursor,
@@ -59,7 +59,7 @@ function planDoses(input) {
     : fallback.map((time) => ({ time, doseAmount: amount, doseUnit: unit }))
   let day = input.startDay
   let guard = 0
-  while (day <= input.endDay && guard < 40) {
+  while (day <= input.endDay && guard < 400) {
     slots.forEach((slot) => {
       doses.push({
         day,

@@ -118,8 +118,8 @@
       </view>
       <view class="field" wx:if="{{frequencyType !== 'asNeeded'}}">
         <text class="label">吃几天</text>
-        <stepper elder="{{elder}}" value="{{days}}" min="{{1}}" max="{{31}}" step="{{1}}" unit="天" bind:change="onDays" />
-        <view class="muted mt-1">吃到 {{endDay}}</view>
+        <stepper elder="{{elder}}" value="{{days}}" min="{{1}}" max="{{366}}" step="{{1}}" unit="天" presets="30,90,180,365" bind:change="onDays" />
+        <view class="muted mt-1">吃到 {{endDay}}。3 个月填 90，1 年填 365，也可以直接输入。</view>
       </view>
       <view class="field">
         <text class="label">备注</text>

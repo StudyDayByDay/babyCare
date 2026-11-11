@@ -49,6 +49,26 @@ const interval = planDoses({
 assert(interval.length === 2, '一天内每 8 小时从 8 点起有两顿')
 assert(interval[1].slotTime === '16:00', '第二顿 16 点')
 assert(planDoses({ frequencyType: 'asNeeded', doseAmount: 1, doseUnit: '片', startDay: '2026-11-08', endDay: '2026-11-08' }).length === 0, '按需不预排')
+const quarter = planDoses({
+  frequencyType: 'timesPerDay',
+  doseAmount: 1,
+  doseUnit: '滴',
+  timesPerDay: 1,
+  startDay: '2026-11-08',
+  endDay: addDays('2026-11-08', 89),
+  slots: [{ time: '09:00', doseAmount: 1, doseUnit: '滴' }]
+})
+assert(quarter.length === 90, '每天一滴、90 天应有 90 顿')
+const year = planDoses({
+  frequencyType: 'timesPerDay',
+  doseAmount: 1,
+  doseUnit: '滴',
+  timesPerDay: 1,
+  startDay: '2026-11-08',
+  endDay: addDays('2026-11-08', 364),
+  slots: [{ time: '09:00', doseAmount: 1, doseUnit: '滴' }]
+})
+assert(year.length === 365, '每天一滴、365 天应有 365 顿')
 
 const sleep = resolveSleep(toTs('2026-11-08', '20:00'), toTs('2026-11-08', '07:00'))
 assert(sleep.durationMin === 11 * 60, '结束早于开始按第二天')

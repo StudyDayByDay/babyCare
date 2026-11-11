@@ -4,6 +4,8 @@ const { planDoses, planText, doseLabel } = require('./medPlan')
 const { fetchWhere, runBatches } = require('./query')
 
 const UNITS = ['颗', '片', '粒', '毫升', '滴', '袋', '支', '克', '勺']
+const MAX_COURSE_DAYS = 366
+const MAX_COURSE_DOSES = 800
 
 function normalizeSlots(data, amount, unit) {
   const slots = Array.isArray(data.slots) ? data.slots : []
@@ -24,7 +26,7 @@ function readCourse(data) {
   const timesPerDay = num(data.timesPerDay, 1, 6)
   const intervalHours = num(data.intervalHours, 1, 24)
   const startDay = isDay(data.startDay) ? data.startDay : dayKey(Date.now())
-  const days = num(data.days, 1, 31)
+  const days = num(data.days, 1, MAX_COURSE_DAYS)
   const endDay = addDays(startDay, days - 1)
   const slots = frequencyType === 'timesPerDay' ? normalizeSlots(data, doseAmount, doseUnit) : normalizeSlots(data, doseAmount, doseUnit).slice(0, 1)
   if (frequencyType === 'timesPerDay' && !slots.length) throw fail('请设置每一顿的时间')
@@ -117,6 +119,14 @@ async function saveMedication(ctx, data) {
   }
 
   const todayStart = toTs(dayKey(now), '00:00')
+  const slotCount = course.frequencyType === 'asNeeded'
+    ? 0
+    : (course.frequencyType === 'intervalHours'
+      ? Math.ceil(course.days * 24 / (Number(course.intervalHours) || 24))
+      : course.days * Math.max(1, (course.slots && course.slots.length) || course.timesPerDay || 1))
+  if (slotCount > MAX_COURSE_DOSES) {
+    throw fail('这一程超过 800 顿。一天一次可以记满一年，次数多就缩短天数')
+  }
   const existing = await fetchWhere(ctx.db, 'medDoses', { medicationId: medId, familyId: baby.familyId })
   const keptAt = {}
   const removing = []

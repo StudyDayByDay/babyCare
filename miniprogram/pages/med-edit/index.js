@@ -200,8 +200,23 @@ Page({
       this.setData({ formError: '选一下开始日期' })
       return false
     }
-    if (!(Number(this.data.days) > 0)) {
+    const days = Number(this.data.days)
+    if (!(days > 0)) {
       this.setData({ formError: '天数要大于 0' })
+      return false
+    }
+    if (days > 366) {
+      this.setData({ formError: '最长可以记 366 天' })
+      return false
+    }
+    let count = 0
+    if (this.data.frequencyType === 'timesPerDay') {
+      count = days * Math.max(1, (this.data.slots && this.data.slots.length) || this.data.timesPerDay || 1)
+    } else if (this.data.frequencyType === 'intervalHours') {
+      count = Math.ceil(days * 24 / (Number(this.data.intervalHours) || 24))
+    }
+    if (count > 800) {
+      this.setData({ formError: '这一程超过 800 顿。一天一次可以记满一年' })
       return false
     }
     this.setData({ formError: '' })

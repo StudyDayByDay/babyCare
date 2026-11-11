@@ -75,18 +75,23 @@
         <view class="heading med-title"><view class="pulse-dot"></view>今天的药</view>
         <view class="pill gold">已吃 {{summary.medTaken}} / {{summary.medTotal}}</view>
       </view>
-      <view class="med-time mt-2">{{nextGroup.time}}</view>
-      <view class="dose-line" wx:for="{{nextGroup.items}}" wx:key="_id">{{item.name}} {{item.planDoseText}}</view>
       <view class="progress mt-2">
-        <view class="progress-fill brand" style="width: {{medPercent}}%;"></view>
+        <view class="progress-fill" style="width: {{medPercent}}%;"></view>
       </view>
-      <button
-        class="btn btn-primary btn-block mt-3"
-        hover-class="is-pressed"
-        loading="{{taking}}"
-        disabled="{{taking}}"
-        bindtap="takeNext"
-      >这顿吃了</button>
+      <view class="med-time mt-3">{{nextGroup.time}}</view>
+      <view class="dose-line" wx:for="{{nextGroup.items}}" wx:key="_id">
+        <text class="dose-name">{{item.name}}</text>
+        <text class="dose-amount">{{item.planDoseText}}</text>
+      </view>
+      <view class="med-action">
+        <button
+          class="btn btn-primary btn-block"
+          hover-class="is-pressed"
+          loading="{{taking}}"
+          disabled="{{taking}}"
+          bindtap="takeNext"
+        >这顿吃了</button>
+      </view>
     </view>
 
     <view wx:if="{{since.length}}" class="card since-card delay-3">

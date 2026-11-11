@@ -37,13 +37,18 @@
       <button class="btn btn-primary btn-sm" hover-class="is-pressed" bindtap="create">添加用药</button>
     </view>
 
-    <view class="card" wx:if="{{totalToday}}">
-      <view class="row">
-        <view class="heading">今天已吃</view>
-        <view class="pill {{takenToday === totalToday ? 'done' : 'pending'}}">{{takenToday}} / {{totalToday}}</view>
-      </view>
-      <view class="progress mt-2">
-        <view class="progress-fill brand" style="width: {{medPercent}}%;"></view>
+    <view class="card" wx:if="{{totalToday || templateReady}}">
+      <block wx:if="{{totalToday}}">
+        <view class="row">
+          <view class="heading">今天已吃</view>
+          <view class="pill {{takenToday === totalToday ? 'done' : 'pending'}}">{{takenToday}} / {{totalToday}}</view>
+        </view>
+        <view class="progress mt-2">
+          <view class="progress-fill" style="width: {{medPercent}}%;"></view>
+        </view>
+      </block>
+      <view class="{{totalToday ? 'med-action' : ''}}" wx:if="{{templateReady}}">
+        <button class="btn btn-secondary btn-block" hover-class="is-pressed" bindtap="allowRemind">允许吃药提醒</button>
       </view>
     </view>
 
@@ -51,12 +56,6 @@
       <view class="heading">微信通知还没打开</view>
       <view class="caption mt-1">每一顿仍然会出现在今天。配置订阅模板后，手机会收到服务通知。</view>
     </view>
-    <button
-      wx:if="{{templateReady}}"
-      class="btn btn-secondary btn-block mb-3"
-      hover-class="is-pressed"
-      bindtap="allowRemind"
-    >允许吃药提醒</button>
 
     <view
       class="card"

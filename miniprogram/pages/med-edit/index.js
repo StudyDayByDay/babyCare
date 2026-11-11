@@ -53,6 +53,13 @@ Page({
     slots: buildSlots(3, 1),
     startDay: '',
     days: 3,
+    spans: [
+      { days: 7, label: '一周' },
+      { days: 30, label: '一月' },
+      { days: 90, label: '3 个月' },
+      { days: 180, label: '半年' },
+      { days: 365, label: '一年' }
+    ],
     endDay: '',
     mealNote: '',
     meals: ['', '饭前', '饭后', '与奶隔开'],
@@ -311,6 +318,12 @@ Page({
   },
   onDays(e) {
     const days = e.detail.value
+    this.setData({ days, endDay: addDays(this.data.startDay, days - 1) })
+    this.clearError()
+    this.updateSummary()
+  },
+  setDays(e) {
+    const days = Number(e.currentTarget.dataset.days)
     this.setData({ days, endDay: addDays(this.data.startDay, days - 1) })
     this.clearError()
     this.updateSummary()

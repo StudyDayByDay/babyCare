@@ -68,8 +68,13 @@ assert(catalog.equals(fs.readFileSync(path.join(__dirname, '../../../shared/reco
 assert(catalog.equals(fs.readFileSync(path.join(__dirname, '../../../miniprogram/utils/recordTypes.js'))), '记录项目录和小程序不一致')
 
 const plan = dueDays('2026-11-08')
-assert(plan[0].dueDay === '2026-11-08', '卡介苗出生日')
-assert(plan.some((item) => item.name.indexOf('百白破') >= 0 && item.dueDay === '2027-01-08'), '百白破第一剂满 2 月')
+const byKey = {}
+plan.forEach((item) => { byKey[item.scheduleKey] = item })
+assert(byKey.bcg.dueDay === '2026-11-08', '卡介苗出生日')
+assert(byKey['dtap-1'].dueDay === '2027-02-08', '百白破第一剂满 3 月')
+assert(byKey['dtap-3'].dueDay === '2027-04-08', '百白破第三剂满 5 月')
+assert(byKey.dt.dueDay === '2032-11-08', '白破 6 岁')
+assert(!plan.some((item) => item.name.indexOf('第5剂') >= 0), '6 岁不是百白破第5剂')
 
 const buffer = workbook(exportRows(
   { nickname: '小禾', birthday: '2026-11-08' },

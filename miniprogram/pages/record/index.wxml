@@ -84,10 +84,42 @@
 
     <view class="card">
       <view class="section-head">
+        <view class="section-title">这一天</view>
+      </view>
+      <view class="stat-grid">
+        <view class="stat-tile">
+          <view class="stat-value num">{{milkText}}</view>
+          <view class="stat-label">奶量</view>
+        </view>
+        <view class="stat-tile">
+          <view class="stat-value num">{{breastText}}</view>
+          <view class="stat-label">亲喂</view>
+        </view>
+        <view class="stat-tile">
+          <view class="stat-value num">{{poopText}}</view>
+          <view class="stat-label">大便</view>
+        </view>
+        <view class="stat-tile">
+          <view class="stat-value num">{{diaperText}}</view>
+          <view class="stat-label">尿布</view>
+        </view>
+        <view class="stat-tile">
+          <view class="stat-value num">{{sleepText}}</view>
+          <view class="stat-label">睡眠</view>
+        </view>
+        <view class="stat-tile">
+          <view class="stat-value num">{{medText}}</view>
+          <view class="stat-label">用药</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-head">
         <view class="section-title">流水</view>
         <view class="pill skip" wx:if="{{records.length}}">{{records.length}} 条</view>
       </view>
-      <view class="caption">点一条可以修改。合计在「今天」和「统计」。</view>
+      <view class="caption">点一条可以修改。</view>
       <empty
         wx:if="{{!records.length}}"
         compact
@@ -107,12 +139,13 @@
         hover-class="is-pressed"
         style="animation-delay: {{index * 40 + 220}}ms"
       >
+        <view class="timeline-clock">{{item.timeText}}</view>
         <view class="bubble sm tone-{{item.tone}}">
-          <icon name="{{item.icon}}" size="{{36}}" elder="{{elder}}" />
+          <icon name="{{item.icon}}" size="{{40}}" elder="{{elder}}" />
         </view>
         <view class="timeline-body">
           <view class="timeline-title">{{item.text}}</view>
-          <view class="timeline-meta">{{item.timeText}}<text wx:if="{{item.memberName}}"> · {{item.memberName}}</text></view>
+          <view class="timeline-meta" wx:if="{{item.memberName}}">{{item.memberName}}</view>
         </view>
         <text class="timeline-chev">›</text>
       </view>

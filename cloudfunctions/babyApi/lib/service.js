@@ -349,6 +349,7 @@ const actions = {
   listVaccines: health.listVaccines,
   syncVaccines: health.syncVaccines,
   saveVaccine: health.saveVaccine,
+  deleteVaccine: health.deleteVaccine,
   getDay: stats.getDay,
   getRange: stats.getRange,
   exportFile: exporter.exportFile

@@ -44,53 +44,21 @@
         hover-class="is-pressed"
       >近 30 天</view>
     </view>
-    <view class="caption mb-3">这是合计，不判断正不正常。</view>
+    <view class="caption mb-3">上面是这段时间一共多少。某一天的明细，点下面的日期。</view>
 
-    <view class="card" wx:if="{{hasData}}">
-      <view class="stat-grid cols-3">
-        <view class="stat-tile" style="animation-delay: 80ms">
-          <view class="stat-value">{{totals.feedCount}}次</view>
-          <view class="stat-label">喂养</view>
-        </view>
-        <view class="stat-tile" style="animation-delay: 115ms">
-          <view class="stat-value">{{totals.formulaMl}}</view>
-          <view class="stat-label">配方毫升</view>
-        </view>
-        <view class="stat-tile" style="animation-delay: 150ms">
-          <view class="stat-value">{{totals.breastMin}}</view>
-          <view class="stat-label">亲喂分钟</view>
-        </view>
-        <view class="stat-tile" style="animation-delay: 185ms">
-          <view class="stat-value">{{totals.poopCount}}次</view>
-          <view class="stat-label">大便</view>
-        </view>
-        <view class="stat-tile" style="animation-delay: 220ms">
-          <view class="stat-value">{{sleepText}}</view>
-          <view class="stat-label">睡眠</view>
-        </view>
-        <view class="stat-tile" style="animation-delay: 255ms">
-          <view class="stat-value">{{totals.medTaken}}/{{totals.medTotal}}</view>
-          <view class="stat-label">用药已吃</view>
-        </view>
+    <view class="card">
+      <view class="section-head">
+        <view class="section-title">近 {{span}} 天一共</view>
       </view>
-    </view>
-
-    <view class="card" wx:else>
-      <empty
-        icon="stats"
-        tone="solid"
-        title="这段时间还没有记录"
-        hint="先记几天，再回来看看合计。"
-        action-text="去记一笔"
-        elder="{{elder}}"
-        bind:action="goRecord"
-      />
+      <view class="sum-row" wx:for="{{lines}}" wx:key="label">
+        <text class="sum-label">{{item.label}}</text>
+        <text class="sum-value num">{{item.value}}</text>
+      </view>
     </view>
 
     <view class="card" wx:if="{{days.length}}">
       <view class="section-head">
-        <view class="section-title">每天</view>
-        <view class="sub">喂奶次数</view>
+        <view class="section-title">选一天</view>
       </view>
       <view
         class="list-row"
@@ -99,16 +67,10 @@
         data-day="{{item.day}}"
         bindtap="openDay"
         hover-class="is-pressed"
-        style="animation-delay: {{index * 22 + 160}}ms"
       >
         <view class="list-text">
-          <view class="row">
-            <text class="list-title">{{item.pretty}}</text>
-            <text class="sub">喂 {{item.feedCount}} · 便 {{item.poopCount}}</text>
-          </view>
-          <view class="progress mt-1">
-            <view class="progress-fill brand" style="width: {{item.feedWidth}}%;"></view>
-          </view>
+          <view class="list-title">{{item.pretty}}</view>
+          <view class="list-sub" wx:if="{{!item.marked}}">还没记</view>
         </view>
         <text class="list-chev">›</text>
       </view>

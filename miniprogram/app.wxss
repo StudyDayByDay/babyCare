@@ -63,7 +63,7 @@ page {
   --tabbar-h: 120rpx;
   --savebar-h: 128rpx;
   --row-h: 96rpx;
-  --timeline-h: 112rpx;
+  --timeline-h: 144rpx;
   --bubble: 80rpx;
   --bubble-sm: 64rpx;
 
@@ -104,7 +104,7 @@ page {
   --tabbar-h: 140rpx;
   --savebar-h: 144rpx;
   --row-h: 104rpx;
-  --timeline-h: 120rpx;
+  --timeline-h: 168rpx;
   --bubble: 88rpx;
   --bubble-sm: 72rpx;
 }
@@ -741,6 +741,28 @@ view.input {
   margin-top: 4rpx;
 }
 
+.sum-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  min-height: var(--tap-min);
+  padding: 12rpx 0;
+  border-top: 1rpx solid var(--line);
+}
+.sum-row:first-child {
+  border-top: none;
+}
+.sum-label {
+  font-size: var(--fs-body);
+  color: var(--ink-2);
+}
+.sum-value {
+  font-size: var(--fs-title);
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- lists ---------- */
 .list-row {
   display: flex;
@@ -798,7 +820,7 @@ view.input {
   display: flex;
   align-items: center;
   min-height: var(--timeline-h);
-  padding: var(--sp-2) 0;
+  padding: var(--sp-3) 0;
   border-top: 1rpx solid var(--line);
   animation: fade-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
   transition: background 0.16s ease;
@@ -809,7 +831,22 @@ view.input {
 .timeline-row.is-pressed {
   background: var(--surface-2);
 }
-.timeline-row .bubble.sm {
+.timeline-clock {
+  width: 168rpx;
+  flex-shrink: 0;
+  margin-right: var(--sp-3);
+  padding: 16rpx 0;
+  border-radius: 20rpx;
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+  font-size: var(--fs-title);
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 1rpx;
+}
+.timeline-row .bubble {
   margin-right: var(--sp-2);
 }
 .timeline-body {
@@ -817,18 +854,20 @@ view.input {
   min-width: 0;
 }
 .timeline-title {
-  font-size: var(--fs-body);
+  font-size: var(--fs-heading);
+  font-weight: 600;
+  line-height: 1.35;
   color: var(--ink);
   overflow-wrap: anywhere;
 }
 .timeline-meta {
-  margin-top: 4rpx;
+  margin-top: 6rpx;
   font-size: var(--fs-caption);
   color: var(--ink-2);
 }
 .timeline-chev {
   color: var(--ink-3);
-  font-size: 40rpx;
+  font-size: 48rpx;
   line-height: 1;
   margin-left: var(--sp-1);
 }
@@ -1200,10 +1239,10 @@ view.input {
   display: flex;
   align-items: center;
   margin-top: var(--sp-3);
-  padding: var(--sp-2) 0;
+  padding: 20rpx 0 24rpx;
   border-radius: var(--r-control);
-  background: rgba(38, 34, 51, 0.18);
-  border: 1rpx solid rgba(255, 255, 255, 0.12);
+  background: rgba(38, 34, 51, 0.22);
+  border: 1rpx solid rgba(255, 255, 255, 0.16);
 }
 .hero-stat {
   flex: 1;
@@ -1211,21 +1250,25 @@ view.input {
   text-align: center;
 }
 .hero-stat-value {
-  font-size: var(--fs-heading);
+  font-size: var(--fs-title);
   font-weight: 700;
+  line-height: 1.15;
   color: #FFFFFF;
   overflow-wrap: anywhere;
   font-variant-numeric: tabular-nums;
 }
 .hero-stat-label {
-  margin-top: 4rpx;
-  font-size: var(--fs-caption);
-  color: rgba(255, 255, 255, 0.88);
+  margin-top: 12rpx;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 1rpx;
+  color: #FFFFFF;
 }
 .hero-stat-sep {
   width: 1rpx;
-  height: 40rpx;
-  background: rgba(255, 255, 255, 0.16);
+  height: 72rpx;
+  background: rgba(255, 255, 255, 0.28);
 }
 .elder .hero {
   padding: 40rpx 36rpx 32rpx;

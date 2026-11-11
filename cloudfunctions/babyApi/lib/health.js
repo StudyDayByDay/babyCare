@@ -81,9 +81,26 @@ async function syncVaccines(ctx, data) {
   const baby = await ownBaby(ctx, data.babyId)
   if (!baby.birthday) throw fail('请先填写出生日')
   const existing = await fetchWhere(ctx.db, 'vaccines', { babyId: baby._id, familyId: baby.familyId })
-  const keys = {}
-  existing.forEach((item) => { if (item.scheduleKey) keys[item.scheduleKey] = true })
   const plan = dueDays(baby.birthday)
+  const planByKey = {}
+  plan.forEach((item) => { planByKey[item.scheduleKey] = item })
+  for (let i = 0; i < existing.length; i += 1) {
+    const item = existing[i]
+    if (!item.scheduleKey) continue
+    const next = planByKey[item.scheduleKey]
+    if (!next) {
+      if (item.status === 'pending') await ctx.db.collection('vaccines').doc(item._id).remove()
+      continue
+    }
+    if (item.status === 'pending' && (item.name !== next.name || item.dueDay !== next.dueDay)) {
+      await ctx.db.collection('vaccines').doc(item._id).update({
+        data: { name: next.name, dueDay: next.dueDay, updatedAt: ctx.now }
+      })
+    }
+  }
+  const fresh = await fetchWhere(ctx.db, 'vaccines', { babyId: baby._id, familyId: baby.familyId })
+  const keys = {}
+  fresh.forEach((item) => { if (item.scheduleKey) keys[item.scheduleKey] = true })
   for (let i = 0; i < plan.length; i += 1) {
     if (keys[plan[i].scheduleKey]) continue
     await ctx.db.collection('vaccines').add({
@@ -111,14 +128,18 @@ async function saveVaccine(ctx, data) {
     let old = null
     try { old = (await ctx.db.collection('vaccines').doc(data._id).get()).data } catch (e) { old = null }
     if (!old || old.familyId !== baby.familyId) throw fail('找不到这项', 'NOT_FOUND')
-    await ctx.db.collection('vaccines').doc(data._id).update({
-      data: {
-        status,
-        doneDay: status === 'done' ? (isDay(data.doneDay) ? data.doneDay : dayKey(ctx.now)) : '',
-        note: text(data.note, 80),
-        updatedAt: ctx.now
-      }
-    })
+    const name = text(data.name, 40)
+    const patch = {
+      status,
+      note: data.note == null ? (old.note || '') : text(data.note, 80),
+      updatedAt: ctx.now
+    }
+    if (name) patch.name = name
+    if (isDay(data.dueDay)) patch.dueDay = data.dueDay
+    patch.doneDay = status === 'done'
+      ? (isDay(data.doneDay) ? data.doneDay : (isDay(old.doneDay) ? old.doneDay : dayKey(ctx.now)))
+      : ''
+    await ctx.db.collection('vaccines').doc(data._id).update({ data: patch })
     return { _id: data._id }
   }
   const name = text(data.name, 40)
@@ -141,4 +162,13 @@ async function saveVaccine(ctx, data) {
   return { _id: added._id }
 }
 
-module.exports = { saveGrowth, deleteGrowth, listGrowth, listVaccines, syncVaccines, saveVaccine }
+async function deleteVaccine(ctx, data) {
+  const baby = await ownBaby(ctx, data.babyId)
+  let old = null
+  try { old = (await ctx.db.collection('vaccines').doc(data._id).get()).data } catch (e) { old = null }
+  if (!old || old.familyId !== baby.familyId) throw fail('找不到这项', 'NOT_FOUND')
+  await ctx.db.collection('vaccines').doc(data._id).remove()
+  return { ok: true }
+}
+
+module.exports = { saveGrowth, deleteGrowth, listGrowth, listVaccines, syncVaccines, saveVaccine, deleteVaccine }

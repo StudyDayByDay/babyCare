@@ -175,12 +175,13 @@
         hover-class="is-pressed"
         style="animation-delay: {{index * 45 + 320}}ms"
       >
+        <view class="timeline-clock">{{item.timeText}}</view>
         <view class="bubble sm tone-{{item.tone}}">
-          <icon name="{{item.icon}}" size="{{36}}" elder="{{elder}}" />
+          <icon name="{{item.icon}}" size="{{40}}" elder="{{elder}}" />
         </view>
         <view class="timeline-body">
           <view class="timeline-title">{{item.text}}</view>
-          <view class="timeline-meta">{{item.timeText}}<text wx:if="{{item.memberName}}"> · {{item.memberName}}</text></view>
+          <view class="timeline-meta" wx:if="{{item.memberName}}">{{item.memberName}}</view>
         </view>
         <text class="timeline-chev">›</text>
       </view>

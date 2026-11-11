@@ -1,6 +1,7 @@
 const pageBehavior = require('../../behaviors/page.js')
 const api = require('../../services/api.js')
 const { dayKey, addDays, durationText, prettyDay } = require('../../utils/date.js')
+const { milkView } = require('../../utils/view.js')
 const { openDay } = require('../../utils/nav.js')
 
 Page({
@@ -11,6 +12,7 @@ Page({
     span: 7,
     days: [],
     totals: null,
+    lines: [],
     sleepText: '',
     hasData: false
   },
@@ -47,20 +49,30 @@ Page({
     const endDay = dayKey()
     const startDay = addDays(endDay, -(this.data.span - 1))
     return api.getRange({ babyId: this.baby._id, startDay, endDay }).then((range) => {
-      const max = Math.max.apply(null, range.days.map((day) => day.feedCount).concat([1]))
       const totals = range.totals || {}
       const hasData = !!(
-        totals.feedCount || totals.formulaMl || totals.breastMin ||
+        totals.feedCount || totals.formulaMl || totals.bottleBreastMl || totals.breastMin ||
         totals.poopCount || totals.sleepMin || totals.medTotal
       )
+      const milk = milkView(totals)
+      const days = (range.days || []).map((day) => {
+        const marked = !!(
+          day.feedCount || day.formulaMl || day.bottleBreastMl || day.breastMin ||
+          day.diaperCount || day.poopCount || day.sleepMin || day.medTotal
+        )
+        return { day: day.day, pretty: prettyDay(day.day), marked }
+      }).reverse()
       this.setData({
         totals,
-        sleepText: durationText(totals.sleepMin),
+        lines: [
+          { label: '喂奶', value: (Number(totals.feedCount) || 0) + ' 次' },
+          { label: '奶量', value: milk.num === '0' ? '还没有' : milk.num },
+          { label: '大便', value: (Number(totals.poopCount) || 0) + ' 次' },
+          { label: '睡眠', value: durationText(totals.sleepMin) },
+          { label: '用药', value: (Number(totals.medTaken) || 0) + ' / ' + (Number(totals.medTotal) || 0) }
+        ],
         hasData,
-        days: range.days.map((day) => Object.assign({
-          pretty: prettyDay(day.day),
-          feedWidth: Math.round(day.feedCount / max * 100)
-        }, day)),
+        days,
         pageError: ''
       })
     })

@@ -20,7 +20,7 @@
     <view class="page-head">
       <view class="page-head-main">
         <view class="display">疫苗</view>
-        <view class="caption mt-1">按国家免疫规划 2025 版的常见时间列出，各地和自费疫苗不一样。用来提醒你核对接种本，不是接种通知。</view>
+        <view class="caption mt-1">按接种本上的国家免疫规划（2021 年版）列出，用来核对，不是接种通知。乙脑、甲肝如果本上写的是灭活，用下面自己添加，不要和减毒重复记。</view>
       </view>
       <view class="avatar lg tone-vaccine"><icon name="vaccine" size="{{56}}" elder="{{elder}}" /></view>
     </view>
@@ -54,10 +54,41 @@
         </view>
         <view class="pill {{item.overdue ? 'pending' : 'skip'}}">{{item.overdue ? '到时间了' : '还没到'}}</view>
       </view>
-      <view class="pair mt-3">
-        <button class="btn btn-secondary" hover-class="is-pressed" data-id="{{item._id}}" bindtap="done">接种本上已有</button>
-        <button class="btn btn-ghost" hover-class="is-pressed" data-id="{{item._id}}" data-name="{{item.name}}" bindtap="skip">这次不做</button>
-      </view>
+      <block wx:if="{{editingId === item._id}}">
+        <view class="field mt-3">
+          <text class="label">名称</text>
+          <input class="input {{editError ? 'is-error' : ''}}" value="{{editName}}" maxlength="40" bindinput="onEditName" />
+          <text class="field-error" wx:if="{{editError}}">{{editError}}</text>
+        </view>
+        <view class="field">
+          <text class="label">状态</text>
+          <view class="chips">
+            <view class="chip {{editStatus === 'pending' ? 'on' : ''}}" data-status="pending" bindtap="onEditStatus">待核对</view>
+            <view class="chip {{editStatus === 'done' ? 'on' : ''}}" data-status="done" bindtap="onEditStatus">已接种</view>
+            <view class="chip {{editStatus === 'skipped' ? 'on' : ''}}" data-status="skipped" bindtap="onEditStatus">这次不做</view>
+          </view>
+        </view>
+        <view class="field" wx:if="{{editStatus !== 'skipped'}}">
+          <text class="label">{{editStatus === 'done' ? '接种日期' : '应种日期'}}</text>
+          <picker mode="date" value="{{editDay}}" bindchange="onEditDay">
+            <view class="input picker-face">{{editDay}}<text class="chev">›</text></view>
+          </picker>
+        </view>
+        <view class="pair">
+          <button class="btn btn-primary" hover-class="is-pressed" data-id="{{item._id}}" bindtap="saveEdit">保存</button>
+          <button class="btn btn-ghost" hover-class="is-pressed" bindtap="cancelEdit">取消</button>
+        </view>
+      </block>
+      <block wx:else>
+        <view class="pair mt-3">
+          <button class="btn btn-secondary" hover-class="is-pressed" data-id="{{item._id}}" bindtap="done">接种本上已有</button>
+          <button class="btn btn-ghost" hover-class="is-pressed" data-id="{{item._id}}" data-name="{{item.name}}" bindtap="skip">这次不做</button>
+        </view>
+        <view class="pair">
+          <button class="btn btn-text" hover-class="is-pressed" data-id="{{item._id}}" data-name="{{item.name}}" data-status="{{item.status}}" data-due="{{item.dueDay}}" data-done="{{item.doneDay}}" bindtap="startEdit">修改</button>
+          <button class="btn btn-text danger" hover-class="is-pressed" data-id="{{item._id}}" data-name="{{item.name}}" bindtap="remove">删除</button>
+        </view>
+      </block>
     </view>
 
     <view class="card">
@@ -100,6 +131,35 @@
             <view class="list-sub">{{item.donePretty || item.duePretty}}</view>
           </view>
           <view class="pill {{item.status === 'done' ? 'done' : 'skip'}}">{{item.status === 'done' ? '已接种' : '不做了'}}</view>
+        </view>
+        <block wx:if="{{editingId === item._id}}">
+          <view class="field mt-3">
+            <text class="label">名称</text>
+            <input class="input {{editError ? 'is-error' : ''}}" value="{{editName}}" maxlength="40" bindinput="onEditName" />
+            <text class="field-error" wx:if="{{editError}}">{{editError}}</text>
+          </view>
+          <view class="field">
+            <text class="label">状态</text>
+            <view class="chips">
+              <view class="chip {{editStatus === 'pending' ? 'on' : ''}}" data-status="pending" bindtap="onEditStatus">待核对</view>
+              <view class="chip {{editStatus === 'done' ? 'on' : ''}}" data-status="done" bindtap="onEditStatus">已接种</view>
+              <view class="chip {{editStatus === 'skipped' ? 'on' : ''}}" data-status="skipped" bindtap="onEditStatus">这次不做</view>
+            </view>
+          </view>
+          <view class="field" wx:if="{{editStatus !== 'skipped'}}">
+            <text class="label">{{editStatus === 'done' ? '接种日期' : '应种日期'}}</text>
+            <picker mode="date" value="{{editDay}}" bindchange="onEditDay">
+              <view class="input picker-face">{{editDay}}<text class="chev">›</text></view>
+            </picker>
+          </view>
+          <view class="pair">
+            <button class="btn btn-primary" hover-class="is-pressed" data-id="{{item._id}}" bindtap="saveEdit">保存</button>
+            <button class="btn btn-ghost" hover-class="is-pressed" bindtap="cancelEdit">取消</button>
+          </view>
+        </block>
+        <view class="pair" wx:else>
+          <button class="btn btn-text" hover-class="is-pressed" data-id="{{item._id}}" data-name="{{item.name}}" data-status="{{item.status}}" data-due="{{item.dueDay}}" data-done="{{item.doneDay}}" bindtap="startEdit">修改</button>
+          <button class="btn btn-text danger" hover-class="is-pressed" data-id="{{item._id}}" data-name="{{item.name}}" bindtap="remove">删除</button>
         </view>
       </view>
     </block>

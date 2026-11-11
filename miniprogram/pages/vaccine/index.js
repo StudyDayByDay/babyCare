@@ -14,7 +14,12 @@ Page({
     pending: [],
     doneList: [],
     customName: '',
-    customDay: ''
+    customDay: '',
+    editingId: '',
+    editName: '',
+    editStatus: 'pending',
+    editDay: '',
+    editError: ''
   },
   onShow() {
     this.setData({ customDay: this.data.customDay || dayKey() })
@@ -147,5 +152,80 @@ Page({
   },
   toggleDone() {
     this.setData({ showDone: !this.data.showDone })
+  },
+  startEdit(e) {
+    const d = e.currentTarget.dataset
+    const status = d.status || 'pending'
+    this.setData({
+      editingId: d.id,
+      editName: d.name || '',
+      editStatus: status,
+      editDay: status === 'done' ? (d.done || d.due || this.today) : (d.due || this.today),
+      editError: ''
+    })
+  },
+  cancelEdit() {
+    this.setData({ editingId: '', editError: '' })
+  },
+  onEditName(e) {
+    this.setData({ editName: e.detail.value, editError: '' })
+  },
+  onEditStatus(e) {
+    this.setData({ editStatus: e.currentTarget.dataset.status })
+  },
+  onEditDay(e) {
+    this.setData({ editDay: e.detail.value })
+  },
+  saveEdit(e) {
+    if (this.busy) return
+    const name = String(this.data.editName || '').trim()
+    if (!name) {
+      this.setData({ editError: '写一下疫苗名称' })
+      return
+    }
+    const status = this.data.editStatus
+    const payload = {
+      babyId: this.babyId,
+      _id: e.currentTarget.dataset.id,
+      name,
+      status
+    }
+    if (status === 'done') payload.doneDay = this.data.editDay
+    if (status === 'pending') payload.dueDay = this.data.editDay
+    this.busy = true
+    api.saveVaccine(payload).then(() => {
+      this.setData({ editingId: '', editError: '' })
+      return this.load()
+    }).then(() => {
+      this.busy = false
+      this.ok('已改好')
+    }).catch((err) => {
+      this.busy = false
+      this.fail(err)
+    })
+  },
+  remove(e) {
+    if (this.busy) return
+    const id = e.currentTarget.dataset.id
+    const name = e.currentTarget.dataset.name || '这一项'
+    wx.showModal({
+      title: '删除这项？',
+      content: name + ' 会从清单里去掉。',
+      confirmColor: theme.danger,
+      success: (res) => {
+        if (!res.confirm) return
+        this.busy = true
+        api.deleteVaccine({ babyId: this.babyId, _id: id }).then(() => {
+          if (this.data.editingId === id) this.setData({ editingId: '' })
+          return this.load()
+        }).then(() => {
+          this.busy = false
+          this.ok('已删除')
+        }).catch((err) => {
+          this.busy = false
+          this.fail(err)
+        })
+      }
+    })
   }
 })

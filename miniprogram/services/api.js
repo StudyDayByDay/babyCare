@@ -55,5 +55,6 @@ module.exports = {
   listVaccines: (data) => call('listVaccines', data),
   syncVaccines: (data) => call('syncVaccines', data),
   saveVaccine: (data) => call('saveVaccine', data),
+  deleteVaccine: (data) => call('deleteVaccine', data),
   exportFile: (data) => call('exportFile', data)
 }

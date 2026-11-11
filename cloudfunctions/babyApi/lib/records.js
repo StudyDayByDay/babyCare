@@ -1,5 +1,5 @@
 const { fail, text, num, oneOf, clean, ownBaby, memberLabel } = require('./auth')
-const { dayKey } = require('./date')
+const { dayKey, isDay } = require('./date')
 const { describeRecord } = require('./describe')
 const { simpleKeys, simpleByKey, sanitizeSimple } = require('./recordTypes')
 

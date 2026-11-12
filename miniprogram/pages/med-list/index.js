@@ -1,7 +1,7 @@
 const pageBehavior = require('../../behaviors/page.js')
 const api = require('../../services/api.js')
 const { requestMedSubscribe, templateReady } = require('../../services/subscribe.js')
-const { dayKey, prettyDay } = require('../../utils/date.js')
+const { dayKey, prettyDay, diffDays } = require('../../utils/date.js')
 const { groupDoses } = require('../../utils/view.js')
 const theme = require('../../utils/theme.js')
 
@@ -17,6 +17,23 @@ const SHEET_SKIPPED = [
   { key: 'taken', label: '改成吃了', hint: '按现在的时间记' },
   { key: 'amount', label: '改数量再记已吃' }
 ]
+
+function spanText(days) {
+  const n = Number(days) || 0
+  if (n === 7) return '一周'
+  if (n === 30) return '一月'
+  if (n === 90) return '3 个月'
+  if (n === 180) return '半年'
+  if (n === 365 || n === 366) return '一年'
+  if (n >= 60 && n % 30 === 0) return (n / 30) + ' 个月'
+  return n + ' 天'
+}
+
+function rangeText(startDay, endDay) {
+  if (!startDay || !endDay) return ''
+  const end = startDay.slice(0, 4) === endDay.slice(0, 4) ? prettyDay(endDay) : endDay.slice(0, 4) + '年' + prettyDay(endDay)
+  return prettyDay(startDay) + ' 到 ' + end
+}
 
 Page({
   behaviors: [pageBehavior],
@@ -76,10 +93,13 @@ Page({
           takenToday: taken,
           totalToday: total,
           medPercent: total ? Math.round(taken / total * 100) : 0,
-          meds: (meds.list || []).map((med) => Object.assign({
-            startPretty: med.startDay ? prettyDay(med.startDay) : '',
-            endPretty: med.endDay ? prettyDay(med.endDay) : ''
-          }, med)),
+          meds: (meds.list || []).map((med) => {
+            const days = med.days || (med.startDay && med.endDay ? diffDays(med.startDay, med.endDay) : 0)
+            return Object.assign({
+              rangeText: rangeText(med.startDay, med.endDay),
+              spanText: spanText(days)
+            }, med)
+          }),
           editId: '',
           pageError: ''
         })

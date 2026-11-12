@@ -143,7 +143,10 @@
       <view class="card" wx:for="{{meds}}" wx:key="_id" style="animation-delay: {{index * 45 + 160}}ms">
         <view class="heading">{{item.name}}</view>
         <view class="sub mt-1">{{item.planText}}</view>
-        <view class="sub">{{item.startPretty}} 到 {{item.endPretty}}<text wx:if="{{item.mealNote}}"> · {{item.mealNote}}</text></view>
+        <view class="mt-2">
+          <view class="pill pending" wx:if="{{item.spanText}}">{{item.spanText}}</view>
+          <view class="sub mt-1">{{item.rangeText}}<text wx:if="{{item.mealNote}}"> · {{item.mealNote}}</text></view>
+        </view>
         <button
           wx:if="{{item.frequencyType === 'asNeeded'}}"
           class="btn btn-secondary btn-block mt-3"

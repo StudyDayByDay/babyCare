@@ -2,7 +2,6 @@ const pageBehavior = require('../../behaviors/page.js')
 const api = require('../../services/api.js')
 const { dayKey, prettyDay, stageOf, timeKey, addDays, durationText } = require('../../utils/date.js')
 const { recordActions, hiddenCareActions, iconFor, toneFor } = require('../../utils/stage.js')
-const { milkView } = require('../../utils/view.js')
 const { openAction } = require('../../utils/nav.js')
 
 Page({
@@ -19,6 +18,9 @@ Page({
     showMore: false,
     records: [],
     milkText: '0',
+    totalMlText: '0毫升',
+    breastMlText: '0毫升',
+    formulaText: '0毫升',
     breastText: '0分钟',
     poopText: '0次',
     diaperText: '0次',
@@ -64,14 +66,17 @@ Page({
       })
       return api.getDay({ babyId: session.baby._id, day }).then((data) => {
         const summary = data.summary || {}
-        const milk = milkView(summary)
+        const formulaMl = Number(summary.formulaMl) || 0
+        const breastMl = Number(summary.bottleBreastMl) || 0
         this.setData({
           records: (data.records || []).map((item) => Object.assign({
             timeText: timeKey(item.happenedAt),
             icon: iconFor(item.type),
             tone: toneFor(item.type)
           }, item)).reverse(),
-          milkText: milk.num,
+          totalMlText: (formulaMl + breastMl) + '毫升',
+          breastMlText: breastMl + '毫升',
+          formulaText: formulaMl + '毫升',
           breastText: (Number(summary.breastMin) || 0) + '分钟',
           poopText: (Number(summary.poopCount) || 0) + '次',
           diaperText: (Number(summary.diaperCount) || 0) + '次',

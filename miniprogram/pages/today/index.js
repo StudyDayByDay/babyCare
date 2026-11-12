@@ -2,7 +2,7 @@ const pageBehavior = require('../../behaviors/page.js')
 const api = require('../../services/api.js')
 const { dayKey, prettyDay, ageText, durationText, stageOf, timeKey, dayNumber } = require('../../utils/date.js')
 const { stageLabel, recordActions, iconFor, toneFor } = require('../../utils/stage.js')
-const { milkView, groupDoses, sinceList } = require('../../utils/view.js')
+const { groupDoses, sinceList } = require('../../utils/view.js')
 const { openAction } = require('../../utils/nav.js')
 const { describeDaily } = require('./dailyText.js')
 
@@ -16,7 +16,6 @@ Page({
     heroMeta: '',
     pretty: '',
     summary: {},
-    milk: { num: '0', sub: '' },
     sleepText: '0分钟',
     records: [],
     shownRecords: [],
@@ -32,7 +31,8 @@ Page({
       diaper: 0,
       sleepMin: 0,
       milk: 0,
-      milkUnit: '',
+      breastMl: 0,
+      formulaMl: 0,
       breastMin: 0,
       poop: 0,
       medTaken: 0
@@ -112,11 +112,10 @@ Page({
       }, item))
       const total = Number(data.summary.medTotal) || 0
       const taken = Number(data.summary.medTaken) || 0
-      const milk = milkView(data.summary)
-      const milkMatch = String(milk.num || '0').match(/^(\d+(?:\.\d+)?)(.*)$/)
+      const formulaMl = Number(data.summary.formulaMl) || 0
+      const breastMl = Number(data.summary.bottleBreastMl) || 0
       this.setData({
         summary: data.summary,
-        milk,
         sleepText: durationText(data.summary.sleepMin),
         records,
         shownRecords: records.slice(-5).reverse(),
@@ -131,8 +130,9 @@ Page({
         feed: Number(data.summary.feedCount) || 0,
         diaper: Number(data.summary.diaperCount) || 0,
         sleepMin: Number(data.summary.sleepMin) || 0,
-        milk: milkMatch ? Number(milkMatch[1]) : 0,
-        milkUnit: milkMatch ? milkMatch[2] : '',
+        milk: formulaMl + breastMl,
+        breastMl,
+        formulaMl,
         breastMin: Number(data.summary.breastMin) || 0,
         poop: Number(data.summary.poopCount) || 0,
         medTaken: taken
@@ -142,13 +142,13 @@ Page({
   animateNums(target) {
     const sig = [
       target.day, target.feed, target.diaper, target.sleepMin,
-      target.milk, target.milkUnit, target.breastMin, target.poop, target.medTaken
+      target.milk, target.breastMl, target.formulaMl, target.breastMin, target.poop, target.medTaken
     ].join('|')
     if (sig === this.numsSig) return
     this.numsSig = sig
     if (this.numTimer) clearInterval(this.numTimer)
     const from = Object.assign({}, this.data.nums)
-    const keys = ['day', 'feed', 'diaper', 'sleepMin', 'milk', 'breastMin', 'poop', 'medTaken']
+    const keys = ['day', 'feed', 'diaper', 'sleepMin', 'milk', 'breastMl', 'formulaMl', 'breastMin', 'poop', 'medTaken']
     const start = Date.now()
     const duration = 620
     const tick = () => {
@@ -158,7 +158,6 @@ Page({
       keys.forEach((key) => {
         patch['nums.' + key] = Math.round(from[key] + (target[key] - from[key]) * e)
       })
-      patch['nums.milkUnit'] = target.milkUnit
       patch.animSleepText = durationText(Math.round(from.sleepMin + (target.sleepMin - from.sleepMin) * e))
       this.setData(patch)
       if (t >= 1) {

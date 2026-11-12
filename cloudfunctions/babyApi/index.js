@@ -7,6 +7,11 @@ const { handle } = require('./lib/service')
 exports.main = async (event) => {
   const wxContext = cloud.getWXContext()
   try {
+    if (event.action === 'extendMeds') {
+      const { fillAllActive } = require('./lib/meds')
+      const data = await fillAllActive(db, Date.now())
+      return { ok: true, data }
+    }
     const data = await handle(event.action, event.data || {}, {
       db,
       _: db.command,

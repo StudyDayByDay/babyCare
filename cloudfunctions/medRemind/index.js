@@ -31,6 +31,11 @@ function clip(value, max) {
 }
 
 exports.main = async () => {
+  try {
+    await cloud.callFunction({ name: 'babyApi', data: { action: 'extendMeds' } })
+  } catch (err) {
+    console.error('extend meds', err)
+  }
   if (!remind.templateId) return { ok: true, skipped: 'NO_TEMPLATE' }
   const now = Date.now()
   const start = now - 10 * 60 * 1000

@@ -12,7 +12,7 @@ async function fetchWhere(db, name, where, max) {
 }
 
 async function runBatches(items, worker) {
-  const size = 8
+  const size = 20
   for (let i = 0; i < items.length; i += size) {
     await Promise.all(items.slice(i, i + size).map(worker))
   }

@@ -1,7 +1,7 @@
 const { ownBaby, fail } = require('./auth')
 const { isDay, addDays } = require('./date')
 const { fetchWhere } = require('./query')
-const { presentDose } = require('./meds')
+const { presentDose, fillBabyMeds } = require('./meds')
 const { presentRecord } = require('./records')
 const { doseLabel } = require('./medPlan')
 
@@ -109,6 +109,7 @@ async function collectRange(ctx, baby, startDay, endDay) {
 async function getDay(ctx, data) {
   const baby = await ownBaby(ctx, data.babyId)
   if (!isDay(data.day)) throw fail('日期不对')
+  await fillBabyMeds(ctx, baby)
   const where = { babyId: baby._id, familyId: baby.familyId, day: data.day }
   const records = await fetchWhere(ctx.db, 'records', where)
   const sheets = await fetchWhere(ctx.db, 'dailySheets', where)

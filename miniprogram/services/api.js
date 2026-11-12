@@ -17,6 +17,8 @@ function call(action, data) {
           reject(new Error('云函数 babyApi 还没上传'))
         } else if (msg.indexOf('Environment not found') >= 0 || msg.indexOf('-601034') >= 0) {
           reject(new Error('云环境还没准备好。请在开发者工具开通云开发，并上传云函数'))
+        } else if (msg.indexOf('timeout') >= 0 || msg.indexOf('TIME_LIMIT') >= 0 || msg.indexOf('-504003') >= 0) {
+          reject(new Error('保存太久了，请再试一次'))
         } else {
           reject(new Error('云服务没有连上'))
         }

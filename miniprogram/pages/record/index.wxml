@@ -88,8 +88,16 @@
       </view>
       <view class="stat-grid">
         <view class="stat-tile">
-          <view class="stat-value num">{{milkText}}</view>
-          <view class="stat-label">奶量</view>
+          <view class="stat-value num">{{totalMlText}}</view>
+          <view class="stat-label">总奶量</view>
+        </view>
+        <view class="stat-tile">
+          <view class="stat-value num">{{breastMlText}}</view>
+          <view class="stat-label">母乳量</view>
+        </view>
+        <view class="stat-tile">
+          <view class="stat-value num">{{formulaText}}</view>
+          <view class="stat-label">奶粉量</view>
         </view>
         <view class="stat-tile">
           <view class="stat-value num">{{breastText}}</view>

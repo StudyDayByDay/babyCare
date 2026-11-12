@@ -137,10 +137,18 @@
       </view>
       <view class="stat-grid">
         <view class="stat-tile" style="animation-delay: 280ms">
-          <view class="stat-value num">{{nums.milk}}{{nums.milkUnit}}</view>
-          <view class="stat-label">奶量</view>
+          <view class="stat-value num">{{nums.milk}}毫升</view>
+          <view class="stat-label">总奶量</view>
+        </view>
+        <view class="stat-tile" style="animation-delay: 300ms">
+          <view class="stat-value num">{{nums.breastMl}}毫升</view>
+          <view class="stat-label">母乳量</view>
         </view>
         <view class="stat-tile" style="animation-delay: 320ms">
+          <view class="stat-value num">{{nums.formulaMl}}毫升</view>
+          <view class="stat-label">奶粉量</view>
+        </view>
+        <view class="stat-tile" style="animation-delay: 340ms">
           <view class="stat-value num">{{nums.breastMin}}分钟</view>
           <view class="stat-label">亲喂</view>
         </view>

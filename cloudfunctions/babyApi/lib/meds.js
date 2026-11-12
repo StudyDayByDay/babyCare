@@ -89,6 +89,67 @@ function presentDose(dose, name) {
   }
 }
 
+const DOSE_WINDOW = 14
+
+function windowBounds(med, today) {
+  const horizon = addDays(today, DOSE_WINDOW - 1)
+  const start = med.startDay > today ? med.startDay : today
+  const end = med.endDay < horizon ? med.endDay : horizon
+  return { start, end }
+}
+
+async function fillOne(ctx, med) {
+  if (!med || med.status === 'finished' || med.frequencyType === 'asNeeded') return 0
+  const today = dayKey(ctx.now)
+  if (!med.endDay || med.endDay < today) return 0
+  const bounds = windowBounds(med, today)
+  if (bounds.start > bounds.end) return 0
+  const existing = await fetchWhere(ctx.db, 'medDoses', { medicationId: med._id, familyId: med.familyId })
+  const have = {}
+  const fromTs = toTs(bounds.start, '00:00')
+  existing.forEach((dose) => {
+    if (dose.planAt >= fromTs) have[dose.planAt] = true
+  })
+  const planned = planDoses(Object.assign({}, med, { startDay: bounds.start, endDay: bounds.end }))
+    .filter((dose) => !have[dose.planAt])
+  await runBatches(planned, (dose) => ctx.db.collection('medDoses').add({
+    data: {
+      familyId: med.familyId,
+      babyId: med.babyId,
+      medicationId: med._id,
+      day: dose.day,
+      planAt: dose.planAt,
+      slotTime: dose.slotTime,
+      doseAmount: dose.doseAmount,
+      doseUnit: dose.doseUnit,
+      status: 'pending',
+      reminded: false,
+      note: '',
+      createdAt: ctx.now
+    }
+  }))
+  return planned.length
+}
+
+async function fillBabyMeds(ctx, baby) {
+  const meds = await fetchWhere(ctx.db, 'medications', {
+    babyId: baby._id,
+    familyId: baby.familyId,
+    status: 'active'
+  })
+  for (let i = 0; i < meds.length; i += 1) await fillOne(ctx, meds[i])
+}
+
+async function fillAllActive(db, now) {
+  const ctx = { db, now: now || Date.now() }
+  const today = dayKey(ctx.now)
+  const meds = await fetchWhere(db, 'medications', { status: 'active' })
+  let added = 0
+  const list = meds.filter((med) => med.endDay >= today).slice(0, 40)
+  for (let i = 0; i < list.length; i += 1) added += await fillOne(ctx, list[i])
+  return { added }
+}
+
 async function saveMedication(ctx, data) {
   const baby = await ownBaby(ctx, data.babyId)
   const course = readCourse(data)
@@ -128,31 +189,17 @@ async function saveMedication(ctx, data) {
     throw fail('这一程超过 800 顿。一天一次可以记满一年，次数多就缩短天数')
   }
   const existing = await fetchWhere(ctx.db, 'medDoses', { medicationId: medId, familyId: baby.familyId })
-  const keptAt = {}
   const removing = []
   existing.forEach((dose) => {
-    const pendingToday = dose.status === 'pending' && dose.planAt >= todayStart
-    if (pendingToday) removing.push(dose._id)
-    else if (dose.planAt >= todayStart) keptAt[dose.planAt] = true
+    if (dose.status === 'pending' && dose.planAt >= todayStart) removing.push(dose._id)
   })
   await runBatches(removing, (id) => ctx.db.collection('medDoses').doc(id).remove())
-  const planned = planDoses(course).filter((dose) => dose.planAt >= todayStart && !keptAt[dose.planAt])
-  await runBatches(planned, (dose) => ctx.db.collection('medDoses').add({
-    data: {
-      familyId: baby.familyId,
-      babyId: baby._id,
-      medicationId: medId,
-      day: dose.day,
-      planAt: dose.planAt,
-      slotTime: dose.slotTime,
-      doseAmount: dose.doseAmount,
-      doseUnit: dose.doseUnit,
-      status: 'pending',
-      reminded: false,
-      note: '',
-      createdAt: now
-    }
-  }))
+  await fillOne(ctx, Object.assign({
+    _id: medId,
+    familyId: baby.familyId,
+    babyId: baby._id,
+    status: 'active'
+  }, course))
   return { _id: medId, planText: course.planText }
 }
 
@@ -264,5 +311,7 @@ module.exports = {
   getMedication,
   markDose,
   addAsNeededDose,
-  presentDose
+  presentDose,
+  fillBabyMeds,
+  fillAllActive
 }

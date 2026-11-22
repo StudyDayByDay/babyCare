@@ -46,31 +46,31 @@
       <view class="card-head">
         <view class="card-title">记一笔</view>
       </view>
-      <view class="tool-grid">
+      <view class="quick-actions">
         <view
-          class="tool-tile"
-          wx:for="{{actions}}"
+          class="quick-action"
+          wx:for="{{primaryActions}}"
           wx:key="key"
           data-key="{{item.key}}"
           bindtap="onAction"
           hover-class="is-pressed"
         >
-          <view class="tool-icon tone-{{item.tone}}">
-            <icon name="{{item.icon}}" size="{{32}}" elder="{{elder}}" />
+          <view class="quick-action-icon tone-{{item.tone}}">
+            <icon name="{{item.icon}}" size="{{44}}" elder="{{elder}}" />
           </view>
-          <view class="tool-label">{{item.title}}</view>
+          <view class="quick-action-label">{{item.title}}</view>
         </view>
       </view>
 
-      <block wx:if="{{more.length}}">
+      <block wx:if="{{extraActions.length}}">
         <view class="collapse-head {{showMore ? 'open' : ''}}" bindtap="toggleMore" hover-class="is-pressed">
-          {{showMore ? '收起' : '还要记喂奶或尿布'}}
+          {{showMore ? '收起' : '更多记录项'}}
           <text class="chev">›</text>
         </view>
         <view wx:if="{{showMore}}" class="tool-grid">
           <view
             class="tool-tile"
-            wx:for="{{more}}"
+            wx:for="{{extraActions}}"
             wx:key="key"
             data-key="{{item.key}}"
             bindtap="onAction"
@@ -88,49 +88,39 @@
     <view class="card day-summary">
       <view class="card-head">
         <view class="card-title">这一天</view>
+        <view class="link sm" bindtap="goStats" hover-class="is-pressed">统计 ›</view>
       </view>
-      <view class="kv-grid">
-        <view class="kv-item">
-          <text class="kv-label">总奶量</text>
-          <text class="kv-value">{{totalMlText}}</text>
+      <view class="board-metrics">
+        <view class="board-metric">
+          <view class="board-metric-label">喂奶</view>
+          <view class="board-metric-line">
+            <text class="board-metric-value num">{{feedCount}}</text>
+            <text class="board-metric-unit">次</text>
+          </view>
         </view>
-        <view class="kv-item">
-          <text class="kv-label">瓶喂母乳</text>
-          <text class="kv-value">{{breastMlText}}</text>
+        <view class="board-metric">
+          <view class="board-metric-label">奶量</view>
+          <view class="board-metric-line">
+            <text class="board-metric-value num">{{totalMl}}</text>
+            <text class="board-metric-unit">毫升</text>
+          </view>
         </view>
-        <view class="kv-item">
-          <text class="kv-label">配方奶</text>
-          <text class="kv-value">{{formulaText}}</text>
+        <view class="board-metric">
+          <view class="board-metric-label">尿布</view>
+          <view class="board-metric-line">
+            <text class="board-metric-value num">{{diaperCount}}</text>
+            <text class="board-metric-unit">次</text>
+          </view>
         </view>
-        <view class="kv-item">
-          <text class="kv-label">亲喂</text>
-          <text class="kv-value">{{breastText}}</text>
-        </view>
-        <view class="kv-item">
-          <text class="kv-label">大便</text>
-          <text class="kv-value">{{poopText}}</text>
-        </view>
-        <view class="kv-item">
-          <text class="kv-label">尿布</text>
-          <text class="kv-value">{{diaperText}}</text>
-        </view>
-        <view class="kv-item">
-          <text class="kv-label">睡眠</text>
-          <text class="kv-value">{{sleepText}}</text>
-        </view>
-        <view class="kv-item">
-          <text class="kv-label">用药</text>
-          <text class="kv-value">{{medText}}</text>
-        </view>
-        <view class="kv-item" wx:if="{{tempCount}}">
-          <text class="kv-label">体温 · {{tempCount}} 次</text>
-          <text class="kv-value">{{tempText}}</text>
-        </view>
-        <view class="kv-item" wx:if="{{jaundiceCount}}">
-          <text class="kv-label">黄疸 · {{jaundiceCount}} 次</text>
-          <text class="kv-value">{{jaundiceText}}</text>
+        <view class="board-metric">
+          <view class="board-metric-label">睡眠</view>
+          <view class="board-metric-line">
+            <text class="board-metric-value num">{{sleepHours}}</text>
+            <text class="board-metric-unit">小时</text>
+          </view>
         </view>
       </view>
+      <view class="caption mt-2">明细在统计里。</view>
     </view>
 
     <view class="card day-flow">

@@ -42,89 +42,43 @@
       </view>
       <view class="board-divider"></view>
 
-      <view class="summary-grid">
-        <view class="summary-item">
-          <view class="eyebrow">喂奶</view>
-          <view class="summary-line">
-            <text class="summary-value num">{{nums.feed}}</text>
-            <text class="summary-unit">次</text>
+      <view class="board-metrics">
+        <view class="board-metric">
+          <view class="board-metric-label">喂奶</view>
+          <view class="board-metric-line">
+            <text class="board-metric-value num">{{nums.feed}}</text>
+            <text class="board-metric-unit">次</text>
           </view>
         </view>
-        <view class="summary-item">
-          <view class="eyebrow">奶量</view>
-          <view class="summary-line">
-            <text class="summary-value num">{{nums.milk}}</text>
-            <text class="summary-unit">毫升</text>
+        <view class="board-metric">
+          <view class="board-metric-label">奶量</view>
+          <view class="board-metric-line">
+            <text class="board-metric-value num">{{nums.milk}}</text>
+            <text class="board-metric-unit">毫升</text>
           </view>
         </view>
-        <view class="summary-item">
-          <view class="eyebrow">尿布</view>
-          <view class="summary-line">
-            <text class="summary-value num">{{nums.diaper}}</text>
-            <text class="summary-unit">次</text>
+        <view class="board-metric">
+          <view class="board-metric-label">尿布</view>
+          <view class="board-metric-line">
+            <text class="board-metric-value num">{{nums.diaper}}</text>
+            <text class="board-metric-unit">次</text>
           </view>
         </view>
-        <view class="summary-item">
-          <view class="eyebrow">睡眠</view>
-          <view class="summary-line">
-            <text class="summary-value num">{{sleepHours}}</text>
-            <text class="summary-unit">小时</text>
+        <view class="board-metric">
+          <view class="board-metric-label">睡眠</view>
+          <view class="board-metric-line">
+            <text class="board-metric-value num">{{sleepHours}}</text>
+            <text class="board-metric-unit">小时</text>
           </view>
         </view>
       </view>
-      <view class="summary-foot" wx:if="{{since.length}}">
-        <view class="since-inline" wx:for="{{since}}" wx:key="label">
-          <view class="since-dot {{item.tone}}"></view>
-          <text>{{item.label}} {{item.text}}</text>
-        </view>
-      </view>
-    </view>
 
-    <view class="card" wx:if="{{chart.length}}">
-      <view class="card-head">
-        <view class="card-title">本周节奏</view>
-        <view class="link sm" bindtap="goStats" hover-class="is-pressed">统计 ›</view>
-      </view>
-      <view class="segmented sm mt-2">
-        <view
-          class="segmented-item {{chartMetric === 'feed' ? 'on' : ''}}"
-          data-metric="feed"
-          bindtap="onChartMetric"
-          hover-class="is-pressed"
-        >喂奶</view>
-        <view
-          class="segmented-item {{chartMetric === 'diaper' ? 'on' : ''}}"
-          data-metric="diaper"
-          bindtap="onChartMetric"
-          hover-class="is-pressed"
-        >尿布</view>
-        <view
-          class="segmented-item {{chartMetric === 'sleep' ? 'on' : ''}}"
-          data-metric="sleep"
-          bindtap="onChartMetric"
-          hover-class="is-pressed"
-        >睡眠</view>
-      </view>
-      <view class="chart">
-        <view class="chart-row">
-          <view
-            class="chart-col"
-            wx:for="{{chart}}"
-            wx:key="day"
-            data-day="{{item.day}}"
-            bindtap="onChartDay"
-          >
-            <view class="chart-value">{{item.value}}</view>
-            <view class="chart-track">
-              <view class="chart-bar {{item.percent ? '' : 'zero'}} {{item.isToday ? 'today' : ''}}" style="height: {{item.percent}}%;"></view>
-            </view>
-            <view class="chart-label {{item.isToday ? 'today' : ''}}">{{item.label}}</view>
-          </view>
+      <view class="board-since" wx:if="{{since.length}}">
+        <view class="board-since-row" wx:for="{{since}}" wx:key="label">
+          <view class="since-dot {{item.tone}}"></view>
+          <text class="board-since-label">{{item.label}}</text>
+          <text class="board-since-value">{{item.text}}</text>
         </view>
-      </view>
-      <view class="chart-foot">
-        <text class="chart-avg">日均 {{chartAvg}}</text>
-        <text class="chart-avg">近 7 天</text>
       </view>
     </view>
 
@@ -162,52 +116,19 @@
         <view class="card-title">记一笔</view>
         <view class="link sm" bindtap="goRecord" hover-class="is-pressed">全部 ›</view>
       </view>
-      <view class="tool-grid">
+      <view class="quick-actions">
         <view
-          class="tool-tile"
+          class="quick-action"
           wx:for="{{quick}}"
           wx:key="key"
           data-key="{{item.key}}"
           bindtap="onAction"
           hover-class="is-pressed"
         >
-          <view class="tool-icon tone-{{item.tone}}">
-            <icon name="{{item.icon}}" size="{{32}}" elder="{{elder}}" />
+          <view class="quick-action-icon tone-{{item.tone}}">
+            <icon name="{{item.icon}}" size="{{44}}" elder="{{elder}}" />
           </view>
-          <view class="tool-label">{{item.title}}</view>
-        </view>
-      </view>
-    </view>
-
-    <view class="card">
-      <view class="card-head">
-        <view class="card-title">今日明细</view>
-        <view class="link sm" bindtap="goStats" hover-class="is-pressed">统计 ›</view>
-      </view>
-      <view class="kv-grid">
-        <view class="kv-item">
-          <text class="kv-label">总奶量</text>
-          <text class="kv-value">{{nums.milk}} 毫升</text>
-        </view>
-        <view class="kv-item">
-          <text class="kv-label">瓶喂母乳</text>
-          <text class="kv-value">{{nums.breastMl}} 毫升</text>
-        </view>
-        <view class="kv-item">
-          <text class="kv-label">配方奶</text>
-          <text class="kv-value">{{nums.formulaMl}} 毫升</text>
-        </view>
-        <view class="kv-item">
-          <text class="kv-label">亲喂</text>
-          <text class="kv-value">{{nums.breastMin}} 分钟</text>
-        </view>
-        <view class="kv-item">
-          <text class="kv-label">大便</text>
-          <text class="kv-value">{{nums.poop}} 次</text>
-        </view>
-        <view class="kv-item">
-          <text class="kv-label">用药</text>
-          <text class="kv-value">{{nums.medTaken}}/{{summary.medTotal}}</text>
+          <view class="quick-action-label">{{item.title}}</view>
         </view>
       </view>
     </view>
@@ -248,5 +169,6 @@
         <text class="timeline-chev">›</text>
       </view>
     </view>
+
   </block>
 </view>

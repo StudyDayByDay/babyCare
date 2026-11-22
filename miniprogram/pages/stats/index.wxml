@@ -111,19 +111,6 @@
       </view>
     </view>
 
-    <view class="card" wx:if="{{hasData}}">
-      <view class="card-head">
-        <view class="card-title">这段合计</view>
-        <view class="sub">全部记录</view>
-      </view>
-      <view class="kv-grid">
-        <view class="kv-item" wx:for="{{lines}}" wx:key="label">
-          <text class="kv-label">{{item.label}}</text>
-          <text class="kv-value">{{item.value}}</text>
-        </view>
-      </view>
-    </view>
-
     <view class="card" wx:else>
       <empty
         icon="stats"
@@ -136,13 +123,14 @@
       />
     </view>
 
-    <view class="card" wx:if="{{hasData && days.length}}">
+    <view class="card" wx:if="{{hasData && markedDays.length}}">
       <view class="card-head">
-        <view class="card-title">选一天</view>
+        <view class="card-title">有记录的天</view>
+        <view class="sub">{{markedDays.length}} 天</view>
       </view>
       <view
         class="list-row"
-        wx:for="{{days}}"
+        wx:for="{{markedDays}}"
         wx:key="day"
         data-day="{{item.day}}"
         bindtap="openDay"
@@ -150,7 +138,6 @@
       >
         <view class="list-text">
           <view class="list-title">{{item.pretty}}</view>
-          <view class="list-sub" wx:if="{{!item.marked}}">还没记</view>
         </view>
         <text class="list-chev">›</text>
       </view>

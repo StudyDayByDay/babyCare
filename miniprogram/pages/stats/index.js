@@ -1,7 +1,6 @@
 const pageBehavior = require('../../behaviors/page.js')
 const api = require('../../services/api.js')
 const { dayKey, addDays, durationText, prettyDay } = require('../../utils/date.js')
-const { milkView } = require('../../utils/view.js')
 const { openDay } = require('../../utils/nav.js')
 
 Page({
@@ -10,10 +9,7 @@ Page({
     loading: true,
     needBaby: false,
     span: 7,
-    days: [],
-    totals: null,
-    lines: [],
-    sleepText: '',
+    markedDays: [],
     hasData: false,
     chartMetric: 'feed',
     chart: [],
@@ -61,7 +57,6 @@ Page({
         totals.feedCount || totals.formulaMl || totals.bottleBreastMl || totals.breastMin ||
         totals.poopCount || totals.sleepMin || totals.medTotal
       )
-      const milk = milkView(totals)
       this.rangeDays = range.days || []
       const days = this.rangeDays.map((day) => {
         const marked = !!(
@@ -71,16 +66,8 @@ Page({
         return { day: day.day, pretty: prettyDay(day.day), marked }
       }).reverse()
       this.setData({
-        totals,
-        lines: [
-          { label: '喂奶', value: (Number(totals.feedCount) || 0) + ' 次' },
-          { label: '瓶喂量', value: milk.num === '0' ? '还没有' : milk.num },
-          { label: '大便', value: (Number(totals.poopCount) || 0) + ' 次' },
-          { label: '睡眠', value: durationText(totals.sleepMin) },
-          { label: '用药', value: (Number(totals.medTaken) || 0) + ' / ' + (Number(totals.medTotal) || 0) }
-        ],
         hasData,
-        days,
+        markedDays: days.filter((day) => day.marked),
         chartRange: prettyDay(startDay).slice(0, -3) + ' – ' + prettyDay(endDay).slice(0, -3),
         pageError: ''
       })

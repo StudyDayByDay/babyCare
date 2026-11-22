@@ -24,6 +24,7 @@ Page({
     loading: true,
     pageError: '',
     dirty: false,
+    showMore: false,
     pretty: '',
     day: '',
     saving: false,
@@ -110,6 +111,9 @@ Page({
         tummyMin: sheet.tummyMin || 0
       })
     })
+  },
+  toggleMore() {
+    this.setData({ showMore: !this.data.showMore })
   },
   markDirty() {
     if (this.data.dirty) return

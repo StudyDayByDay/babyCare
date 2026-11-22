@@ -1,27 +1,9 @@
 const pageBehavior = require('../../behaviors/page.js')
 const api = require('../../services/api.js')
-const { dayKey, prettyDay, stageOf, addDays, durationText } = require('../../utils/date.js')
+const { dayKey, prettyDay, stageOf, addDays } = require('../../utils/date.js')
 const { recordActions, hiddenCareActions } = require('../../utils/stage.js')
 const { ledgerRows } = require('../../utils/view.js')
 const { openAction } = require('../../utils/nav.js')
-
-function latestOf(records, type) {
-  let found = null
-  ;(records || []).forEach((rec) => {
-    if (rec.type !== type) return
-    if (!found || rec.happenedAt > found.happenedAt) found = rec
-  })
-  return found
-}
-
-function measureTile(records, type) {
-  const list = (records || []).filter((rec) => rec.type === type)
-  const latest = latestOf(records, type)
-  if (!latest) return { count: 0, text: '' }
-  const payload = latest.payload || {}
-  if (type === 'temp') return { count: list.length, text: payload.celsius + '℃' }
-  return { count: list.length, text: (payload.value || '') + (payload.unit || '') }
-}
 
 Page({
   behaviors: [pageBehavior],
@@ -32,24 +14,14 @@ Page({
     day: '',
     pretty: '',
     isToday: true,
-    actions: [],
-    more: [],
+    primaryActions: [],
+    extraActions: [],
     showMore: false,
-    records: [],
-    milkText: '0',
-    totalMlText: '0毫升',
-    breastMlText: '0毫升',
-    formulaText: '0毫升',
-    breastText: '0分钟',
-    poopText: '0次',
-    diaperText: '0次',
-    sleepText: '0分钟',
-    medText: '0/0',
-    tempCount: 0,
-    tempText: '',
-    jaundiceCount: 0,
-    jaundiceText: '',
-    ledger: []
+    ledger: [],
+    feedCount: 0,
+    totalMl: 0,
+    diaperCount: 0,
+    sleepHours: '0'
   },
   onShow() {
     const stored = wx.getStorageSync('ledgerDay')
@@ -78,6 +50,8 @@ Page({
       const day = this.pickedDay || this.data.day || dayKey()
       this.pickedDay = ''
       const stage = stageOf(session.baby.birthday, day)
+      const actions = recordActions(stage)
+      const more = hiddenCareActions(stage)
       this.setData({
         needBaby: false,
         pageError: '',
@@ -85,32 +59,20 @@ Page({
         day,
         pretty: prettyDay(day),
         isToday: day === dayKey(),
-        actions: recordActions(stage),
-        more: hiddenCareActions(stage)
+        primaryActions: actions.slice(0, 4),
+        extraActions: actions.slice(4).concat(more)
       })
       return api.getDay({ babyId: session.baby._id, day }).then((data) => {
         const summary = data.summary || {}
         const formulaMl = Number(summary.formulaMl) || 0
         const breastMl = Number(summary.bottleBreastMl) || 0
-        const records = data.records || []
-        const temp = measureTile(records, 'temp')
-        const jaundice = measureTile(records, 'jaundice')
-        const ledger = ledgerRows(records, data.doses)
+        const sleepMin = Number(summary.sleepMin) || 0
         this.setData({
-          records,
-          ledger,
-          tempCount: temp.count,
-          tempText: temp.text,
-          jaundiceCount: jaundice.count,
-          jaundiceText: jaundice.text,
-          totalMlText: (formulaMl + breastMl) + '毫升',
-          breastMlText: breastMl + '毫升',
-          formulaText: formulaMl + '毫升',
-          breastText: (Number(summary.breastMin) || 0) + '分钟',
-          poopText: (Number(summary.poopCount) || 0) + '次',
-          diaperText: (Number(summary.diaperCount) || 0) + '次',
-          sleepText: durationText(summary.sleepMin),
-          medText: (Number(summary.medTaken) || 0) + '/' + (Number(summary.medTotal) || 0),
+          ledger: ledgerRows(data.records, data.doses),
+          feedCount: Number(summary.feedCount) || 0,
+          totalMl: formulaMl + breastMl,
+          diaperCount: Number(summary.diaperCount) || 0,
+          sleepHours: String(Math.round(sleepMin / 6) / 10),
           pageError: ''
         })
       })
@@ -134,6 +96,9 @@ Page({
   goToday() {
     this.pickedDay = dayKey()
     this.reload()
+  },
+  goStats() {
+    wx.switchTab({ url: '/pages/stats/index' })
   },
   toggleMore() {
     this.setData({ showMore: !this.data.showMore })

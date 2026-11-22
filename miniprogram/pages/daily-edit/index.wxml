@@ -130,7 +130,12 @@
       </view>
     </view>
 
-    <view class="card">
+    <view class="collapse-head {{showMore ? 'open' : ''}}" bindtap="toggleMore" hover-class="is-pressed">
+      {{showMore ? '收起' : '更多（可不填）'}}
+      <text class="chev">›</text>
+    </view>
+
+    <view class="card" wx:if="{{showMore}}">
       <view class="heading mb-3">想说的</view>
       <view class="field">
         <text class="label">天气（可不填）</text>

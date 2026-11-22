@@ -41,6 +41,7 @@ Page({
     loading: true,
     pageError: '',
     formError: '',
+    showMore: false,
     type: 'feed',
     title: '记一笔',
     typeHint: '',
@@ -336,6 +337,9 @@ Page({
     const patch = { formError: '' }
     patch[field] = !this.data[field]
     this.setData(patch)
+  },
+  toggleMore() {
+    this.setData({ showMore: !this.data.showMore })
   },
   onStep(e) {
     const patch = { formError: '' }

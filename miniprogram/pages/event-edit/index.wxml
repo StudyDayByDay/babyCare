@@ -58,7 +58,7 @@
         <view class="muted mt-1">结束早于开始时，按第二天计算。</view>
       </view>
       <view class="caption" wx:if="{{sleepDuration}}">这次睡了 {{sleepDuration}}</view>
-      <view class="field">
+      <view class="field" wx:if="{{showMore}}">
         <text class="label">头朝向</text>
         <view class="chips">
           <view
@@ -162,7 +162,7 @@
         <text class="label">配方奶</text>
         <stepper elder="{{elder}}" value="{{formulaMl}}" min="{{0}}" max="{{500}}" step="{{5}}" unit="毫升" presets="60,90,120,150" bind:change="onStep" data-field="formulaMl" />
       </view>
-      <view class="field">
+      <view class="field" wx:if="{{showMore}}">
         <text class="label">吐奶</text>
         <view class="chips">
           <view
@@ -261,7 +261,7 @@
           >{{item}}</view>
         </view>
       </view>
-      <view class="field">
+      <view class="field" wx:if="{{showMore}}">
         <text class="label">量（可不填）</text>
         <input
           class="input"
@@ -272,7 +272,7 @@
           placeholder-class="input-ph"
         />
       </view>
-      <view class="field">
+      <view class="field" wx:if="{{showMore}}">
         <view
           class="chip {{isNew ? 'on' : ''}}"
           bindtap="onToggle"
@@ -280,7 +280,7 @@
           hover-class="is-pressed"
         >第一次吃这个</view>
       </view>
-      <view class="field">
+      <view class="field" wx:if="{{showMore}}">
         <text class="label">接受情况</text>
         <view class="chips">
           <view
@@ -352,7 +352,17 @@
       </view>
     </view>
 
-    <view class="card" wx:if="{{type === 'feed' || type === 'diaper' || type === 'sleep' || type === 'solid'}}">
+    <view
+      wx:if="{{type === 'feed' || type === 'diaper' || type === 'sleep' || type === 'solid'}}"
+      class="collapse-head {{showMore ? 'open' : ''}}"
+      bindtap="toggleMore"
+      hover-class="is-pressed"
+    >
+      {{showMore ? '收起' : '更多（可不填）'}}
+      <text class="chev">›</text>
+    </view>
+
+    <view class="card" wx:if="{{showMore && (type === 'feed' || type === 'diaper' || type === 'sleep' || type === 'solid')}}">
       <view class="field">
         <text class="label">备注</text>
         <input

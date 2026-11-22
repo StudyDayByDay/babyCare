@@ -1,8 +1,27 @@
 const pageBehavior = require('../../behaviors/page.js')
 const api = require('../../services/api.js')
-const { dayKey, prettyDay, stageOf, timeKey, addDays, durationText } = require('../../utils/date.js')
-const { recordActions, hiddenCareActions, iconFor, toneFor } = require('../../utils/stage.js')
+const { dayKey, prettyDay, stageOf, addDays, durationText } = require('../../utils/date.js')
+const { recordActions, hiddenCareActions } = require('../../utils/stage.js')
+const { ledgerRows } = require('../../utils/view.js')
 const { openAction } = require('../../utils/nav.js')
+
+function latestOf(records, type) {
+  let found = null
+  ;(records || []).forEach((rec) => {
+    if (rec.type !== type) return
+    if (!found || rec.happenedAt > found.happenedAt) found = rec
+  })
+  return found
+}
+
+function measureTile(records, type) {
+  const list = (records || []).filter((rec) => rec.type === type)
+  const latest = latestOf(records, type)
+  if (!latest) return { count: 0, text: '' }
+  const payload = latest.payload || {}
+  if (type === 'temp') return { count: list.length, text: payload.celsius + '℃' }
+  return { count: list.length, text: (payload.value || '') + (payload.unit || '') }
+}
 
 Page({
   behaviors: [pageBehavior],
@@ -25,7 +44,12 @@ Page({
     poopText: '0次',
     diaperText: '0次',
     sleepText: '0分钟',
-    medText: '0/0'
+    medText: '0/0',
+    tempCount: 0,
+    tempText: '',
+    jaundiceCount: 0,
+    jaundiceText: '',
+    ledger: []
   },
   onShow() {
     const stored = wx.getStorageSync('ledgerDay')
@@ -68,12 +92,17 @@ Page({
         const summary = data.summary || {}
         const formulaMl = Number(summary.formulaMl) || 0
         const breastMl = Number(summary.bottleBreastMl) || 0
+        const records = data.records || []
+        const temp = measureTile(records, 'temp')
+        const jaundice = measureTile(records, 'jaundice')
+        const ledger = ledgerRows(records, data.doses)
         this.setData({
-          records: (data.records || []).map((item) => Object.assign({
-            timeText: timeKey(item.happenedAt),
-            icon: iconFor(item.type),
-            tone: toneFor(item.type)
-          }, item)).reverse(),
+          records,
+          ledger,
+          tempCount: temp.count,
+          tempText: temp.text,
+          jaundiceCount: jaundice.count,
+          jaundiceText: jaundice.text,
           totalMlText: (formulaMl + breastMl) + '毫升',
           breastMlText: breastMl + '毫升',
           formulaText: formulaMl + '毫升',
@@ -112,7 +141,12 @@ Page({
   onAction(e) {
     openAction(e.currentTarget.dataset.key, this.data.day)
   },
-  openRecord(e) {
+  openLine(e) {
+    const kind = e.currentTarget.dataset.kind
+    if (kind === 'dose') {
+      wx.navigateTo({ url: '/pages/med-list/index?day=' + this.data.day })
+      return
+    }
     wx.navigateTo({
       url: '/pages/event-edit/index?type=' + e.currentTarget.dataset.type + '&id=' + e.currentTarget.dataset.id + '&day=' + this.data.day
     })

@@ -2,7 +2,7 @@ const pageBehavior = require('../../behaviors/page.js')
 const api = require('../../services/api.js')
 const { dayKey, prettyDay, ageText, durationText, stageOf, timeKey, dayNumber } = require('../../utils/date.js')
 const { stageLabel, recordActions, iconFor, toneFor } = require('../../utils/stage.js')
-const { groupDoses, sinceList } = require('../../utils/view.js')
+const { groupDoses, sinceList, ledgerRows } = require('../../utils/view.js')
 const { openAction } = require('../../utils/nav.js')
 const { describeDaily } = require('./dailyText.js')
 
@@ -18,7 +18,7 @@ Page({
     summary: {},
     sleepText: '0分钟',
     records: [],
-    shownRecords: [],
+    shownLedger: [],
     since: [],
     night: false,
     nextGroup: null,
@@ -48,12 +48,6 @@ Page({
   onShow() {
     this.reload()
   },
-  onUnload() {
-    if (this.numTimer) {
-      clearInterval(this.numTimer)
-      this.numTimer = null
-    }
-  },
   onPullDownRefresh() {
     this.reload().finally(() => wx.stopPullDownRefresh())
   },
@@ -73,10 +67,6 @@ Page({
         this.loaded = true
         this.setData({ needBaby: true, baby: null, loading: false, pageError: '' })
         return null
-      }
-      if (this.lastBabyId !== session.baby._id) {
-        this.lastBabyId = session.baby._id
-        this.numsSig = ''
       }
       const today = dayKey()
       const stage = stageOf(session.baby.birthday, today)
@@ -118,55 +108,27 @@ Page({
         summary: data.summary,
         sleepText: durationText(data.summary.sleepMin),
         records,
-        shownRecords: records.slice(-5).reverse(),
+        shownLedger: ledgerRows(data.records, data.doses).slice(0, 8),
         since: sinceList(data.records, Date.now()),
         nextGroup: grouped.nextGroup,
         medPercent: total > 0 ? Math.round(taken / total * 100) : 0,
         dailyText: describeDaily(data.daily),
-        pageError: ''
-      })
-      this.animateNums({
-        day: Math.max(0, dayNumber(this.data.baby.birthday, day)),
-        feed: Number(data.summary.feedCount) || 0,
-        diaper: Number(data.summary.diaperCount) || 0,
-        sleepMin: Number(data.summary.sleepMin) || 0,
-        milk: formulaMl + breastMl,
-        breastMl,
-        formulaMl,
-        breastMin: Number(data.summary.breastMin) || 0,
-        poop: Number(data.summary.poopCount) || 0,
-        medTaken: taken
+        pageError: '',
+        nums: {
+          day: Math.max(0, dayNumber(this.data.baby.birthday, day)),
+          feed: Number(data.summary.feedCount) || 0,
+          diaper: Number(data.summary.diaperCount) || 0,
+          sleepMin: Number(data.summary.sleepMin) || 0,
+          milk: formulaMl + breastMl,
+          breastMl,
+          formulaMl,
+          breastMin: Number(data.summary.breastMin) || 0,
+          poop: Number(data.summary.poopCount) || 0,
+          medTaken: taken
+        },
+        animSleepText: durationText(Number(data.summary.sleepMin) || 0)
       })
     })
-  },
-  animateNums(target) {
-    const sig = [
-      target.day, target.feed, target.diaper, target.sleepMin,
-      target.milk, target.breastMl, target.formulaMl, target.breastMin, target.poop, target.medTaken
-    ].join('|')
-    if (sig === this.numsSig) return
-    this.numsSig = sig
-    if (this.numTimer) clearInterval(this.numTimer)
-    const from = Object.assign({}, this.data.nums)
-    const keys = ['day', 'feed', 'diaper', 'sleepMin', 'milk', 'breastMl', 'formulaMl', 'breastMin', 'poop', 'medTaken']
-    const start = Date.now()
-    const duration = 620
-    const tick = () => {
-      const t = Math.min(1, (Date.now() - start) / duration)
-      const e = 1 - Math.pow(1 - t, 3)
-      const patch = {}
-      keys.forEach((key) => {
-        patch['nums.' + key] = Math.round(from[key] + (target[key] - from[key]) * e)
-      })
-      patch.animSleepText = durationText(Math.round(from.sleepMin + (target.sleepMin - from.sleepMin) * e))
-      this.setData(patch)
-      if (t >= 1) {
-        clearInterval(this.numTimer)
-        this.numTimer = null
-      }
-    }
-    this.numTimer = setInterval(tick, 30)
-    tick()
   },
   goBaby() {
     wx.navigateTo({ url: '/pages/baby-edit/index' })
@@ -180,10 +142,21 @@ Page({
   onAction(e) {
     openAction(e.currentTarget.dataset.key, dayKey())
   },
-  openRecord(e) {
+  openLine(e) {
+    const kind = e.currentTarget.dataset.kind
+    if (kind === 'dose') {
+      wx.navigateTo({ url: '/pages/med-list/index?day=' + dayKey() })
+      return
+    }
     wx.navigateTo({
       url: '/pages/event-edit/index?type=' + e.currentTarget.dataset.type + '&id=' + e.currentTarget.dataset.id
     })
+  },
+  repeatLast(e) {
+    const type = e.currentTarget.dataset.type
+    const id = e.currentTarget.dataset.id
+    if (!type || !id) return
+    wx.navigateTo({ url: '/pages/event-edit/index?type=' + type + '&copy=' + id })
   },
   takeNext() {
     const group = this.data.nextGroup

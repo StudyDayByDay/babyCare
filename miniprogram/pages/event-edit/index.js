@@ -1,6 +1,6 @@
 const pageBehavior = require('../../behaviors/page.js')
 const api = require('../../services/api.js')
-const { dayKey, timeKey, toTs, stageOf, durationText } = require('../../utils/date.js')
+const { dayKey, timeKey, toTs, stageOf, durationText, prettyDay } = require('../../utils/date.js')
 const { milestones, iconFor, toneFor } = require('../../utils/stage.js')
 const {
   simpleByKey,
@@ -102,27 +102,34 @@ Page({
   onLoad(query) {
     const type = query.type || 'feed'
     const now = Date.now()
-    const later = now + 60 * 60 * 1000
     const start = splitAt(now)
-    const end = splitAt(later)
     const spec = simpleByKey(type)
     const values = spec ? defaultValues(spec) : {}
+    this.copyId = query.copy || ''
     this.recordId = query.id || ''
+    const today = start.day
+    const chosenDay = query.day || today
+    const otherDay = !this.recordId && !!query.day && query.day !== today
+    const clock = start.time
+    const anchor = otherDay ? toTs(chosenDay, clock) : now
+    const endParts = splitAt(anchor + 60 * 60 * 1000)
     this.setData({
       type,
       title: spec ? spec.formTitle : (TITLES[type] || '记一笔'),
       typeHint: spec ? spec.formHint : (HINTS[type] || ''),
+      dayNote: otherDay ? '记在 ' + prettyDay(chosenDay) : '',
       icon: iconFor(type),
       tone: toneFor(type),
       simple: spec ? viewOf(spec, values) : null,
       values,
       recordId: this.recordId,
-      day: query.day || start.day,
-      time: start.time,
-      startDay: start.day,
-      startTime: start.time,
-      endDay: end.day,
-      endTime: end.time,
+      day: chosenDay,
+      time: clock,
+      timePreset: otherDay ? 'custom' : 'now',
+      startDay: otherDay ? chosenDay : start.day,
+      startTime: clock,
+      endDay: endParts.day,
+      endTime: endParts.time,
       hint: type === 'milestone' ? '只是留个纪念，不是发育评估。' : ''
     })
     wx.setNavigationBarTitle({ title: (spec ? spec.formTitle : TITLES[type]) || '记一笔' })
@@ -145,6 +152,26 @@ Page({
       if (this.recordId && !this.loaded) {
         this.loaded = true
         return api.getRecord({ babyId: this.babyId, _id: this.recordId }).then((rec) => this.fill(rec))
+      }
+      if (this.copyId && !this.loaded) {
+        this.loaded = true
+        return api.getRecord({ babyId: this.babyId, _id: this.copyId }).then((rec) => {
+          this.fill(rec)
+          const nowParts = splitAt(Date.now())
+          const endParts = splitAt(Date.now() + 60 * 60 * 1000)
+          this.recordId = ''
+          this.setData({
+            recordId: '',
+            day: nowParts.day,
+            time: nowParts.time,
+            timePreset: 'now',
+            dayNote: '按上次的内容，时间是现在',
+            startDay: nowParts.day,
+            startTime: nowParts.time,
+            endDay: endParts.day,
+            endTime: endParts.time
+          })
+        })
       }
       return null
     }).then(() => {

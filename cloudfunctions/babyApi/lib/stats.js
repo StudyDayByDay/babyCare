@@ -109,7 +109,7 @@ async function collectRange(ctx, baby, startDay, endDay) {
 async function getDay(ctx, data) {
   const baby = await ownBaby(ctx, data.babyId)
   if (!isDay(data.day)) throw fail('日期不对')
-  await fillBabyMeds(ctx, baby)
+  await fillBabyMeds(ctx, baby, data.day)
   const where = { babyId: baby._id, familyId: baby.familyId, day: data.day }
   const records = await fetchWhere(ctx.db, 'records', where)
   const sheets = await fetchWhere(ctx.db, 'dailySheets', where)

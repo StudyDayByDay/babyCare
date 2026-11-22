@@ -4,7 +4,16 @@ module.exports = Behavior({
   data: {
     elder: false,
     ready: false,
-    pageError: ''
+    pageError: '',
+    settled: false
+  },
+  pageLifetimes: {
+    show() {
+      if (this._leftPage && !this.data.settled) this.setData({ settled: true })
+    },
+    hide() {
+      this._leftPage = true
+    }
   },
   methods: {
     prepare() {

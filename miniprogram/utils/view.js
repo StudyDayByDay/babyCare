@@ -1,4 +1,5 @@
-const { durationText } = require('./date.js')
+const { durationText, timeKey } = require('./date.js')
+const { iconFor, toneFor } = require('./stage.js')
 
 function statusText(status) {
   if (status === 'taken') return '已吃'
@@ -44,12 +45,75 @@ function sinceList(records, now) {
   ;(records || []).forEach((rec) => {
     let ts = rec.happenedAt
     if (rec.type === 'sleep' && rec.payload && rec.payload.endAt) ts = rec.payload.endAt
-    if (!latest[rec.type] || ts > latest[rec.type]) latest[rec.type] = ts
+    if (!latest[rec.type] || ts > latest[rec.type].ts) latest[rec.type] = { ts, rec }
   })
   const rows = []
-  if (latest.feed) rows.push({ label: '上次喂奶', text: agoText(latest.feed, now), icon: 'feed', tone: 'feed' })
-  if (latest.diaper) rows.push({ label: '上次换尿布', text: agoText(latest.diaper, now), icon: 'diaper', tone: 'diaper' })
-  if (latest.sleep) rows.push({ label: '上次睡醒', text: agoText(latest.sleep, now), icon: 'sleep', tone: 'sleep' })
+  if (latest.feed) {
+    rows.push({
+      label: '上次喂奶',
+      text: agoText(latest.feed.ts, now),
+      icon: 'feed',
+      tone: 'feed',
+      type: 'feed',
+      id: latest.feed.rec._id,
+      canRepeat: true
+    })
+  }
+  if (latest.diaper) {
+    rows.push({
+      label: '上次换尿布',
+      text: agoText(latest.diaper.ts, now),
+      icon: 'diaper',
+      tone: 'diaper',
+      type: 'diaper',
+      id: latest.diaper.rec._id,
+      canRepeat: true
+    })
+  }
+  if (latest.sleep) {
+    rows.push({
+      label: '上次睡醒',
+      text: agoText(latest.sleep.ts, now),
+      icon: 'sleep',
+      tone: 'sleep',
+      type: 'sleep',
+      canRepeat: false
+    })
+  }
+  return rows
+}
+
+function ledgerRows(records, doses) {
+  const rows = []
+  ;(records || []).forEach((item) => {
+    rows.push({
+      key: 'rec-' + item._id,
+      kind: 'record',
+      sortAt: item.happenedAt || 0,
+      timeText: timeKey(item.happenedAt),
+      icon: iconFor(item.type),
+      tone: toneFor(item.type),
+      text: item.text,
+      memberName: item.memberName || '',
+      id: item._id,
+      type: item.type
+    })
+  })
+  ;(doses || []).forEach((dose) => {
+    rows.push({
+      key: 'dose-' + dose._id,
+      kind: 'dose',
+      sortAt: dose.planAt || 0,
+      timeText: dose.slotTime || timeKey(dose.planAt),
+      icon: 'med',
+      tone: 'med',
+      text: (dose.name || '用药') + ' ' + (dose.planDoseText || ''),
+      memberName: statusText(dose.status),
+      id: dose._id,
+      type: ''
+    })
+  })
+  rows.sort((a, b) => b.sortAt - a.sortAt)
   return rows
 }
 function milkView(summary) {
@@ -83,4 +147,4 @@ function groupDoses(doses) {
   return { groups, nextGroup }
 }
 
-module.exports = { statusText, buildVisitText, milkView, groupDoses, sinceList, agoText }
+module.exports = { statusText, buildVisitText, milkView, groupDoses, sinceList, agoText, ledgerRows }

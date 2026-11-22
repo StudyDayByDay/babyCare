@@ -4,7 +4,7 @@ function openAction(key, day) {
     return
   }
   if (key === 'med') {
-    wx.navigateTo({ url: '/pages/med-list/index' })
+    wx.navigateTo({ url: '/pages/med-list/index' + (day ? '?day=' + day : '') })
     return
   }
   wx.navigateTo({ url: '/pages/event-edit/index?type=' + key + (day ? '&day=' + day : '') })

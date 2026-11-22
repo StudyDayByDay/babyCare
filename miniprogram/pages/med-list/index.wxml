@@ -1,4 +1,4 @@
-<view class="page {{elder ? 'elder' : ''}}">
+<view class="page {{elder ? 'elder' : ''}} {{settled ? 'settled' : ''}}">
   <block wx:if="{{loading}}">
     <view class="skeleton-card">
       <view class="skeleton-line w-40"></view>
@@ -31,8 +31,9 @@
   <block wx:else>
     <view class="page-head">
       <view class="page-head-main">
-        <view class="display">用药</view>
+        <view class="display">{{isToday ? '用药' : dayPretty}}</view>
         <view class="caption mt-1">剂量和次数按医嘱自己填，这里只负责记和提醒。</view>
+        <view class="link" wx:if="{{!isToday}}" bindtap="goToday" hover-class="is-pressed">回到今天</view>
       </view>
       <button class="btn btn-primary btn-sm" hover-class="is-pressed" bindtap="create">添加用药</button>
     </view>
@@ -40,7 +41,7 @@
     <view class="card" wx:if="{{totalToday || templateReady}}">
       <block wx:if="{{totalToday}}">
         <view class="row">
-          <view class="heading">今天已吃</view>
+          <view class="heading">{{isToday ? '今天已吃' : '这一天已吃'}}</view>
           <view class="pill {{takenToday === totalToday ? 'done' : 'pending'}}">{{takenToday}} / {{totalToday}}</view>
         </view>
         <view class="progress mt-2">

@@ -1,4 +1,4 @@
-<view class="page tab {{elder ? 'elder' : ''}}">
+<view class="page tab {{elder ? 'elder' : ''}} {{settled ? 'settled' : ''}}">
   <block wx:if="{{loading}}">
     <view class="skeleton-card">
       <view class="skeleton-line w-40"></view>
@@ -41,6 +41,8 @@
       <view class="link" bindtap="goToday" hover-class="is-pressed">回到今天</view>
     </view>
 
+    <view class="day-stack {{isToday ? '' : 'history'}}">
+    <view class="day-actions">
     <view class="quick-grid cols-3 mb-3">
       <view
         class="quick-card"
@@ -81,8 +83,9 @@
         </view>
       </view>
     </block>
+    </view>
 
-    <view class="card">
+    <view class="card day-summary">
       <view class="section-head">
         <view class="section-title">这一天</view>
       </view>
@@ -119,17 +122,25 @@
           <view class="stat-value num">{{medText}}</view>
           <view class="stat-label">用药</view>
         </view>
+        <view class="stat-tile" wx:if="{{tempCount}}">
+          <view class="stat-value num">{{tempText}}</view>
+          <view class="stat-label">体温 · {{tempCount}}次</view>
+        </view>
+        <view class="stat-tile" wx:if="{{jaundiceCount}}">
+          <view class="stat-value num">{{jaundiceText}}</view>
+          <view class="stat-label">黄疸 · {{jaundiceCount}}次</view>
+        </view>
       </view>
     </view>
 
-    <view class="card">
+    <view class="card day-flow">
       <view class="section-head">
         <view class="section-title">流水</view>
-        <view class="pill skip" wx:if="{{records.length}}">{{records.length}} 条</view>
+        <view class="pill skip" wx:if="{{ledger.length}}">{{ledger.length}} 条</view>
       </view>
-      <view class="caption">点一条可以修改。</view>
+      <view class="caption">点一条可以修改。用药会打开这一天的用药页。</view>
       <empty
-        wx:if="{{!records.length}}"
+        wx:if="{{!ledger.length}}"
         compact
         icon="record"
         tone="note"
@@ -139,11 +150,12 @@
       />
       <view
         class="timeline-row"
-        wx:for="{{records}}"
-        wx:key="_id"
-        data-id="{{item._id}}"
+        wx:for="{{ledger}}"
+        wx:key="key"
+        data-kind="{{item.kind}}"
+        data-id="{{item.id}}"
         data-type="{{item.type}}"
-        bindtap="openRecord"
+        bindtap="openLine"
         hover-class="is-pressed"
         style="animation-delay: {{index * 40 + 220}}ms"
       >
@@ -157,6 +169,7 @@
         </view>
         <text class="timeline-chev">›</text>
       </view>
+    </view>
     </view>
   </block>
 </view>

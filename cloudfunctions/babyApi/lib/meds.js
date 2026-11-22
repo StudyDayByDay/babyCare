@@ -98,19 +98,30 @@ function windowBounds(med, today) {
   return { start, end }
 }
 
-async function fillOne(ctx, med) {
+async function fillOne(ctx, med, onlyDay) {
   if (!med || med.status === 'finished' || med.frequencyType === 'asNeeded') return 0
-  const today = dayKey(ctx.now)
-  if (!med.endDay || med.endDay < today) return 0
-  const bounds = windowBounds(med, today)
-  if (bounds.start > bounds.end) return 0
+  if (!med.startDay || !med.endDay) return 0
+  let start
+  let end
+  if (onlyDay) {
+    if (onlyDay < med.startDay || onlyDay > med.endDay) return 0
+    start = onlyDay
+    end = onlyDay
+  } else {
+    const today = dayKey(ctx.now)
+    if (med.endDay < today) return 0
+    const bounds = windowBounds(med, today)
+    if (bounds.start > bounds.end) return 0
+    start = bounds.start
+    end = bounds.end
+  }
   const existing = await fetchWhere(ctx.db, 'medDoses', { medicationId: med._id, familyId: med.familyId })
   const have = {}
-  const fromTs = toTs(bounds.start, '00:00')
+  const fromTs = toTs(start, '00:00')
   existing.forEach((dose) => {
     if (dose.planAt >= fromTs) have[dose.planAt] = true
   })
-  const planned = planDoses(Object.assign({}, med, { startDay: bounds.start, endDay: bounds.end }))
+  const planned = planDoses(Object.assign({}, med, { startDay: start, endDay: end }))
     .filter((dose) => !have[dose.planAt])
   await runBatches(planned, (dose) => ctx.db.collection('medDoses').add({
     data: {
@@ -131,13 +142,13 @@ async function fillOne(ctx, med) {
   return planned.length
 }
 
-async function fillBabyMeds(ctx, baby) {
+async function fillBabyMeds(ctx, baby, onlyDay) {
   const meds = await fetchWhere(ctx.db, 'medications', {
     babyId: baby._id,
     familyId: baby.familyId,
     status: 'active'
   })
-  for (let i = 0; i < meds.length; i += 1) await fillOne(ctx, meds[i])
+  for (let i = 0; i < meds.length; i += 1) await fillOne(ctx, meds[i], onlyDay)
 }
 
 async function fillAllActive(db, now) {

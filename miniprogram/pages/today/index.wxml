@@ -1,4 +1,4 @@
-<view class="page tab {{elder ? 'elder' : ''}} {{night ? 'night' : ''}}">
+<view class="page tab {{elder ? 'elder' : ''}} {{night ? 'night' : ''}} {{settled ? 'settled' : ''}}">
   <block wx:if="{{loading}}">
     <view class="skeleton-card">
       <view class="skeleton-line w-40"></view>
@@ -31,9 +31,6 @@
 
   <block wx:elif="{{baby}}">
     <view class="hero delay-1">
-      <view class="hero-orb orb-a"></view>
-      <view class="hero-orb orb-b"></view>
-
       <view class="hero-top">
         <view class="hero-copy">
           <view class="hero-kicker">{{pretty}}</view>
@@ -107,6 +104,14 @@
           </view>
           <view class="since-value num">{{item.text}}</view>
           <view class="since-label">{{item.label}}</view>
+          <view
+            wx:if="{{item.canRepeat}}"
+            class="since-repeat"
+            data-type="{{item.type}}"
+            data-id="{{item.id}}"
+            catchtap="repeatLast"
+            hover-class="is-pressed"
+          >再记一次</view>
         </view>
       </view>
     </view>
@@ -170,7 +175,7 @@
       </view>
       <view class="caption" wx:if="{{dailyText}}">护理：{{dailyText}}</view>
       <empty
-        wx:if="{{!shownRecords.length}}"
+        wx:if="{{!shownLedger.length}}"
         compact
         icon="note"
         tone="note"
@@ -180,11 +185,12 @@
       />
       <view
         class="timeline-row"
-        wx:for="{{shownRecords}}"
-        wx:key="_id"
-        data-id="{{item._id}}"
+        wx:for="{{shownLedger}}"
+        wx:key="key"
+        data-kind="{{item.kind}}"
+        data-id="{{item.id}}"
         data-type="{{item.type}}"
-        bindtap="openRecord"
+        bindtap="openLine"
         hover-class="is-pressed"
         style="animation-delay: {{index * 45 + 320}}ms"
       >

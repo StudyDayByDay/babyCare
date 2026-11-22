@@ -68,7 +68,7 @@ Page({
     theme
   },
   onLoad(query) {
-    const startDay = dayKey()
+    const startDay = !query.id && query.day ? query.day : dayKey()
     this.editId = query.id || ''
     this.setData({
       id: this.editId,

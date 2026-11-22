@@ -50,7 +50,13 @@ Page({
     editAmount: 0,
     sheet: { show: false, title: '', items: [] },
     sheetDoseId: '',
+    viewDay: '',
+    dayPretty: '',
+    isToday: true,
     theme
+  },
+  onLoad(query) {
+    this.viewDay = query.day || ''
   },
   onShow() {
     this.reload()
@@ -68,9 +74,17 @@ Page({
         return null
       }
       this.babyId = session.baby._id
-      this.setData({ needBaby: false })
+      const day = this.viewDay || dayKey()
+      this.viewDay = day
+      const today = dayKey()
+      this.setData({
+        needBaby: false,
+        viewDay: day,
+        isToday: day === today,
+        dayPretty: prettyDay(day)
+      })
       return Promise.all([
-        api.getDay({ babyId: this.babyId, day: dayKey() }),
+        api.getDay({ babyId: this.babyId, day }),
         api.listMedications({ babyId: this.babyId })
       ]).then(([day, meds]) => {
         const grouped = groupDoses(day.doses)
@@ -246,7 +260,13 @@ Page({
     wx.navigateTo({ url: '/pages/med-edit/index?id=' + e.currentTarget.dataset.id })
   },
   create() {
-    wx.navigateTo({ url: '/pages/med-edit/index' })
+    const day = this.data.isToday ? '' : this.data.viewDay
+    wx.navigateTo({ url: '/pages/med-edit/index' + (day ? '?day=' + day : '') })
+  },
+  goToday() {
+    this.viewDay = dayKey()
+    this.setData({ loading: true })
+    this.reload()
   },
   stop(e) {
     if (this.busy) return

@@ -139,7 +139,7 @@
 
     <block wx:if="{{meds.length}}">
       <view class="section-head mt-3">
-        <view class="section-title">进行中的疗程</view>
+        <view class="card-title">进行中的疗程</view>
       </view>
       <view class="card" wx:for="{{meds}}" wx:key="_id" style="animation-delay: {{index * 45 + 160}}ms">
         <view class="heading">{{item.name}}</view>

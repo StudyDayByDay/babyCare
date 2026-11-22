@@ -22,7 +22,7 @@
         <view class="display">疫苗</view>
         <view class="caption mt-1">按接种本上的国家免疫规划（2021 年版）列出，用来核对，不是接种通知。乙脑、甲肝如果本上写的是灭活，用下面自己添加，不要和减毒重复记。</view>
       </view>
-      <view class="avatar lg tone-vaccine"><icon name="vaccine" size="{{56}}" elder="{{elder}}" /></view>
+      <view class="avatar lg tone-vaccine"><icon name="vaccine" size="{{44}}" elder="{{elder}}" /></view>
     </view>
 
     <button
@@ -34,7 +34,7 @@
     >按出生日生成待办</button>
 
     <view class="section-head">
-      <view class="section-title">待核对</view>
+      <view class="card-title">待核对</view>
       <view class="pill pending" wx:if="{{pending.length}}">{{pending.length}} 项</view>
     </view>
     <empty
@@ -120,7 +120,7 @@
       bindtap="toggleDone"
       hover-class="is-pressed"
     >
-      <view class="section-title">已记录</view>
+      <view class="card-title">已记录</view>
       <view class="sub">{{doneList.length}} 条 · {{showDone ? '收起' : '展开'}}</view>
     </view>
     <block wx:if="{{showDone}}">

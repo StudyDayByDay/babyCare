@@ -22,7 +22,7 @@
         <view class="display">家庭</view>
         <view class="caption mt-1">把邀请码发给家人，大家记同一本账。</view>
       </view>
-      <view class="avatar lg tone-family"><icon name="family" size="{{56}}" elder="{{elder}}" /></view>
+      <view class="avatar lg tone-family"><icon name="family" size="{{44}}" elder="{{elder}}" /></view>
     </view>
 
     <view class="card">
@@ -40,7 +40,7 @@
 
     <view class="card">
       <view class="section-head">
-        <view class="section-title">家人</view>
+        <view class="card-title">家人</view>
       </view>
       <view class="list-row" wx:for="{{members}}" wx:key="_id" style="animation-delay: {{index * 40 + 100}}ms">
         <view class="list-text">

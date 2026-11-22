@@ -20,7 +20,7 @@
         <view class="caption mt-1">{{typeHint}}</view>
         <view class="caption" wx:if="{{dayNote}}">{{dayNote}}</view>
       </view>
-      <view class="bubble lg tone-{{tone}}"><icon name="{{icon}}" size="{{56}}" elder="{{elder}}" /></view>
+      <view class="bubble lg tone-{{tone}}"><icon name="{{icon}}" size="{{44}}" elder="{{elder}}" /></view>
     </view>
 
     <view wx:if="{{formError}}" class="form-alert">{{formError}}</view>

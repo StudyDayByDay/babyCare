@@ -8,7 +8,7 @@
   z-index: 100;
   display: flex;
   background: var(--surface, #FFFFFF);
-  border-top: 1rpx solid var(--line, #E6E0F0);
+  border-top: 1rpx solid var(--line, #EAE0D8);
   padding-bottom: env(safe-area-inset-bottom);
 }
 .item {
@@ -18,16 +18,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: var(--ink-3, #6F6781);
+  color: var(--ink-3, #6F6368);
   font-size: var(--fs-caption);
   font-weight: 600;
   transition: color 0.2s ease, background 0.16s ease;
 }
 .item-pressed {
-  background: var(--surface-2, #F1EDFA);
+  background: var(--surface-2, #F5EEE8);
 }
 .item.on {
-  color: var(--brand-ink, #4B3BB5);
+  color: var(--brand-ink, #8C4553);
 }
 .tab-icon {
   display: flex;

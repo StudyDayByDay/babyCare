@@ -1,8 +1,8 @@
 .stepper {
   display: flex;
   align-items: center;
-  background: var(--surface-2, #F1EDFA);
-  border: 2rpx solid var(--control-line, #857B9F);
+  background: var(--surface-2, #F5EEE8);
+  border: 1rpx solid var(--control-line, #94857C);
   border-radius: var(--r-control, 24rpx);
   overflow: hidden;
 }
@@ -13,13 +13,13 @@
   text-align: center;
   font-size: 40rpx;
   font-weight: 700;
-  color: var(--ink, #262233);
+  color: var(--ink, #2E2428);
 }
 .step-btn.off {
   opacity: 0.32;
 }
 .step-pressed {
-  background: var(--surface-3, #E7E0F7);
+  background: var(--surface-3, #EDE3DB);
 }
 .step-val {
   flex: 1;
@@ -36,13 +36,13 @@
   text-align: center;
   font-size: 34rpx;
   font-weight: 700;
-  color: var(--ink, #262233);
+  color: var(--ink, #2E2428);
   font-variant-numeric: tabular-nums;
 }
 .step-unit {
   margin-left: 8rpx;
   font-size: 26rpx;
-  color: var(--ink-3, #6F6781);
+  color: var(--ink-3, #6F6368);
   flex-shrink: 0;
 }
 .quick-amts {
@@ -58,15 +58,15 @@
   padding: 0 24rpx;
   margin: 0 12rpx 12rpx 0;
   border-radius: 999rpx;
-  background: var(--surface-2, #F1EDFA);
-  border: 2rpx solid var(--control-line, #857B9F);
-  color: var(--ink, #262233);
+  background: var(--surface-2, #F5EEE8);
+  border: 1rpx solid var(--control-line, #94857C);
+  color: var(--ink, #2E2428);
   font-size: 26rpx;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 .amt-pressed {
-  background: var(--brand-soft, #EDE9FE);
+  background: var(--brand-soft, #F7E9EC);
 }
 .stepper.elder .step-btn {
   width: 104rpx;

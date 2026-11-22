@@ -4,6 +4,6 @@
 .ico-fallback {
   display: block;
   border-radius: 50%;
-  background: var(--ink-3, #6F6781);
+  background: var(--ink-3, #6F6368);
   opacity: 0.4;
 }

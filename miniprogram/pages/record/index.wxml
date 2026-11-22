@@ -38,104 +38,104 @@
       <view class="date-btn" bindtap="shift" data-dir="1" hover-class="is-pressed">›</view>
     </view>
     <view class="text-center" wx:if="{{!isToday}}">
-      <view class="link" bindtap="goToday" hover-class="is-pressed">回到今天</view>
+      <view class="link sm" bindtap="goToday" hover-class="is-pressed">回到今天</view>
     </view>
 
     <view class="day-stack {{isToday ? '' : 'history'}}">
-    <view class="day-actions">
-    <view class="quick-grid cols-3 mb-3">
-      <view
-        class="quick-card"
-        wx:for="{{actions}}"
-        wx:key="key"
-        data-key="{{item.key}}"
-        bindtap="onAction"
-        hover-class="is-pressed"
-        style="animation-delay: {{index * 40 + 80}}ms"
-      >
-        <view class="bubble tone-{{item.tone}}">
-          <icon name="{{item.icon}}" size="{{44}}" elder="{{elder}}" />
-        </view>
-        <view class="quick-title">{{item.title}}</view>
+    <view class="card day-actions">
+      <view class="card-head">
+        <view class="card-title">记一笔</view>
       </view>
-    </view>
-
-    <block wx:if="{{more.length}}">
-      <view class="collapse-head {{showMore ? 'open' : ''}}" bindtap="toggleMore" hover-class="is-pressed">
-        {{showMore ? '收起' : '还要记喂奶或尿布'}}
-        <text class="chev">›</text>
-      </view>
-      <view wx:if="{{showMore}}" class="quick-grid mb-3">
+      <view class="tool-grid">
         <view
-          class="quick-card"
-          wx:for="{{more}}"
+          class="tool-tile"
+          wx:for="{{actions}}"
           wx:key="key"
           data-key="{{item.key}}"
           bindtap="onAction"
           hover-class="is-pressed"
-          style="animation-delay: {{index * 40 + 80}}ms"
         >
-          <view class="bubble tone-{{item.tone}}">
-            <icon name="{{item.icon}}" size="{{44}}" elder="{{elder}}" />
+          <view class="tool-icon tone-{{item.tone}}">
+            <icon name="{{item.icon}}" size="{{32}}" elder="{{elder}}" />
           </view>
-          <view class="quick-title">{{item.title}}</view>
-          <view class="quick-hint">{{item.hint}}</view>
+          <view class="tool-label">{{item.title}}</view>
         </view>
       </view>
-    </block>
+
+      <block wx:if="{{more.length}}">
+        <view class="collapse-head {{showMore ? 'open' : ''}}" bindtap="toggleMore" hover-class="is-pressed">
+          {{showMore ? '收起' : '还要记喂奶或尿布'}}
+          <text class="chev">›</text>
+        </view>
+        <view wx:if="{{showMore}}" class="tool-grid">
+          <view
+            class="tool-tile"
+            wx:for="{{more}}"
+            wx:key="key"
+            data-key="{{item.key}}"
+            bindtap="onAction"
+            hover-class="is-pressed"
+          >
+            <view class="tool-icon tone-{{item.tone}}">
+              <icon name="{{item.icon}}" size="{{32}}" elder="{{elder}}" />
+            </view>
+            <view class="tool-label">{{item.title}}</view>
+          </view>
+        </view>
+      </block>
     </view>
 
     <view class="card day-summary">
-      <view class="section-head">
-        <view class="section-title">这一天</view>
+      <view class="card-head">
+        <view class="card-title">这一天</view>
       </view>
-      <view class="stat-grid">
-        <view class="stat-tile">
-          <view class="stat-value num">{{totalMlText}}</view>
-          <view class="stat-label">总奶量</view>
+      <view class="kv-grid">
+        <view class="kv-item">
+          <text class="kv-label">总奶量</text>
+          <text class="kv-value">{{totalMlText}}</text>
         </view>
-        <view class="stat-tile">
-          <view class="stat-value num">{{breastMlText}}</view>
-          <view class="stat-label">母乳量</view>
+        <view class="kv-item">
+          <text class="kv-label">瓶喂母乳</text>
+          <text class="kv-value">{{breastMlText}}</text>
         </view>
-        <view class="stat-tile">
-          <view class="stat-value num">{{formulaText}}</view>
-          <view class="stat-label">奶粉量</view>
+        <view class="kv-item">
+          <text class="kv-label">配方奶</text>
+          <text class="kv-value">{{formulaText}}</text>
         </view>
-        <view class="stat-tile">
-          <view class="stat-value num">{{breastText}}</view>
-          <view class="stat-label">亲喂</view>
+        <view class="kv-item">
+          <text class="kv-label">亲喂</text>
+          <text class="kv-value">{{breastText}}</text>
         </view>
-        <view class="stat-tile">
-          <view class="stat-value num">{{poopText}}</view>
-          <view class="stat-label">大便</view>
+        <view class="kv-item">
+          <text class="kv-label">大便</text>
+          <text class="kv-value">{{poopText}}</text>
         </view>
-        <view class="stat-tile">
-          <view class="stat-value num">{{diaperText}}</view>
-          <view class="stat-label">尿布</view>
+        <view class="kv-item">
+          <text class="kv-label">尿布</text>
+          <text class="kv-value">{{diaperText}}</text>
         </view>
-        <view class="stat-tile">
-          <view class="stat-value num">{{sleepText}}</view>
-          <view class="stat-label">睡眠</view>
+        <view class="kv-item">
+          <text class="kv-label">睡眠</text>
+          <text class="kv-value">{{sleepText}}</text>
         </view>
-        <view class="stat-tile">
-          <view class="stat-value num">{{medText}}</view>
-          <view class="stat-label">用药</view>
+        <view class="kv-item">
+          <text class="kv-label">用药</text>
+          <text class="kv-value">{{medText}}</text>
         </view>
-        <view class="stat-tile" wx:if="{{tempCount}}">
-          <view class="stat-value num">{{tempText}}</view>
-          <view class="stat-label">体温 · {{tempCount}}次</view>
+        <view class="kv-item" wx:if="{{tempCount}}">
+          <text class="kv-label">体温 · {{tempCount}} 次</text>
+          <text class="kv-value">{{tempText}}</text>
         </view>
-        <view class="stat-tile" wx:if="{{jaundiceCount}}">
-          <view class="stat-value num">{{jaundiceText}}</view>
-          <view class="stat-label">黄疸 · {{jaundiceCount}}次</view>
+        <view class="kv-item" wx:if="{{jaundiceCount}}">
+          <text class="kv-label">黄疸 · {{jaundiceCount}} 次</text>
+          <text class="kv-value">{{jaundiceText}}</text>
         </view>
       </view>
     </view>
 
     <view class="card day-flow">
-      <view class="section-head">
-        <view class="section-title">流水</view>
+      <view class="card-head">
+        <view class="card-title">流水</view>
         <view class="pill skip" wx:if="{{ledger.length}}">{{ledger.length}} 条</view>
       </view>
       <view class="caption">点一条可以修改。用药会打开这一天的用药页。</view>

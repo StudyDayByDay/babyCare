@@ -44,21 +44,101 @@
         hover-class="is-pressed"
       >近 30 天</view>
     </view>
-    <view class="caption mb-3">上面是这段时间一共多少。某一天的明细，点下面的日期。</view>
+    <view class="caption mb-3">这是合计和趋势，不判断正不正常。点任意一根柱子打开那一天的明细。</view>
 
-    <view class="card">
-      <view class="section-head">
-        <view class="section-title">近 {{span}} 天一共</view>
+    <view class="card" wx:if="{{hasData}}">
+      <view class="card-head">
+        <view class="card-title">趋势</view>
+        <view class="sub">近 {{span}} 天</view>
       </view>
-      <view class="sum-row" wx:for="{{lines}}" wx:key="label">
-        <text class="sum-label">{{item.label}}</text>
-        <text class="sum-value num">{{item.value}}</text>
+      <view class="segmented sm mt-2">
+        <view
+          class="segmented-item {{chartMetric === 'feed' ? 'on' : ''}}"
+          data-metric="feed"
+          bindtap="onChartMetric"
+          hover-class="is-pressed"
+        >喂奶</view>
+        <view
+          class="segmented-item {{chartMetric === 'diaper' ? 'on' : ''}}"
+          data-metric="diaper"
+          bindtap="onChartMetric"
+          hover-class="is-pressed"
+        >尿布</view>
+        <view
+          class="segmented-item {{chartMetric === 'poop' ? 'on' : ''}}"
+          data-metric="poop"
+          bindtap="onChartMetric"
+          hover-class="is-pressed"
+        >大便</view>
+        <view
+          class="segmented-item {{chartMetric === 'sleep' ? 'on' : ''}}"
+          data-metric="sleep"
+          bindtap="onChartMetric"
+          hover-class="is-pressed"
+        >睡眠</view>
+      </view>
+      <view class="chart">
+        <view class="chart-row" style="{{span === 30 ? 'height: 160rpx;' : ''}}">
+          <view
+            class="chart-col"
+            wx:for="{{chart}}"
+            wx:key="day"
+            data-day="{{item.day}}"
+            bindtap="openChartDay"
+          >
+            <view class="chart-value" wx:if="{{item.value}}">{{item.value}}</view>
+            <view class="chart-track">
+              <view class="chart-bar {{item.percent ? '' : 'zero'}} {{item.isToday ? 'today' : ''}}" style="height: {{item.percent}}%;"></view>
+            </view>
+            <view class="chart-label {{item.isToday ? 'today' : ''}}">{{item.label}}</view>
+          </view>
+        </view>
+      </view>
+      <view class="chart-range">{{chartRange}}</view>
+      <view class="chart-summary">
+        <view class="chart-summary-item">
+          <view class="eyebrow">总计</view>
+          <view class="chart-summary-value">{{chartTotal}}</view>
+        </view>
+        <view class="chart-summary-item">
+          <view class="eyebrow">日均</view>
+          <view class="chart-summary-value">{{chartAvg}}</view>
+        </view>
+        <view class="chart-summary-item">
+          <view class="eyebrow">最高</view>
+          <view class="chart-summary-value">{{chartMax}}</view>
+        </view>
       </view>
     </view>
 
-    <view class="card" wx:if="{{days.length}}">
-      <view class="section-head">
-        <view class="section-title">选一天</view>
+    <view class="card" wx:if="{{hasData}}">
+      <view class="card-head">
+        <view class="card-title">这段合计</view>
+        <view class="sub">全部记录</view>
+      </view>
+      <view class="kv-grid">
+        <view class="kv-item" wx:for="{{lines}}" wx:key="label">
+          <text class="kv-label">{{item.label}}</text>
+          <text class="kv-value">{{item.value}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="card" wx:else>
+      <empty
+        icon="stats"
+        tone="solid"
+        title="这段时间还没有记录"
+        hint="先记几天，再回来看看趋势。"
+        action-text="去记一笔"
+        elder="{{elder}}"
+        bind:action="goRecord"
+      />
+    </view>
+
+    <view class="card" wx:if="{{hasData && days.length}}">
+      <view class="card-head">
+        <view class="card-title">选一天</view>
       </view>
       <view
         class="list-row"

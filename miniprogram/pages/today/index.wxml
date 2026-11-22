@@ -30,52 +30,118 @@
   </view>
 
   <block wx:elif="{{baby}}">
-    <view class="hero delay-1">
-      <view class="hero-top">
-        <view class="hero-copy">
-          <view class="hero-kicker">{{pretty}}</view>
-          <view class="hero-name">{{baby.nickname}}</view>
-          <view class="hero-meta">{{heroMeta}}</view>
-        </view>
-        <view class="hero-avatar">{{nicknameInitial}}</view>
+    <view class="card today-board">
+      <view class="board-top">
+        <view class="eyebrow board-date">{{pretty}}</view>
+        <view class="board-avatar">{{nicknameInitial}}</view>
       </view>
-
-      <view class="hero-day">
-        <view class="hero-day-main">
-          <text class="hero-day-prefix">第</text>
-          <text class="hero-day-num num">{{nums.day}}</text>
-          <text class="hero-day-unit">天</text>
-        </view>
-        <text class="hero-day-label">来到家里</text>
+      <view class="board-name">{{baby.nickname}}</view>
+      <view class="board-meta">
+        <text class="board-day">第 {{nums.day}} 天</text>
+        <text class="board-stage">{{heroMeta}}</text>
       </view>
+      <view class="board-divider"></view>
 
-      <view class="hero-stats">
-        <view class="hero-stat">
-          <view class="hero-stat-value num">{{nums.feed}}</view>
-          <view class="hero-stat-label">喂奶</view>
+      <view class="summary-grid">
+        <view class="summary-item">
+          <view class="eyebrow">喂奶</view>
+          <view class="summary-line">
+            <text class="summary-value num">{{nums.feed}}</text>
+            <text class="summary-unit">次</text>
+          </view>
         </view>
-        <view class="hero-stat-sep"></view>
-        <view class="hero-stat">
-          <view class="hero-stat-value num">{{nums.diaper}}</view>
-          <view class="hero-stat-label">尿布</view>
+        <view class="summary-item">
+          <view class="eyebrow">奶量</view>
+          <view class="summary-line">
+            <text class="summary-value num">{{nums.milk}}</text>
+            <text class="summary-unit">毫升</text>
+          </view>
         </view>
-        <view class="hero-stat-sep"></view>
-        <view class="hero-stat">
-          <view class="hero-stat-value num">{{animSleepText}}</view>
-          <view class="hero-stat-label">睡眠</view>
+        <view class="summary-item">
+          <view class="eyebrow">尿布</view>
+          <view class="summary-line">
+            <text class="summary-value num">{{nums.diaper}}</text>
+            <text class="summary-unit">次</text>
+          </view>
+        </view>
+        <view class="summary-item">
+          <view class="eyebrow">睡眠</view>
+          <view class="summary-line">
+            <text class="summary-value num">{{sleepHours}}</text>
+            <text class="summary-unit">小时</text>
+          </view>
+        </view>
+      </view>
+      <view class="summary-foot" wx:if="{{since.length}}">
+        <view class="since-inline" wx:for="{{since}}" wx:key="label">
+          <view class="since-dot {{item.tone}}"></view>
+          <text>{{item.label}} {{item.text}}</text>
         </view>
       </view>
     </view>
 
-    <view wx:if="{{nextGroup}}" class="card card-accent delay-2">
-      <view class="row">
-        <view class="heading med-title"><view class="pulse-dot"></view>今天的药</view>
-        <view class="pill gold">已吃 {{summary.medTaken}} / {{summary.medTotal}}</view>
+    <view class="card" wx:if="{{chart.length}}">
+      <view class="card-head">
+        <view class="card-title">本周节奏</view>
+        <view class="link sm" bindtap="goStats" hover-class="is-pressed">统计 ›</view>
+      </view>
+      <view class="segmented sm mt-2">
+        <view
+          class="segmented-item {{chartMetric === 'feed' ? 'on' : ''}}"
+          data-metric="feed"
+          bindtap="onChartMetric"
+          hover-class="is-pressed"
+        >喂奶</view>
+        <view
+          class="segmented-item {{chartMetric === 'diaper' ? 'on' : ''}}"
+          data-metric="diaper"
+          bindtap="onChartMetric"
+          hover-class="is-pressed"
+        >尿布</view>
+        <view
+          class="segmented-item {{chartMetric === 'sleep' ? 'on' : ''}}"
+          data-metric="sleep"
+          bindtap="onChartMetric"
+          hover-class="is-pressed"
+        >睡眠</view>
+      </view>
+      <view class="chart">
+        <view class="chart-row">
+          <view
+            class="chart-col"
+            wx:for="{{chart}}"
+            wx:key="day"
+            data-day="{{item.day}}"
+            bindtap="onChartDay"
+          >
+            <view class="chart-value">{{item.value}}</view>
+            <view class="chart-track">
+              <view class="chart-bar {{item.percent ? '' : 'zero'}} {{item.isToday ? 'today' : ''}}" style="height: {{item.percent}}%;"></view>
+            </view>
+            <view class="chart-label {{item.isToday ? 'today' : ''}}">{{item.label}}</view>
+          </view>
+        </view>
+      </view>
+      <view class="chart-foot">
+        <text class="chart-avg">日均 {{chartAvg}}</text>
+        <text class="chart-avg">近 7 天</text>
+      </view>
+    </view>
+
+    <view wx:if="{{nextGroup}}" class="card card-accent">
+      <view class="card-head">
+        <view class="med-title">
+          <view class="pulse-dot"></view>
+          <text class="card-title">接下来用药</text>
+        </view>
+      </view>
+      <view class="row mt-2">
+        <view class="med-time">{{nextGroup.time}}</view>
+        <view class="pill accent">待吃</view>
       </view>
       <view class="progress mt-2">
-        <view class="progress-fill" style="width: {{medPercent}}%;"></view>
+        <view class="progress-fill accent" style="width: {{medPercent}}%;"></view>
       </view>
-      <view class="med-time mt-3">{{nextGroup.time}}</view>
       <view class="dose-line" wx:for="{{nextGroup.items}}" wx:key="_id">
         <text class="dose-name">{{item.name}}</text>
         <text class="dose-amount">{{item.planDoseText}}</text>
@@ -91,87 +157,65 @@
       </view>
     </view>
 
-    <view wx:if="{{since.length}}" class="card since-card delay-3">
-      <view class="since-row">
+    <view class="card">
+      <view class="card-head">
+        <view class="card-title">记一笔</view>
+        <view class="link sm" bindtap="goRecord" hover-class="is-pressed">全部 ›</view>
+      </view>
+      <view class="tool-grid">
         <view
-          class="since-item"
-          wx:for="{{since}}"
-          wx:key="label"
-          style="animation-delay: {{index * 60 + 160}}ms"
+          class="tool-tile"
+          wx:for="{{quick}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="onAction"
+          hover-class="is-pressed"
         >
-          <view class="bubble sm tone-{{item.tone}}">
-            <icon name="{{item.icon}}" size="{{36}}" elder="{{elder}}" />
+          <view class="tool-icon tone-{{item.tone}}">
+            <icon name="{{item.icon}}" size="{{32}}" elder="{{elder}}" />
           </view>
-          <view class="since-value num">{{item.text}}</view>
-          <view class="since-label">{{item.label}}</view>
-          <view
-            wx:if="{{item.canRepeat}}"
-            class="since-repeat"
-            data-type="{{item.type}}"
-            data-id="{{item.id}}"
-            catchtap="repeatLast"
-            hover-class="is-pressed"
-          >再记一次</view>
+          <view class="tool-label">{{item.title}}</view>
         </view>
       </view>
     </view>
 
-    <view class="quick-grid mb-3">
-      <view
-        class="quick-card"
-        wx:for="{{quick}}"
-        wx:key="key"
-        data-key="{{item.key}}"
-        bindtap="onAction"
-        hover-class="is-pressed"
-        style="animation-delay: {{index * 55 + 180}}ms"
-      >
-        <text class="quick-arrow">›</text>
-        <view class="bubble tone-{{item.tone}}">
-          <icon name="{{item.icon}}" size="{{44}}" elder="{{elder}}" />
-        </view>
-        <view class="quick-title">{{item.title}}</view>
-        <view class="quick-hint" wx:if="{{item.hint}}">{{item.hint}}</view>
+    <view class="card">
+      <view class="card-head">
+        <view class="card-title">今日明细</view>
+        <view class="link sm" bindtap="goStats" hover-class="is-pressed">统计 ›</view>
       </view>
-    </view>
-
-    <view class="card delay-4">
-      <view class="section-head">
-        <view class="section-title">今日明细</view>
-        <view class="link" bindtap="goStats" hover-class="is-pressed">统计</view>
-      </view>
-      <view class="stat-grid">
-        <view class="stat-tile" style="animation-delay: 280ms">
-          <view class="stat-value num">{{nums.milk}}毫升</view>
-          <view class="stat-label">总奶量</view>
+      <view class="kv-grid">
+        <view class="kv-item">
+          <text class="kv-label">总奶量</text>
+          <text class="kv-value">{{nums.milk}} 毫升</text>
         </view>
-        <view class="stat-tile" style="animation-delay: 300ms">
-          <view class="stat-value num">{{nums.breastMl}}毫升</view>
-          <view class="stat-label">母乳量</view>
+        <view class="kv-item">
+          <text class="kv-label">瓶喂母乳</text>
+          <text class="kv-value">{{nums.breastMl}} 毫升</text>
         </view>
-        <view class="stat-tile" style="animation-delay: 320ms">
-          <view class="stat-value num">{{nums.formulaMl}}毫升</view>
-          <view class="stat-label">奶粉量</view>
+        <view class="kv-item">
+          <text class="kv-label">配方奶</text>
+          <text class="kv-value">{{nums.formulaMl}} 毫升</text>
         </view>
-        <view class="stat-tile" style="animation-delay: 340ms">
-          <view class="stat-value num">{{nums.breastMin}}分钟</view>
-          <view class="stat-label">亲喂</view>
+        <view class="kv-item">
+          <text class="kv-label">亲喂</text>
+          <text class="kv-value">{{nums.breastMin}} 分钟</text>
         </view>
-        <view class="stat-tile" style="animation-delay: 360ms">
-          <view class="stat-value num">{{nums.poop}}次</view>
-          <view class="stat-label">大便</view>
+        <view class="kv-item">
+          <text class="kv-label">大便</text>
+          <text class="kv-value">{{nums.poop}} 次</text>
         </view>
-        <view class="stat-tile" style="animation-delay: 400ms">
-          <view class="stat-value num">{{nums.medTaken}}/{{summary.medTotal}}</view>
-          <view class="stat-label">用药</view>
+        <view class="kv-item">
+          <text class="kv-label">用药</text>
+          <text class="kv-value">{{nums.medTaken}}/{{summary.medTotal}}</text>
         </view>
       </view>
     </view>
 
-    <view class="card delay-5">
-      <view class="section-head">
-        <view class="section-title">今天的记录</view>
-        <view class="link" bindtap="goRecord" hover-class="is-pressed">查看全部</view>
+    <view class="card">
+      <view class="card-head">
+        <view class="card-title">最近记录</view>
+        <view class="link sm" bindtap="goRecord" hover-class="is-pressed">查看全部 ›</view>
       </view>
       <view class="caption" wx:if="{{dailyText}}">护理：{{dailyText}}</view>
       <empty
@@ -180,7 +224,7 @@
         icon="note"
         tone="note"
         title="今天还没记"
-        hint="点上面的喂奶开始，三秒就能记一笔。"
+        hint="点上面的按钮记一笔。"
         elder="{{elder}}"
       />
       <view
@@ -192,11 +236,10 @@
         data-type="{{item.type}}"
         bindtap="openLine"
         hover-class="is-pressed"
-        style="animation-delay: {{index * 45 + 320}}ms"
       >
         <view class="timeline-clock">{{item.timeText}}</view>
         <view class="bubble sm tone-{{item.tone}}">
-          <icon name="{{item.icon}}" size="{{40}}" elder="{{elder}}" />
+          <icon name="{{item.icon}}" size="{{32}}" elder="{{elder}}" />
         </view>
         <view class="timeline-body">
           <view class="timeline-title">{{item.text}}</view>

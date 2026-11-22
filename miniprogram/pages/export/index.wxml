@@ -22,7 +22,7 @@
         <view class="display">导出</view>
         <view class="caption mt-1">生成表格后，用微信打开或发到电脑再打印。小程序里没有直接连接打印机的按钮。</view>
       </view>
-      <view class="avatar lg tone-export"><icon name="export" size="{{56}}" elder="{{elder}}" /></view>
+      <view class="avatar lg tone-export"><icon name="export" size="{{44}}" elder="{{elder}}" /></view>
     </view>
 
     <view class="segmented mb-3">
@@ -42,7 +42,7 @@
 
     <view class="card" wx:if="{{hasData}}">
       <view class="section-head">
-        <view class="section-title">这段时间</view>
+        <view class="card-title">这段时间</view>
       </view>
       <view class="stat-grid">
         <view class="stat-tile">
@@ -66,7 +66,7 @@
 
     <view class="card">
       <view class="section-head">
-        <view class="section-title">每天</view>
+        <view class="card-title">每天</view>
         <view class="sub" wx:if="{{days.length}}">{{days.length}} 天</view>
       </view>
       <empty

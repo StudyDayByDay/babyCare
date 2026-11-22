@@ -19,7 +19,7 @@
         <view class="display">宝宝档案</view>
         <view class="caption mt-1">出生日用来算第几天，也用来决定这个阶段要记哪些。</view>
       </view>
-      <view class="avatar lg"><icon name="baby" size="{{56}}" elder="{{elder}}" /></view>
+      <view class="avatar lg"><icon name="baby" size="{{44}}" elder="{{elder}}" /></view>
     </view>
 
     <view wx:if="{{formError}}" class="form-alert">{{formError}}</view>

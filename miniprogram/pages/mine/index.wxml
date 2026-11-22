@@ -20,11 +20,11 @@
     <view class="card" wx:if="{{baby}}">
       <view class="page-head">
         <view class="page-head-main">
-          <view class="caption">当前宝宝</view>
-          <view class="display mt-1">{{baby.nickname}}</view>
-          <view class="caption mt-1">{{baby.birthday}} · {{baby.gender}}</view>
+          <view class="eyebrow">当前宝宝</view>
+          <view class="title mt-1">{{baby.nickname}}</view>
+          <view class="sub mt-1">{{baby.birthday}} · {{baby.gender}}</view>
         </view>
-        <view class="avatar lg">{{nicknameInitial}}</view>
+        <view class="avatar">{{nicknameInitial}}</view>
       </view>
       <button class="btn btn-secondary btn-block" hover-class="is-pressed" bindtap="editBaby">编辑档案</button>
     </view>
@@ -87,7 +87,7 @@
       <view>
         <view class="list-row delay-1" bindtap="go" data-url="/pages/family/index" hover-class="is-pressed">
           <view class="list-main">
-            <view class="bubble sm tone-family"><icon name="family" size="{{44}}" elder="{{elder}}" /></view>
+            <view class="bubble sm tone-family"><icon name="family" size="{{28}}" elder="{{elder}}" /></view>
             <view class="list-text">
               <view class="list-title">家庭成员</view>
               <view class="list-sub">邀请码</view>
@@ -97,7 +97,7 @@
         </view>
         <view class="list-row delay-2" bindtap="go" data-url="/pages/med-list/index" hover-class="is-pressed">
           <view class="list-main">
-            <view class="bubble sm tone-med"><icon name="med" size="{{44}}" elder="{{elder}}" /></view>
+            <view class="bubble sm tone-med"><icon name="med" size="{{28}}" elder="{{elder}}" /></view>
             <view class="list-text">
               <view class="list-title">用药</view>
               <view class="list-sub">按顿提醒</view>
@@ -107,7 +107,7 @@
         </view>
         <view class="list-row delay-3" bindtap="go" data-url="/pages/growth/index" hover-class="is-pressed">
           <view class="list-main">
-            <view class="bubble sm tone-growth"><icon name="growth" size="{{44}}" elder="{{elder}}" /></view>
+            <view class="bubble sm tone-growth"><icon name="growth" size="{{28}}" elder="{{elder}}" /></view>
             <view class="list-text">
               <view class="list-title">身高体重</view>
               <view class="list-sub">儿保时记</view>
@@ -117,7 +117,7 @@
         </view>
         <view class="list-row delay-4" bindtap="go" data-url="/pages/vaccine/index" hover-class="is-pressed">
           <view class="list-main">
-            <view class="bubble sm tone-vaccine"><icon name="vaccine" size="{{44}}" elder="{{elder}}" /></view>
+            <view class="bubble sm tone-vaccine"><icon name="vaccine" size="{{28}}" elder="{{elder}}" /></view>
             <view class="list-text">
               <view class="list-title">疫苗</view>
               <view class="list-sub">核对接种本</view>
@@ -127,7 +127,7 @@
         </view>
         <view class="list-row delay-5" bindtap="go" data-url="/pages/export/index" hover-class="is-pressed">
           <view class="list-main">
-            <view class="bubble sm tone-export"><icon name="export" size="{{44}}" elder="{{elder}}" /></view>
+            <view class="bubble sm tone-export"><icon name="export" size="{{28}}" elder="{{elder}}" /></view>
             <view class="list-text">
               <view class="list-title">导出打印</view>
               <view class="list-sub">给医生看的表格</view>

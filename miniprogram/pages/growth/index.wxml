@@ -22,7 +22,7 @@
         <view class="display">身高体重</view>
         <view class="caption mt-1">儿保或在家量到的数字。这里不画正常范围。</view>
       </view>
-      <view class="avatar lg tone-growth"><icon name="growth" size="{{56}}" elder="{{elder}}" /></view>
+      <view class="avatar lg tone-growth"><icon name="growth" size="{{44}}" elder="{{elder}}" /></view>
     </view>
 
     <view wx:if="{{formError}}" class="form-alert">{{formError}}</view>
@@ -58,7 +58,7 @@
 
     <view class="card">
       <view class="section-head">
-        <view class="section-title">历史</view>
+        <view class="card-title">历史</view>
         <view class="sub" wx:if="{{list.length}}">{{list.length}} 次</view>
       </view>
       <empty

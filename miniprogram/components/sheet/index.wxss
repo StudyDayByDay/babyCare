@@ -7,7 +7,7 @@
   z-index: 200;
   display: flex;
   align-items: flex-end;
-  background: rgba(38, 34, 51, 0.42);
+  background: rgba(46, 36, 40, 0.42);
   animation: sheet-fade 0.2s ease-out both;
 }
 .sheet-panel {
@@ -16,7 +16,7 @@
   padding: var(--sp-2, 16rpx) var(--sp-4, 32rpx) calc(var(--sp-2, 16rpx) + env(safe-area-inset-bottom));
   background: var(--surface, #FFFFFF);
   border-radius: 40rpx 40rpx 0 0;
-  box-shadow: 0 -12rpx 40rpx rgba(58, 44, 120, 0.18);
+  box-shadow: 0 -12rpx 40rpx rgba(46, 36, 40, 0.18);
   animation: sheet-up 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes sheet-fade {
@@ -32,20 +32,20 @@
   height: 8rpx;
   margin: 0 auto var(--sp-2, 16rpx);
   border-radius: 999rpx;
-  background: var(--surface-3, #E7E0F7);
+  background: var(--surface-3, #EDE3DB);
 }
 .sheet-title {
   padding: var(--sp-1, 8rpx) 0 var(--sp-2, 16rpx);
   font-size: var(--fs-heading, 32rpx);
   font-weight: 700;
-  color: var(--ink, #262233);
+  color: var(--ink, #2E2428);
 }
 .sheet-item {
   display: flex;
   align-items: center;
   min-height: var(--tap-min, 88rpx);
   padding: var(--sp-2, 16rpx) 0;
-  border-top: 1rpx solid var(--line, #E6E0F0);
+  border-top: 1rpx solid var(--line, #EAE0D8);
   animation: fade-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes fade-up {
@@ -53,7 +53,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 .sheet-item.is-pressed {
-  background: var(--surface-2, #F1EDFA);
+  background: var(--surface-2, #F5EEE8);
 }
 .sheet-main {
   flex: 1;
@@ -62,18 +62,18 @@
 .sheet-label {
   font-size: var(--fs-body, 30rpx);
   font-weight: 600;
-  color: var(--ink, #262233);
+  color: var(--ink, #2E2428);
 }
 .sheet-item.danger .sheet-label {
-  color: var(--danger, #B23A55);
+  color: var(--danger, #B23A46);
 }
 .sheet-hint {
   margin-top: 4rpx;
   font-size: var(--fs-caption, 24rpx);
-  color: var(--ink-3, #6F6781);
+  color: var(--ink-3, #6F6368);
 }
 .sheet-chev {
-  color: var(--ink-3, #6F6781);
+  color: var(--ink-3, #6F6368);
   font-size: 40rpx;
   line-height: 1;
   margin-left: var(--sp-2, 16rpx);

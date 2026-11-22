@@ -7,31 +7,31 @@ const OUT = path.join(__dirname, '../miniprogram/images/icons')
 
 const ICONS = [
   // tab bar: inactive / active
-  ['today', 'calendar_today', '#6F6781'],
-  ['today-on', 'calendar_today', '#6C5CE7'],
-  ['record', 'edit_note', '#6F6781'],
-  ['record-on', 'edit_note', '#6C5CE7'],
-  ['stats', 'bar_chart', '#6F6781'],
-  ['stats-on', 'bar_chart', '#6C5CE7'],
-  ['mine', 'person', '#6F6781'],
-  ['mine-on', 'person', '#6C5CE7'],
+  ['today', 'calendar_today', '#6F6368'],
+  ['today-on', 'calendar_today', '#B06A75'],
+  ['record', 'edit_note', '#6F6368'],
+  ['record-on', 'edit_note', '#B06A75'],
+  ['stats', 'bar_chart', '#6F6368'],
+  ['stats-on', 'bar_chart', '#B06A75'],
+  ['mine', 'person', '#6F6368'],
+  ['mine-on', 'person', '#B06A75'],
   // record categories
   ['feed', 'water_bottle', '#3E6E85'],
   ['diaper', 'baby_changing_station', '#94652F'],
-  ['sleep', 'bedtime', '#55668C'],
+  ['sleep', 'bedtime', '#6E5A7E'],
   ['care', 'clean_hands', '#B05E46'],
   ['temp', 'thermometer', '#9A4E63'],
   ['jaundice', 'water_drop', '#A97820'],
   ['meal', 'rice_bowl', '#6B743F'],
   ['mile', 'star', '#A47C22'],
   ['note', 'sticky_note_2', '#7A6248'],
-  ['med', 'medication', '#5646C9'],
+  ['med', 'medication', '#8F5F12'],
   // secondary pages
-  ['growth', 'height', '#3C7F6C'],
+  ['growth', 'height', '#3F5F44'],
   ['vaccine', 'vaccines', '#416D86'],
   ['family', 'family_restroom', '#7A5C83'],
   ['export', 'download', '#6B625B'],
-  ['baby', 'child_care', '#4B3BB5'],
+  ['baby', 'child_care', '#8C4553'],
   ['stool', 'gastroenterology', '#94652F']
 ]
 

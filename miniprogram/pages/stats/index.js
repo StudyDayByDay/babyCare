@@ -14,7 +14,14 @@ Page({
     totals: null,
     lines: [],
     sleepText: '',
-    hasData: false
+    hasData: false,
+    chartMetric: 'feed',
+    chart: [],
+    chartAvg: '0 次',
+    chartTotal: '0 次',
+    chartMax: '0 次',
+    chartUnit: '次',
+    chartRange: ''
   },
   onShow() {
     this.reload()
@@ -55,7 +62,8 @@ Page({
         totals.poopCount || totals.sleepMin || totals.medTotal
       )
       const milk = milkView(totals)
-      const days = (range.days || []).map((day) => {
+      this.rangeDays = range.days || []
+      const days = this.rangeDays.map((day) => {
         const marked = !!(
           day.feedCount || day.formulaMl || day.bottleBreastMl || day.breastMin ||
           day.diaperCount || day.poopCount || day.sleepMin || day.medTotal
@@ -66,22 +74,74 @@ Page({
         totals,
         lines: [
           { label: '喂奶', value: (Number(totals.feedCount) || 0) + ' 次' },
-          { label: '奶量', value: milk.num === '0' ? '还没有' : milk.num },
+          { label: '瓶喂量', value: milk.num === '0' ? '还没有' : milk.num },
           { label: '大便', value: (Number(totals.poopCount) || 0) + ' 次' },
           { label: '睡眠', value: durationText(totals.sleepMin) },
           { label: '用药', value: (Number(totals.medTaken) || 0) + ' / ' + (Number(totals.medTotal) || 0) }
         ],
         hasData,
         days,
+        chartRange: prettyDay(startDay).slice(0, -3) + ' – ' + prettyDay(endDay).slice(0, -3),
         pageError: ''
       })
+      this.buildChart()
     })
+  },
+  buildChart() {
+    const metric = this.data.chartMetric
+    const days = this.rangeDays || []
+    const valueOf = (day) => {
+      if (metric === 'feed') return Number(day.feedCount) || 0
+      if (metric === 'diaper') return Number(day.diaperCount) || 0
+      if (metric === 'poop') return Number(day.poopCount) || 0
+      return Number(day.sleepMin) || 0
+    }
+    const raw = days.map(valueOf)
+    const max = Math.max.apply(null, raw.concat([1]))
+    const compact = days.length > 7
+    const today = dayKey()
+    const chart = days.map((day, index) => {
+      const value = raw[index]
+      const display = metric === 'sleep'
+        ? String(Math.round(value / 6) / 10)
+        : String(value)
+      return {
+        day: day.day,
+        label: compact ? '' : prettyDay(day.day).slice(-2),
+        value: compact ? '' : display,
+        percent: value > 0 ? Math.max(4, Math.round(value / max * 100)) : 0,
+        isToday: day.day === today
+      }
+    })
+    const total = raw.reduce((sum, value) => sum + value, 0)
+    const avg = days.length ? total / days.length : 0
+    const maxValue = Math.max.apply(null, raw.concat([0]))
+    const unit = metric === 'sleep' ? '小时' : '次'
+    const fmt = (value) => metric === 'sleep'
+      ? (Math.round(value / 6) / 10) + ' 小时'
+      : value + ' 次'
+    this.setData({
+      chart,
+      chartUnit: unit,
+      chartTotal: fmt(total),
+      chartAvg: fmt(Math.round(avg * 10) / 10),
+      chartMax: fmt(maxValue)
+    })
+  },
+  onChartMetric(e) {
+    const metric = e.currentTarget.dataset.metric
+    if (metric === this.data.chartMetric) return
+    this.setData({ chartMetric: metric }, () => this.buildChart())
   },
   onSpan(e) {
     const span = Number(e.currentTarget.dataset.span)
     if (span === this.data.span) return
     this.setData({ span })
     this.load().catch((err) => this.fail(err))
+  },
+  openChartDay(e) {
+    const day = e.currentTarget.dataset.day
+    if (day) openDay(day)
   },
   openDay(e) {
     openDay(e.currentTarget.dataset.day)

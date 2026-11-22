@@ -6,9 +6,9 @@
   padding: var(--sp-4, 32rpx) var(--sp-2, 16rpx);
 }
 .empty-icon {
-  width: 112rpx;
-  height: 112rpx;
-  border-radius: 32rpx;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 24rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,24 +18,24 @@
   padding: var(--sp-3, 24rpx) var(--sp-2, 16rpx);
 }
 .empty.compact .empty-icon {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 24rpx;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
 }
 .empty-title {
   font-size: var(--fs-heading, 32rpx);
   font-weight: 700;
-  color: var(--ink, #262233);
+  color: var(--ink, #2E2428);
 }
 .empty-hint {
   margin-top: var(--sp-1, 8rpx);
   max-width: 520rpx;
   font-size: var(--fs-caption, 24rpx);
   line-height: 1.5;
-  color: var(--ink-3, #6F6781);
+  color: var(--ink-3, #6F6368);
 }
 .empty-btn {
-  margin-top: var(--sp-3, 24rpx);
+  margin-top: var(--sp-2, 16rpx);
 }
 .empty.elder .empty-title {
   font-size: 38rpx;

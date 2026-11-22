@@ -1,9 +1,9 @@
 const pageBehavior = require('../../behaviors/page.js')
 const api = require('../../services/api.js')
-const { dayKey, prettyDay, ageText, durationText, stageOf, timeKey, dayNumber } = require('../../utils/date.js')
+const { dayKey, prettyDay, ageText, durationText, stageOf, timeKey, dayNumber, addDays } = require('../../utils/date.js')
 const { stageLabel, recordActions, iconFor, toneFor } = require('../../utils/stage.js')
 const { groupDoses, sinceList, ledgerRows } = require('../../utils/view.js')
-const { openAction } = require('../../utils/nav.js')
+const { openAction, openDay } = require('../../utils/nav.js')
 const { describeDaily } = require('./dailyText.js')
 
 Page({
@@ -38,6 +38,11 @@ Page({
       medTaken: 0
     },
     animSleepText: '0分钟',
+    sleepHours: '0',
+    chartMetric: 'feed',
+    chart: [],
+    chartAvg: '0 次',
+    chartUnit: '次',
     quick: [
       { key: 'feed', title: '喂奶', hint: '母乳和配方', tone: 'feed', icon: 'feed' },
       { key: 'diaper', title: '尿布', hint: '尿和便', tone: 'diaper', icon: 'diaper' },
@@ -93,7 +98,9 @@ Page({
     })
   },
   load(babyId, day) {
-    return api.getDay({ babyId, day }).then((data) => {
+    const startDay = addDays(day, -6)
+    const rangePromise = api.getRange({ babyId, startDay, endDay: day }).catch(() => null)
+    return Promise.all([api.getDay({ babyId, day }), rangePromise]).then(([data, range]) => {
       const grouped = groupDoses(data.doses)
       const records = (data.records || []).map((item) => Object.assign({
         timeText: timeKey(item.happenedAt),
@@ -104,9 +111,12 @@ Page({
       const taken = Number(data.summary.medTaken) || 0
       const formulaMl = Number(data.summary.formulaMl) || 0
       const breastMl = Number(data.summary.bottleBreastMl) || 0
+      const sleepMin = Number(data.summary.sleepMin) || 0
+      this.weekDays = (range && range.days) || []
       this.setData({
         summary: data.summary,
         sleepText: durationText(data.summary.sleepMin),
+        sleepHours: String(Math.round(sleepMin / 6) / 10),
         records,
         shownLedger: ledgerRows(data.records, data.doses).slice(0, 8),
         since: sinceList(data.records, Date.now()),
@@ -118,7 +128,7 @@ Page({
           day: Math.max(0, dayNumber(this.data.baby.birthday, day)),
           feed: Number(data.summary.feedCount) || 0,
           diaper: Number(data.summary.diaperCount) || 0,
-          sleepMin: Number(data.summary.sleepMin) || 0,
+          sleepMin,
           milk: formulaMl + breastMl,
           breastMl,
           formulaMl,
@@ -126,9 +136,54 @@ Page({
           poop: Number(data.summary.poopCount) || 0,
           medTaken: taken
         },
-        animSleepText: durationText(Number(data.summary.sleepMin) || 0)
+        animSleepText: durationText(sleepMin)
       })
+      this.buildChart()
     })
+  },
+  buildChart() {
+    const metric = this.data.chartMetric
+    const days = this.weekDays || []
+    const today = dayKey()
+    const valueOf = (day) => {
+      if (metric === 'feed') return Number(day.feedCount) || 0
+      if (metric === 'diaper') return Number(day.diaperCount) || 0
+      return Number(day.sleepMin) || 0
+    }
+    const raw = days.map(valueOf)
+    const max = Math.max.apply(null, raw.concat([1]))
+    const chart = days.map((day, index) => {
+      const value = raw[index]
+      const display = metric === 'sleep'
+        ? String(Math.round(value / 6) / 10)
+        : String(value)
+      return {
+        day: day.day,
+        label: prettyDay(day.day).slice(-2),
+        value: display,
+        percent: value > 0 ? Math.max(8, Math.round(value / max * 100)) : 0,
+        isToday: day.day === today
+      }
+    })
+    const total = raw.reduce((sum, value) => sum + value, 0)
+    const avg = days.length ? total / days.length : 0
+    const avgText = metric === 'sleep'
+      ? (Math.round(avg / 6) / 10) + ' 小时'
+      : (Math.round(avg * 10) / 10) + ' 次'
+    this.setData({
+      chart,
+      chartAvg: avgText,
+      chartUnit: metric === 'sleep' ? '小时' : '次'
+    })
+  },
+  onChartMetric(e) {
+    const metric = e.currentTarget.dataset.metric
+    if (metric === this.data.chartMetric) return
+    this.setData({ chartMetric: metric }, () => this.buildChart())
+  },
+  onChartDay(e) {
+    const day = e.currentTarget.dataset.day
+    if (day) openDay(day)
   },
   goBaby() {
     wx.navigateTo({ url: '/pages/baby-edit/index' })

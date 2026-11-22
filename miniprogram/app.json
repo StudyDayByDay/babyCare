@@ -15,16 +15,16 @@
     "pages/export/index"
   ],
   "window": {
-    "navigationBarBackgroundColor": "#F8F6FC",
+    "navigationBarBackgroundColor": "#FBF6F1",
     "navigationBarTitleText": "宝宝记录",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#F8F6FC",
+    "backgroundColor": "#FBF6F1",
     "backgroundTextStyle": "dark"
   },
   "tabBar": {
     "custom": true,
-    "color": "#6F6781",
-    "selectedColor": "#4B3BB5",
+    "color": "#6F6368",
+    "selectedColor": "#8C4553",
     "backgroundColor": "#FFFFFF",
     "list": [
       { "pagePath": "pages/today/index", "text": "今天" },

@@ -50,8 +50,16 @@
           <view class="stat-label">喂养</view>
         </view>
         <view class="stat-tile">
+          <view class="stat-value">{{totals.peeCount}}次</view>
+          <view class="stat-label">小便</view>
+        </view>
+        <view class="stat-tile">
+          <view class="stat-value">{{totals.poopCount}}次</view>
+          <view class="stat-label">大便</view>
+        </view>
+        <view class="stat-tile">
           <view class="stat-value">{{totals.diaperCount}}次</view>
-          <view class="stat-label">尿布</view>
+          <view class="stat-label">尿布总数</view>
         </view>
         <view class="stat-tile">
           <view class="stat-value">{{sleepText}}</view>
@@ -82,8 +90,8 @@
       <view class="list-row" wx:for="{{days}}" wx:key="day" style="animation-delay: {{index * 20 + 160}}ms">
         <view class="list-text">
           <view class="list-title">{{item.pretty}}</view>
-          <view class="list-sub">喂养 {{item.feedCount}} 次 · 亲喂 {{item.breastMin}} 分钟 · 配方 {{item.formulaMl}} 毫升</view>
-          <view class="list-sub">尿布 {{item.diaperCount}} · 大便 {{item.poopCount}} · 睡眠 {{item.sleepText}} · 用药 {{item.medTaken}}/{{item.medTotal}}</view>
+          <view class="list-sub">喂养 {{item.feedCount}} 次 · 瓶喂母乳 {{item.bottleBreastMl}} 毫升 · 配方 {{item.formulaMl}} 毫升</view>
+          <view class="list-sub">亲喂 {{item.breastMin}} 分钟 · 小便 {{item.peeCount}} · 大便 {{item.poopCount}} · 睡眠 {{item.sleepText}} · 用药 {{item.medTaken}}/{{item.medTotal}}</view>
         </view>
       </view>
     </view>

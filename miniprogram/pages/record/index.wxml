@@ -99,7 +99,7 @@
           </view>
         </view>
         <view class="board-metric">
-          <view class="board-metric-label">奶量</view>
+          <view class="board-metric-label">瓶喂奶量</view>
           <view class="board-metric-line">
             <text class="board-metric-value num">{{totalMl}}</text>
             <text class="board-metric-unit">毫升</text>
@@ -120,7 +120,27 @@
           </view>
         </view>
       </view>
-      <view class="caption mt-2">明细在统计里。</view>
+      <view class="detail-block" wx:if="{{totalMl || breastMin || diaperCount}}">
+        <view class="detail-row">
+          <text class="detail-label">瓶喂母乳</text>
+          <text class="detail-value">{{bottleBreastMl}} 毫升</text>
+          <text class="detail-sep">·</text>
+          <text class="detail-label">配方奶</text>
+          <text class="detail-value">{{formulaMl}} 毫升</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">亲喂</text>
+          <text class="detail-value">{{breastMin}} 分钟</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">小便</text>
+          <text class="detail-value">{{peeCount}} 次</text>
+          <text class="detail-sep">·</text>
+          <text class="detail-label">大便</text>
+          <text class="detail-value">{{poopCount}} 次</text>
+        </view>
+      </view>
+      <view class="caption mt-2">其他明细在统计里。</view>
     </view>
 
     <view class="card day-flow">

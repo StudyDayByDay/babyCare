@@ -21,12 +21,21 @@ Page({
     nextGroup: null,
     taking: false,
     medPercent: 0,
+    medText: '—',
+    medSub: '今天没有药',
+    tempText: '—',
+    tempSub: '还没测',
     dailyText: '',
     nums: {
       day: 0,
       feed: 0,
       diaper: 0,
-      milk: 0
+      pee: 0,
+      poop: 0,
+      milk: 0,
+      bottleBreastMl: 0,
+      formulaMl: 0,
+      breastMin: 0
     },
     sleepHours: '0',
     quick: [
@@ -91,18 +100,41 @@ Page({
       const formulaMl = Number(data.summary.formulaMl) || 0
       const breastMl = Number(data.summary.bottleBreastMl) || 0
       const sleepMin = Number(data.summary.sleepMin) || 0
+      let tempLatest = ''
+      let tempCount = 0
+      let tempTs = 0
+      ;(data.records || []).forEach((rec) => {
+        if (rec.type !== 'temp') return
+        tempCount += 1
+        const celsius = rec.payload && rec.payload.celsius
+        if (celsius != null && (rec.happenedAt || 0) >= tempTs) {
+          tempTs = rec.happenedAt || 0
+          tempLatest = celsius
+        }
+      })
       this.setData({
         shownLedger: ledgerRows(data.records, data.doses).slice(0, 5),
         since: sinceList(data.records, Date.now()),
         nextGroup: grouped.nextGroup,
         medPercent: total > 0 ? Math.round(taken / total * 100) : 0,
+        medText: total > 0 ? taken + '/' + total : '—',
+        medSub: total === 0
+          ? '今天没有药'
+          : (taken >= total ? '全部吃完了' : '已吃 ' + taken + ' · 共 ' + total),
+        tempText: tempLatest === '' ? '—' : tempLatest + '℃',
+        tempSub: tempCount ? '测了 ' + tempCount + ' 次' : '还没测',
         dailyText: describeDaily(data.daily),
         pageError: '',
         nums: {
           day: Math.max(0, dayNumber(this.data.baby.birthday, day)),
           feed: Number(data.summary.feedCount) || 0,
           diaper: Number(data.summary.diaperCount) || 0,
-          milk: formulaMl + breastMl
+          pee: Number(data.summary.peeCount) || 0,
+          poop: Number(data.summary.poopCount) || 0,
+          milk: formulaMl + breastMl,
+          bottleBreastMl: breastMl,
+          formulaMl,
+          breastMin: Number(data.summary.breastMin) || 0
         },
         sleepHours: String(Math.round(sleepMin / 6) / 10)
       })

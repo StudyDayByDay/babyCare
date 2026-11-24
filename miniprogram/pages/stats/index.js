@@ -17,7 +17,12 @@ Page({
     chartTotal: '0 次',
     chartMax: '0 次',
     chartUnit: '次',
-    chartRange: ''
+    chartRange: '',
+    milkBottle: 0,
+    milkFormula: 0,
+    breastMin: 0,
+    peeCount: 0,
+    poopCount: 0
   },
   onShow() {
     this.reload()
@@ -55,7 +60,7 @@ Page({
       const totals = range.totals || {}
       const hasData = !!(
         totals.feedCount || totals.formulaMl || totals.bottleBreastMl || totals.breastMin ||
-        totals.poopCount || totals.sleepMin || totals.medTotal
+        totals.diaperCount || totals.peeCount || totals.poopCount || totals.sleepMin || totals.medTotal
       )
       this.rangeDays = range.days || []
       const days = this.rangeDays.map((day) => {
@@ -69,6 +74,11 @@ Page({
         hasData,
         markedDays: days.filter((day) => day.marked),
         chartRange: prettyDay(startDay).slice(0, -3) + ' – ' + prettyDay(endDay).slice(0, -3),
+        milkBottle: Number(totals.bottleBreastMl) || 0,
+        milkFormula: Number(totals.formulaMl) || 0,
+        breastMin: Number(totals.breastMin) || 0,
+        peeCount: Number(totals.peeCount) || 0,
+        poopCount: Number(totals.poopCount) || 0,
         pageError: ''
       })
       this.buildChart()
@@ -79,7 +89,7 @@ Page({
     const days = this.rangeDays || []
     const valueOf = (day) => {
       if (metric === 'feed') return Number(day.feedCount) || 0
-      if (metric === 'diaper') return Number(day.diaperCount) || 0
+      if (metric === 'pee') return Number(day.peeCount) || 0
       if (metric === 'poop') return Number(day.poopCount) || 0
       return Number(day.sleepMin) || 0
     }

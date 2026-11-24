@@ -20,7 +20,12 @@ Page({
     ledger: [],
     feedCount: 0,
     totalMl: 0,
+    bottleBreastMl: 0,
+    formulaMl: 0,
+    breastMin: 0,
     diaperCount: 0,
+    peeCount: 0,
+    poopCount: 0,
     sleepHours: '0'
   },
   onShow() {
@@ -71,7 +76,12 @@ Page({
           ledger: ledgerRows(data.records, data.doses),
           feedCount: Number(summary.feedCount) || 0,
           totalMl: formulaMl + breastMl,
+          bottleBreastMl: breastMl,
+          formulaMl,
+          breastMin: Number(summary.breastMin) || 0,
           diaperCount: Number(summary.diaperCount) || 0,
+          peeCount: Number(summary.peeCount) || 0,
+          poopCount: Number(summary.poopCount) || 0,
           sleepHours: String(Math.round(sleepMin / 6) / 10),
           pageError: ''
         })

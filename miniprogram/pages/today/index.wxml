@@ -51,7 +51,7 @@
           </view>
         </view>
         <view class="board-metric">
-          <view class="board-metric-label">奶量</view>
+          <view class="board-metric-label">瓶喂奶量</view>
           <view class="board-metric-line">
             <text class="board-metric-value num">{{nums.milk}}</text>
             <text class="board-metric-unit">毫升</text>
@@ -73,13 +73,6 @@
         </view>
       </view>
 
-      <view class="board-since" wx:if="{{since.length}}">
-        <view class="board-since-row" wx:for="{{since}}" wx:key="label">
-          <view class="since-dot {{item.tone}}"></view>
-          <text class="board-since-label">{{item.label}}</text>
-          <text class="board-since-value">{{item.text}}</text>
-        </view>
-      </view>
     </view>
 
     <view wx:if="{{nextGroup}}" class="card card-accent">
@@ -129,6 +122,116 @@
             <icon name="{{item.icon}}" size="{{44}}" elder="{{elder}}" />
           </view>
           <view class="quick-action-label">{{item.title}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-head">
+        <view class="card-title">今天的明细</view>
+      </view>
+      <view class="record-list">
+        <view class="record-row">
+          <view class="record-icon tone-feed">
+            <icon name="feed" size="{{44}}" elder="{{elder}}" />
+          </view>
+          <view class="record-body">
+            <view class="record-head">
+              <text class="record-label">喂养</text>
+            </view>
+            <view class="detail-parts">
+              <view class="part">
+                <text class="part-label">母乳</text>
+                <view class="part-main">
+                  <text class="part-num num">{{nums.bottleBreastMl}}</text>
+                  <text class="part-unit">毫升</text>
+                </view>
+              </view>
+              <view class="part">
+                <text class="part-label">配方</text>
+                <view class="part-main">
+                  <text class="part-num num">{{nums.formulaMl}}</text>
+                  <text class="part-unit">毫升</text>
+                </view>
+              </view>
+              <view class="part">
+                <text class="part-label">亲喂</text>
+                <view class="part-main">
+                  <text class="part-num num">{{nums.breastMin}}</text>
+                  <text class="part-unit">分钟</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="record-row">
+          <view class="record-icon tone-diaper">
+            <icon name="diaper" size="{{44}}" elder="{{elder}}" />
+          </view>
+          <view class="record-body">
+            <view class="record-head">
+              <text class="record-label">尿布</text>
+            </view>
+            <view class="detail-parts">
+              <view class="part">
+                <text class="part-label">小便</text>
+                <view class="part-main">
+                  <text class="part-num num">{{nums.pee}}</text>
+                  <text class="part-unit">次</text>
+                </view>
+              </view>
+              <view class="part">
+                <text class="part-label">大便</text>
+                <view class="part-main">
+                  <text class="part-num num">{{nums.poop}}</text>
+                  <text class="part-unit">次</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="record-row">
+          <view class="record-icon tone-med">
+            <icon name="med" size="{{44}}" elder="{{elder}}" />
+          </view>
+          <view class="record-body">
+            <view class="record-head">
+              <text class="record-label">喂药</text>
+              <view class="record-main">
+                <text class="record-num">{{medText}}</text>
+              </view>
+            </view>
+            <view class="record-sub">{{medSub}}</view>
+          </view>
+        </view>
+        <view class="record-row">
+          <view class="record-icon tone-temp">
+            <icon name="temp" size="{{44}}" elder="{{elder}}" />
+          </view>
+          <view class="record-body">
+            <view class="record-head">
+              <text class="record-label">体温</text>
+              <view class="record-main">
+                <text class="record-num">{{tempText}}</text>
+              </view>
+            </view>
+            <view class="record-sub">{{tempSub}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{since.length}}">
+      <view class="card-head">
+        <view class="card-title">上次</view>
+      </view>
+      <view class="since-row" wx:for="{{since}}" wx:key="label">
+        <view class="bubble tone-{{item.tone}}">
+          <icon name="{{item.icon}}" size="{{40}}" elder="{{elder}}" />
+        </view>
+        <view class="since-copy">
+          <text class="since-label">{{item.label}}</text>
+          <text class="since-value">{{item.text}}</text>
         </view>
       </view>
     </view>

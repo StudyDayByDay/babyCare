@@ -59,11 +59,11 @@
           hover-class="is-pressed"
         >喂奶</view>
         <view
-          class="segmented-item {{chartMetric === 'diaper' ? 'on' : ''}}"
-          data-metric="diaper"
+          class="segmented-item {{chartMetric === 'pee' ? 'on' : ''}}"
+          data-metric="pee"
           bindtap="onChartMetric"
           hover-class="is-pressed"
-        >尿布</view>
+        >小便</view>
         <view
           class="segmented-item {{chartMetric === 'poop' ? 'on' : ''}}"
           data-metric="poop"
@@ -107,6 +107,26 @@
         <view class="chart-summary-item">
           <view class="eyebrow">最高</view>
           <view class="chart-summary-value">{{chartMax}}</view>
+        </view>
+      </view>
+      <view class="detail-block" wx:if="{{milkBottle || milkFormula || breastMin || peeCount || poopCount}}">
+        <view class="detail-row">
+          <text class="detail-label">瓶喂母乳</text>
+          <text class="detail-value">{{milkBottle}} 毫升</text>
+          <text class="detail-sep">·</text>
+          <text class="detail-label">配方奶</text>
+          <text class="detail-value">{{milkFormula}} 毫升</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">亲喂</text>
+          <text class="detail-value">{{breastMin}} 分钟</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">小便</text>
+          <text class="detail-value">{{peeCount}} 次</text>
+          <text class="detail-sep">·</text>
+          <text class="detail-label">大便</text>
+          <text class="detail-value">{{poopCount}} 次</text>
         </view>
       </view>
     </view>
